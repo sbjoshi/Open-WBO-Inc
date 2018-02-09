@@ -58,4 +58,11 @@ enum { _AMO_LADDER_ = 0 };
 enum { _PB_SWC_ = 0, _PB_GTE_ };
 enum { _PART_SEQUENTIAL_ = 0, _PART_SEQUENTIAL_SORTED_, _PART_BINARY_ };
 
+enum class Statistics {
+	_MEAN_,
+	_MEDIAN_,
+	_MAX_,
+	_MIN_
+};
+
 #endif
