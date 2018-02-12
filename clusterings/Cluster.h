@@ -27,6 +27,7 @@ public:
   void saveWeights(MaxSATFormulaExtended *formula);
   void restoreWeights(MaxSATFormulaExtended *formula);
   void replaceWeights(MaxSATFormulaExtended *formula, vec<uint64_t> clusters);
+  uint64_t getOriginalWeight(int index);
   
 }; // class Cluster
   

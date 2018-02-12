@@ -3,12 +3,11 @@
 using namespace openwbo;
 
 Cluster::Cluster(MaxSATFormulaExtended *formula, Statistics cluster_stat) {
+  assert(formula != NULL);
+  formula->sortSoftClauses();
   saveWeights(formula);
   cluster_statistic = cluster_stat; // is this needed?
   statistic_finder.setStatistic(cluster_statistic);
-  if(formula == NULL) {
-  	return;
-  }
   vec<Soft> soft_clauses = formula->getSoftClauses();
   num_clauses = soft_clauses.size();
 }
@@ -50,4 +49,9 @@ void Cluster::replaceWeights(MaxSATFormulaExtended *formula, vec<uint64_t> clust
 	    soft_clauses[j].weight = replacement_weight;
 	  }  
 	}
+}
+
+uint64_t Cluster::getOriginalWeight(int index) {
+	assert(index >= 0 && index < original_weights.size());
+	return original_weights[index];
 }
