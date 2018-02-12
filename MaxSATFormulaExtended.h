@@ -9,6 +9,7 @@ class MaxSATFormulaExtended : public MaxSATFormula {
 
 public:
   vec<Soft>& getSoftClauses();
+  void sortSoftClauses();
 
 }
 

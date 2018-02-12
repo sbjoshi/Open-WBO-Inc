@@ -65,4 +65,8 @@ enum class Statistics {
 	_MIN_
 };
 
+enum class ClusterAlg {
+  _DIVISIVE_
+};
+
 #endif
