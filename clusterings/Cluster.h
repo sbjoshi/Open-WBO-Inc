@@ -8,6 +8,7 @@
 #endif
 
 #include "SequenceStatistic.h"
+#include "../MaxSATFormulaExtended.h"
 
 using NSPACE::vec;
 
@@ -21,11 +22,11 @@ public:
   SequenceStatistic statistic_finder;
   uint64_t num_clauses;
   
-  Cluster(MaxSATFormulaCluster *formula, Statistics cluster_statistic);
-  virtual void clusterWeights(MaxSATFormulaCluster *formula, uint64_t c) = 0;
-  void saveWeights(MaxSATFormulaCluster *formula);
-  void restoreWeights(MaxSATFormulaCluster *formula);
-  void replaceWeights(MaxSATFormulaCluster *formula, vec<uint64_t> clusters);
+  Cluster(MaxSATFormulaExtended *formula, Statistics cluster_statistic);
+  virtual void clusterWeights(MaxSATFormulaExtended *formula, uint64_t c) = 0;
+  void saveWeights(MaxSATFormulaExtended *formula);
+  void restoreWeights(MaxSATFormulaExtended *formula);
+  void replaceWeights(MaxSATFormulaExtended *formula, vec<uint64_t> clusters);
   
 }; // class Cluster
   

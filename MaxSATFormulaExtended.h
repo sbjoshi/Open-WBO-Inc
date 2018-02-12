@@ -10,8 +10,8 @@ class MaxSATFormulaExtended : public MaxSATFormula {
 public:
   vec<Soft>& getSoftClauses();
 
-}
-
 };
+
+}
 
 #endif

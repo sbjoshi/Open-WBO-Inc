@@ -2,7 +2,7 @@
 
 using namespace openwbo;
 
-Cluster::Cluster(MaxSATFormulaCluster *formula, Statistics cluster_stat) {
+Cluster::Cluster(MaxSATFormulaExtended *formula, Statistics cluster_stat) {
   saveWeights(formula);
   cluster_statistic = cluster_stat; // is this needed?
   statistic_finder.setStatistic(cluster_statistic);
@@ -13,7 +13,7 @@ Cluster::Cluster(MaxSATFormulaCluster *formula, Statistics cluster_stat) {
   num_clauses = soft_clauses.size();
 }
 
-void Cluster::saveWeights(MaxSATFormulaCluster *formula) {
+void Cluster::saveWeights(MaxSATFormulaExtended *formula) {
   if(formula == NULL) {
     return;
   }
@@ -24,7 +24,7 @@ void Cluster::saveWeights(MaxSATFormulaCluster *formula) {
   }
 }
 
-void Cluster::restoreWeights(MaxSATFormulaCluster *formula) {
+void Cluster::restoreWeights(MaxSATFormulaExtended *formula) {
   if(formula == NULL) {
     return;
   }
@@ -36,7 +36,7 @@ void Cluster::restoreWeights(MaxSATFormulaCluster *formula) {
   }
 }
 
-void Cluster::replaceWeights(MaxSATFormulaCluster *formula, vec<uint64_t> clusters) {
+void Cluster::replaceWeights(MaxSATFormulaExtended *formula, vec<uint64_t> clusters) {
 	if(formula == NULL) {
 	  return;
 	}
