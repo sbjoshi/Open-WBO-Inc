@@ -12,8 +12,8 @@ public:
   uint64_t max_c;
   vec<uint64_t> distances;
   
-  Cluster_DivisiveMaxSeparate(MaxSATFormulaCluster *formula, Statistics cluster_stat);
-  void clusterWeights(MaxSATFormulaCluster *formula, uint64_t c);
+  Cluster_DivisiveMaxSeparate(MaxSATFormulaExtended *formula, Statistics cluster_stat);
+  void clusterWeights(MaxSATFormulaExtended *formula, uint64_t c);
   
 };
 

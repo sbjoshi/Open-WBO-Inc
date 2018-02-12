@@ -11,8 +11,8 @@ public:
   vec<Soft>& getSoftClauses();
   void sortSoftClauses();
 
-}
-
 };
+
+}
 
 #endif

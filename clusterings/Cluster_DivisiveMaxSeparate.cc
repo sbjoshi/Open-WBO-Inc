@@ -3,7 +3,7 @@
 using namespace openwbo;
 
 Cluster_DivisiveMaxSeparate::Cluster_DivisiveMaxSeparate(
-	MaxSATFormulaCluster *formula, Statistics cluster_statistic
+	MaxSATFormulaExtended *formula, Statistics cluster_statistic
 ) : Cluster(formula, cluster_statistic) {
 	max_c = 1
 	vec<uint64_t> temp;
@@ -15,7 +15,7 @@ Cluster_DivisiveMaxSeparate::Cluster_DivisiveMaxSeparate(
 	}
 }
 
-void Cluster_DivisiveMaxSeparate::clusterWeights(MaxSATFormulaCluster *formula, uint64_t c) {
+void Cluster_DivisiveMaxSeparate::clusterWeights(MaxSATFormulaExtended *formula, uint64_t c) {
 	if(max_c >= c) {
 	  replaceWeights(formula,cluster_indices[c]);
 	}

@@ -4,7 +4,7 @@
 
 using namespace openwbo;
 
-Cluster_FastKMeans::Cluster_FastKMeans(MaxSATFormulaCluster *formula,
+Cluster_FastKMeans::Cluster_FastKMeans(MaxSATFormulaExtended *formula,
     Statistics cluster_statistic, Statistics cost_statistic) // add a cost statistic here and change cluster statistic to it
       : Cluster(formula,cluster_statistic) {
   max_c = 1;
@@ -30,7 +30,7 @@ uint64_t Cluster_FastKMeans::cost(uint64_t start_index, uint64_t end_index) {
   return absolute_cost;
 }
 
-void Cluster_FastKMeans::clusterWeights(MaxSATFormulaCluster *formula, uint64_t c) {
+void Cluster_FastKMeans::clusterWeights(MaxSATFormulaExtended *formula, uint64_t c) {
   if(c > max_c) {
     d_matrix.growTo(c);
     t_matrix.growTo(c);
