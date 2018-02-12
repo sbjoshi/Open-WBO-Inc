@@ -1,8 +1,15 @@
 #ifndef Cluster_h
 #define Cluster_h
 
+#ifdef SIMP
+#include "simp/SimpSolver.h"
+#else
+#include "core/Solver.h"
+#endif
+
+#include "SequenceStatistic.h"
+
 using NSPACE::vec;
-using NSPACE::lit;
 
 namespace openwbo {
   

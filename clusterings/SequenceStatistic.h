@@ -1,6 +1,8 @@
 #ifndef SequenceStatistic_h
 #define SequenceStatistic_h
 
+#include "../MaxTypes.h"
+
 using NSPACE::vec;
 
 namespace openwbo {
