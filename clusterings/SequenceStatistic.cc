@@ -12,7 +12,9 @@ void SequenceStatistic::setStatistic(Statistics stat) {
   
 uint64_t SequenceStatistic::getSequenceStatistic(vec<uint64_t> sequence, 
     uint64_t start_index, uint64_t end_index) {
-  assert(start_index <= end_index);
+  if(start_index > end_index) {
+    return 0; // check if this is ok, useful for CC
+  }
   switch(statistic) {
     case Statistics::_MEAN_:
       return meanStatistic(sequence,start_index,end_index);

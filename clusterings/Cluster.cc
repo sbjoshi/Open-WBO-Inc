@@ -6,9 +6,14 @@ Cluster::Cluster(MaxSATFormulaCluster *formula, Statistics cluster_stat) {
   saveWeights(formula);
   cluster_statistic = cluster_stat; // is this needed?
   statistic_finder.setStatistic(cluster_statistic);
+  if(formula == NULL) {
+  	return;
+  }
+  vec<Soft> soft_clauses = formula->getSoftClauses();
+  num_clauses = soft_clauses.size();
 }
 
-void Cluster::saveWeights(MaxSATFormula *formula) {
+void Cluster::saveWeights(MaxSATFormulaCluster *formula) {
   if(formula == NULL) {
     return;
   }
@@ -19,7 +24,7 @@ void Cluster::saveWeights(MaxSATFormula *formula) {
   }
 }
 
-void Cluster::restoreWeights(MaxSATFormula *formula) {
+void Cluster::restoreWeights(MaxSATFormulaCluster *formula) {
   if(formula == NULL) {
     return;
   }
@@ -29,4 +34,20 @@ void Cluster::restoreWeights(MaxSATFormula *formula) {
     soft_clauses[i].weight = original_weights[i]; // IMPORTANT - soft_clauses 
     // must be received by reference. Needs check
   }
+}
+
+void Cluster::replaceWeights(MaxSATFormulaCluster *formula, vec<uint64_t> clusters) {
+	if(formula == NULL) {
+	  return;
+	}
+	vec<Soft> soft_clauses = formula->getSoftClauses();
+	uint64_t low_index, high_index, replacement_weight;
+	for(uint64_t i = 0; i < clusters.size(); i++) {
+	  low_index = clusters[i];
+	  high_index = (i == clusters.size() -1 ? original_weights.size() -1 : clusters[i+1]-1);
+	  replacement_weight = statistic_finder.getSequenceStatistic(original_weights,low_index,high_index);
+	  for(uint64_t j = low_index; j <= high_index; j++) {
+	    soft_clauses[j].weight = replacement_weight;
+	  }  
+	}
 }
