@@ -9,13 +9,14 @@ namespace openwbo {
 class Cluster_FastKMeans : public Cluster {
   
 public:
-   vec<vec<uint64_t> > d_matrix; // n x c matrix to memoize
-   vec<vec<uint64_t> > c_matrix;
-   vec<vec<uint64_t> > t_matrix;
+   vec<vec<uint64_t> > d_matrix; // c x n matrix to memoize
+   vec<vec<uint64_t> > t_matrix; // c x n matrix
+   uint64_t max_c;
+   SequenceStatistic cost_statistic_finder;
    
-   Cluster_FastKMeans(MaxSATFormula *formula, Statistics cluster_statistic);
+   Cluster_FastKMeans(MaxSATFormulaCluster *formula, Statistics cluster_stat, Statistics cost_stat);
    uint64_t cost(uint64_t start_index, uint64_t end_index);
-   void clusterWeights(MaxSATFormula *formula, uint64_t c);
+   void clusterWeights(MaxSATFormulaCluster *formula, uint64_t c);
    
 
 };

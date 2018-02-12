@@ -12,11 +12,13 @@ public:
   vec<uint64_t> original_weights; // store the original weights
   Statistics cluster_statistic;
   SequenceStatistic statistic_finder;
+  uint64_t num_clauses;
   
-  Cluster(MaxSATFormula *formula, Statistics cluster_statistic);
-  virtual void clusterWeights(MaxSATFormula *formula, uint64_t c) = 0;
-  void saveWeights(MaxSATFormula *formula);
-  void restoreWeights(MaxSATFormula *formula);
+  Cluster(MaxSATFormulaCluster *formula, Statistics cluster_statistic);
+  virtual void clusterWeights(MaxSATFormulaCluster *formula, uint64_t c) = 0;
+  void saveWeights(MaxSATFormulaCluster *formula);
+  void restoreWeights(MaxSATFormulaCluster *formula);
+  void replaceWeights(MaxSATFormulaCluster *formula, vec<uint64_t> clusters);
   
 }; // class Cluster
   
