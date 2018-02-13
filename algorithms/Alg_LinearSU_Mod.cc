@@ -86,6 +86,43 @@ uint64_t LinearSUMod::computeCostModel(vec<lbool> &currentModel, uint64_t weight
     }
 
     if (unsatisfied) {
+      currentCost += maxsat_formula->getSoftClause(i).weight;
+      // currentCost += cluster->getOriginalWeight(i);
+    }
+  }
+
+  return currentCost;
+}
+
+uint64_t LinearSUMod::computeOriginalCost(vec<lbool> &currentModel, uint64_t weight) {
+
+  assert(currentModel.size() != 0);
+  uint64_t currentCost = 0;
+
+  for (int i = 0; i < maxsat_formula->nSoft(); i++) {
+    bool unsatisfied = true;
+    for (int j = 0; j < maxsat_formula->getSoftClause(i).clause.size(); j++) {
+
+      if (weight != UINT64_MAX &&
+          maxsat_formula->getSoftClause(i).weight != weight) {
+        unsatisfied = false;
+        continue;
+      }
+
+      assert(var(maxsat_formula->getSoftClause(i).clause[j]) <
+             currentModel.size());
+      if ((sign(maxsat_formula->getSoftClause(i).clause[j]) &&
+           currentModel[var(maxsat_formula->getSoftClause(i).clause[j])] ==
+               l_False) ||
+          (!sign(maxsat_formula->getSoftClause(i).clause[j]) &&
+           currentModel[var(maxsat_formula->getSoftClause(i).clause[j])] ==
+               l_True)) {
+        unsatisfied = false;
+        break;
+      }
+    }
+
+    if (unsatisfied) {
       // currentCost += maxsat_formula->getSoftClause(i).weight;
       currentCost += cluster->getOriginalWeight(i);
     }
@@ -155,7 +192,7 @@ void LinearSUMod::bmoSearch() {
         // If current weight is the same as the minimum weight, then we are in
         // the last lexicographical function.
         saveModel(solver->model);
-        printf("o %" PRId64 "\n", newCost + lbCost + off_set);
+        printf("o %" PRId64 "\n", computeOriginalCost(solver->model, currentWeight) + lbCost + off_set);
         ubCost = newCost + lbCost;
       } else {
         if (verbosity > 0)
@@ -281,10 +318,10 @@ void LinearSUMod::normalSearch() {
       if (maxsat_formula->getFormat() == _FORMAT_PB_) {
         // optimization problem
         if (maxsat_formula->getObjFunction() != NULL) {
-          printf("o %" PRId64 "\n", newCost + off_set);
+          printf("o %" PRId64 "\n", computeOriginalCost(solver->model) + off_set);
         }
       } else
-        printf("o %" PRId64 "\n", newCost + off_set);
+        printf("o %" PRId64 "\n", computeOriginalCost(solver->model) + off_set);
 
       if (newCost == 0) {
         // If there is a model with value 0 then it is an optimal model

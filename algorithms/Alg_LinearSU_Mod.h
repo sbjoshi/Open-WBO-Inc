@@ -123,6 +123,9 @@ protected:
   uint64_t computeCostModel(vec<lbool> &currentModel,
                             uint64_t weight = UINT64_MAX);
 
+  uint64_t computeOriginalCost(vec<lbool> &currentModel,
+                            uint64_t weight = UINT64_MAX);
+
   Solver *solver;  // SAT Solver used as a black box.
   Encoder encoder; // Interface for the encoder of constraints to CNF.
   int encoding;    // Encoding for cardinality constraints.
