@@ -8,7 +8,8 @@ namespace openwbo {
 class MaxSATFormulaExtended : public MaxSATFormula {
 
 public:
-  vec<Soft>& getSoftClauses();
+  vec<Soft> soft_clauses;
+  // vec<Soft>& getSoftClauses();
   void sortSoftClauses();
 
 };

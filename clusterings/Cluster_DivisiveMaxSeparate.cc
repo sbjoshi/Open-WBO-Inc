@@ -5,7 +5,7 @@ using namespace openwbo;
 Cluster_DivisiveMaxSeparate::Cluster_DivisiveMaxSeparate(
 	MaxSATFormulaExtended *formula, Statistics cluster_statistic
 ) : Cluster(formula, cluster_statistic) {
-	max_c = 1
+	max_c = 1;
 	vec<uint64_t> temp;
 	temp.push(1);
 	cluster_indices.push(temp);

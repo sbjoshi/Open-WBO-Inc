@@ -1,6 +1,14 @@
 #ifndef Cluster_DivisiveMaxSeparate_h
 #define Cluster_DivisiveMaxSeparate_h
 
+#ifdef SIMP
+#include "simp/SimpSolver.h"
+#else
+#include "core/Solver.h"
+#endif
+
+#include "Cluster.h"
+
 using NSPACE::vec;
 
 namespace openwbo {

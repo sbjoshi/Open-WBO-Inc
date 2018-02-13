@@ -6,9 +6,9 @@
 
 using namespace openwbo;
 
-vec<Soft>& MaxSATFormulaExtended::getSoftClauses() {
-	return soft_clauses;
-}
+// vec<Soft>& MaxSATFormulaExtended::getSoftClauses() {
+// 	return soft_clauses;
+// }
 
 // bool compare(Soft &a, Soft &b) { return a.weight <= b.weight; }
 
