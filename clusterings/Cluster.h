@@ -9,8 +9,10 @@
 
 #include "SequenceStatistic.h"
 #include "../MaxSATFormulaExtended.h"
+#include <vector>
 
 using NSPACE::vec;
+using std::vector;
 
 namespace openwbo {
   
@@ -26,7 +28,7 @@ public:
   virtual void clusterWeights(MaxSATFormulaExtended *formula, uint64_t c) = 0;
   void saveWeights(MaxSATFormulaExtended *formula);
   void restoreWeights(MaxSATFormulaExtended *formula);
-  void replaceWeights(MaxSATFormulaExtended *formula, vec<uint64_t> &clusters);
+  void replaceWeights(MaxSATFormulaExtended *formula, vector<uint64_t> &clusters);
   uint64_t getOriginalWeight(int index);
   
 }; // class Cluster

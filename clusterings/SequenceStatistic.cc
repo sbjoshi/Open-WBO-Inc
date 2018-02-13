@@ -2,7 +2,7 @@
 
 using namespace openwbo;
 
-SequenceStatistic::SequenceStatistic(Statistics stat = Statistics::_MEAN_) {
+SequenceStatistic::SequenceStatistic(Statistics stat) {
   statistic = stat;
 }
 

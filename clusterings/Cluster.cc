@@ -1,5 +1,7 @@
 #include "Cluster.h"
 
+#include <cstdio>
+
 using namespace openwbo;
 
 Cluster::Cluster(MaxSATFormulaExtended *formula, Statistics cluster_stat) {
@@ -19,8 +21,11 @@ void Cluster::saveWeights(MaxSATFormulaExtended *formula) {
   //vec<Soft> soft_clauses = formula->soft_clauses;
   original_weights.growTo(formula->soft_clauses.size());
   for(int i = 0; i < formula->soft_clauses.size(); i++) {
+ // 	printf("1 %d %d\n",i,original_weights[i]);
+ // 	printf("2 %d %d\n",i,formula->soft_clauses[i].weight);
     original_weights[i] = formula->soft_clauses[i].weight;
   }
+  printf("SAVED ORIGINAL WEIGHTS!!!\n");
 }
 
 void Cluster::restoreWeights(MaxSATFormulaExtended *formula) {
@@ -35,7 +40,7 @@ void Cluster::restoreWeights(MaxSATFormulaExtended *formula) {
   }
 }
 
-void Cluster::replaceWeights(MaxSATFormulaExtended *formula, vec<uint64_t> &clusters) {
+void Cluster::replaceWeights(MaxSATFormulaExtended *formula, vector<uint64_t> &clusters) {
 	if(formula == NULL) {
 	  return;
 	}

@@ -64,6 +64,7 @@ public:
   
   void copy(Soft& other) { // TODO CHANGE THIS!!! - Sukrut
     other.clause.copyTo(this->clause);
+//    printf("THIS : %d OTHER : %d\n",this->weight,other.weight);
     this->weight = other.weight;
     this->assumption_var = other.assumption_var;
     other.relaxation_vars.copyTo(this->relaxation_vars);
@@ -193,11 +194,13 @@ public:
   int getFormat() { return format; }
 
   indexMap &getIndexToName() { return _indexToName; }
+  
+  vec<Soft> soft_clauses; //<! Stores the soft clauses of the MaxSAT formula. // TODO !!!!!!!!!!!!!!!!!!! Sukrut
 
 protected:
   // MaxSAT database
   //
-  vec<Soft> soft_clauses; //<! Stores the soft clauses of the MaxSAT formula.
+  
   vec<Hard> hard_clauses; //<! Stores the hard clauses of the MaxSAT formula.
 
   // PB database

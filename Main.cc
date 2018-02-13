@@ -58,6 +58,7 @@
 #include "algorithms/Alg_OLL.h"
 #include "algorithms/Alg_PartMSU3.h"
 #include "algorithms/Alg_WBO.h"
+#include "algorithms/Alg_LinearSU_Mod.h"
 
 #define VER1_(x) #x
 #define VER_(x) VER1_(x)
@@ -116,7 +117,7 @@ int main(int argc, char **argv) {
                         "Search algorithm "
                         "(0=wbo,1=linear-su,2=msu3,3=part-msu3,4=oll,5=best)."
                         "\n",
-                        5, IntRange(0, 5));
+                        1, IntRange(0, 5));
 
     IntOption partition_strategy("PartMSU3", "partition-strategy",
                                  "Partition strategy (0=sequential, "
@@ -156,6 +157,10 @@ int main(int argc, char **argv) {
         "WBO", "symmetry-limit",
         "Limit on the number of symmetry breaking clauses.\n", 500000,
         IntRange(0, INT32_MAX));
+        
+    IntOption cluster_algorithm("Clustering", "ca", "Clustering algorithm "
+    							              "(0=none, 1=DivisiveMaxSeparate)", 1, 
+    							              IntRange(0, 1));
 
     parseOptions(argc, argv, true);
 
@@ -168,7 +173,14 @@ int main(int argc, char **argv) {
       break;
 
     case _ALGORITHM_LINEAR_SU_:
-      S = new LinearSU(verbosity, bmo, cardinality, pb);
+      if((int)(cluster_algorithm) == 1) {
+        printf("Using clustering!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n");
+        S = new LinearSUMod(verbosity, bmo, cardinality, pb);
+      }
+      else {
+        printf("REGULAR!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n");
+        S = new LinearSU(verbosity, bmo, cardinality, pb);
+      }
       break;
 
     case _ALGORITHM_PART_MSU3_:
@@ -210,6 +222,7 @@ int main(int argc, char **argv) {
     MaxSATFormula *maxsat_formula = new MaxSATFormula();
 
     if ((int)formula == _FORMAT_MAXSAT_) {
+      printf("_FORMAT_MAXSAT_ taken\n");
       parseMaxSATFormula(in, maxsat_formula);
       maxsat_formula->setFormat(_FORMAT_MAXSAT_);
     } else {
@@ -289,8 +302,13 @@ int main(int argc, char **argv) {
       }
     }
 
-    if (S->getMaxSATFormula() == NULL)
+    if (S->getMaxSATFormula() == NULL) {
+      printf("size before load : %d\n",maxsat_formula->soft_clauses.size());
       S->loadFormula(maxsat_formula);
+      if((int)(cluster_algorithm) == 1) {
+        static_cast<LinearSUMod*>(S)->initializeCluster();
+      }
+    }
     S->setPrintModel(printmodel);
     S->setInitialTime(initial_time);
     mxsolver = S;

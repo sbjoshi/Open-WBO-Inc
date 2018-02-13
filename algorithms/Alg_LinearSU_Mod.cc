@@ -35,6 +35,7 @@ using namespace openwbo;
 void LinearSUMod::initializeCluster() {
   switch(cluster_algo) {
   case ClusterAlg::_DIVISIVE_:
+  	printf("size in init : %ld\n",static_cast<MaxSATFormulaExtended*>(maxsat_formula)->soft_clauses.size());
     cluster = new Cluster_DivisiveMaxSeparate(
       static_cast<MaxSATFormulaExtended*>(maxsat_formula), cluster_stat);
     break;
@@ -370,6 +371,11 @@ void LinearSUMod::normalSearch() {
 // Public search method
 void LinearSUMod::search() {
 
+  cluster->clusterWeights(static_cast<MaxSATFormulaExtended*>(maxsat_formula),2);
+  printf("AFTER CLUSTER WEIGHTS : \n");
+	for(int i = 0; i < maxsat_formula->soft_clauses.size(); i++) {
+		printf("%d ",maxsat_formula->soft_clauses[i].weight);
+	}
   if (maxsat_formula->getProblemType() == _WEIGHTED_)
     is_bmo = isBMO();
 

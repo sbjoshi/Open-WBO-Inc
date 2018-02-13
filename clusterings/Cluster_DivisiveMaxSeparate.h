@@ -8,15 +8,17 @@
 #endif
 
 #include "Cluster.h"
+#include <vector>
 
 using NSPACE::vec;
+using std::vector;
 
 namespace openwbo {
 
 class Cluster_DivisiveMaxSeparate : public Cluster {
   
 public:
-  vec<vec<uint64_t> > cluster_indices;
+  vector<vector<uint64_t> > cluster_indices;
   uint64_t max_c;
   vec<uint64_t> distances;
   
