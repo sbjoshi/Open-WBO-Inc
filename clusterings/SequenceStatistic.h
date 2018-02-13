@@ -1,6 +1,12 @@
 #ifndef SequenceStatistic_h
 #define SequenceStatistic_h
 
+#ifdef SIMP
+#include "simp/SimpSolver.h"
+#else
+#include "core/Solver.h"
+#endif
+
 #include "../MaxTypes.h"
 
 using NSPACE::vec;

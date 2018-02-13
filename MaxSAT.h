@@ -44,6 +44,7 @@
 #include <set>
 #include <utility>
 #include <vector>
+#include "MaxSATFormulaExtended.h"
 
 using NSPACE::vec;
 using NSPACE::Lit;
@@ -123,6 +124,7 @@ public:
 
   void loadFormula(MaxSATFormula *maxsat) {
     maxsat_formula = maxsat;
+    printf("size in load formula : %d\n",static_cast<MaxSATFormulaExtended*>(maxsat_formula)->soft_clauses.size());
     maxsat_formula->setInitialVars(maxsat_formula->nVars());
 
     if (maxsat_formula->getObjFunction() != NULL) {
