@@ -26,6 +26,7 @@
  */
 
 #include "Alg_LinearSU_Mod.h"
+#include "../MaxTypes.h"
 
 #include <algorithm>
 
@@ -33,9 +34,9 @@ using namespace openwbo;
 
 void LinearSUMod::initializeCluster() {
   switch(cluster_algo) {
-  case ClusterAlgo::_DIVISIVE_:
+  case ClusterAlg::_DIVISIVE_:
     cluster = new Cluster_DivisiveMaxSeparate(
-      dynamic_cast<MaxSATFormulaExtended*>(formula), cluster_stat);
+      static_cast<MaxSATFormulaExtended*>(maxsat_formula), cluster_stat);
     break;
   }
 }

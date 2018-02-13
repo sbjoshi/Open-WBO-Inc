@@ -61,6 +61,13 @@ public:
     assumption_var = assump_var;
     relax.copyTo(relaxation_vars);
   }
+  
+  void copy(Soft& other) { // TODO CHANGE THIS!!! - Sukrut
+    other.clause.copyTo(this->clause);
+    this->weight = other.weight;
+    this->assumption_var = other.assumption_var;
+    other.relaxation_vars.copyTo(this->relaxation_vars);
+  }
 
   Soft() {}
   ~Soft() {

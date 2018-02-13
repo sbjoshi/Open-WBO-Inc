@@ -39,6 +39,10 @@
 #include <map>
 #include <set>
 #include <vector>
+#include "../clusterings/Cluster.h"
+#include "../clusterings/Cluster_DivisiveMaxSeparate.h"
+#include "../MaxTypes.h"
+
 
 using NSPACE::vec;
 using NSPACE::Lit;
