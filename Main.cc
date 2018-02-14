@@ -59,6 +59,7 @@
 #include "algorithms/Alg_PartMSU3.h"
 #include "algorithms/Alg_WBO.h"
 #include "algorithms/Alg_LinearSU_Mod.h"
+#include "algorithms/Alg_OLL_Mod.h"
 
 #define VER1_(x) #x
 #define VER_(x) VER1_(x)
@@ -117,7 +118,7 @@ int main(int argc, char **argv) {
                         "Search algorithm "
                         "(0=wbo,1=linear-su,2=msu3,3=part-msu3,4=oll,5=best)."
                         "\n",
-                        1, IntRange(0, 5));
+                        4, IntRange(0, 5));
 
     IntOption partition_strategy("PartMSU3", "partition-strategy",
                                  "Partition strategy (0=sequential, "
@@ -192,7 +193,14 @@ int main(int argc, char **argv) {
       break;
 
     case _ALGORITHM_OLL_:
-      S = new OLL(verbosity, cardinality);
+      if((int)(cluster_algorithm) == 1) {
+        printf("Using clustering!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n");
+        S = new OLLMod(verbosity, cardinality);
+      }
+      else {
+        printf("REGULAR!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n");
+        S = new OLL(verbosity, cardinality);
+      }
       break;
 
     case _ALGORITHM_BEST_:
@@ -306,7 +314,15 @@ int main(int argc, char **argv) {
       printf("size before load : %d\n",maxsat_formula->soft_clauses.size());
       S->loadFormula(maxsat_formula);
       if((int)(cluster_algorithm) == 1) {
-        static_cast<LinearSUMod*>(S)->initializeCluster();
+        switch ((int)algorithm) {
+        case _ALGORITHM_LINEAR_SU_:
+          static_cast<LinearSUMod*>(S)->initializeCluster();
+          break;
+        case _ALGORITHM_OLL_:
+          static_cast<OLLMod*>(S)->initializeCluster();
+          break;
+        }
+        
       }
     }
     S->setPrintModel(printmodel);
