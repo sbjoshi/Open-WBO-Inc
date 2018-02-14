@@ -40,7 +40,7 @@ void Cluster::restoreWeights(MaxSATFormulaExtended *formula) {
   }
 }
 
-void Cluster::replaceWeights(MaxSATFormulaExtended *formula, vector<uint64_t> &clusters) {
+void Cluster::replaceWeights(MaxSATFormulaExtended *formula, vec<uint64_t> &clusters) {
 	if(formula == NULL) {
 	  return;
 	}

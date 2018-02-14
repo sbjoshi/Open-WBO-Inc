@@ -18,7 +18,7 @@ namespace openwbo {
 class Cluster_DivisiveMaxSeparate : public Cluster {
   
 public:
-  vector<vector<uint64_t> > cluster_indices;
+  vec<uint64_t> cluster_indices;
   uint64_t max_c;
   vec<uint64_t> distances;
   
