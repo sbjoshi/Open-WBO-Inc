@@ -62,12 +62,21 @@ public:
     relax.copyTo(relaxation_vars);
   }
   
-  void copy(Soft& other) { // TODO CHANGE THIS!!! - Sukrut
+  void copy(const Soft& other) { // TODO CHANGE THIS!!! - Sukrut
     other.clause.copyTo(this->clause);
 //    printf("THIS : %d OTHER : %d\n",this->weight,other.weight);
     this->weight = other.weight;
     this->assumption_var = other.assumption_var;
     other.relaxation_vars.copyTo(this->relaxation_vars);
+  }
+
+  Soft(const Soft &other) {
+    copy(other);
+  }
+
+  Soft& operator=(const Soft &other) {
+    copy(other);
+    return *this;
   }
 
   Soft() {}
