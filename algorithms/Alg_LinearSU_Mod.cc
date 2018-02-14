@@ -193,7 +193,7 @@ void LinearSUMod::bmoSearch() {
         // If current weight is the same as the minimum weight, then we are in
         // the last lexicographical function.
         saveModel(solver->model);
-        printf("o %" PRId64 " ", computeOriginalCost(solver->model, currentWeight));
+        printf("o %" PRId64 " ", computeOriginalCost(solver->model));
         printf("cho %" PRId64 "\n", newCost + lbCost + off_set);
         ubCost = newCost + lbCost;
       } else {
