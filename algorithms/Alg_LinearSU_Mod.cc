@@ -193,7 +193,8 @@ void LinearSUMod::bmoSearch() {
         // If current weight is the same as the minimum weight, then we are in
         // the last lexicographical function.
         saveModel(solver->model);
-        printf("o %" PRId64 "\n", computeOriginalCost(solver->model, currentWeight) + lbCost + off_set);
+        printf("o %" PRId64 " ", computeOriginalCost(solver->model, currentWeight));
+        printf("cho %" PRId64 "\n", newCost + lbCost + off_set);
         ubCost = newCost + lbCost;
       } else {
         if (verbosity > 0)
@@ -319,10 +320,14 @@ void LinearSUMod::normalSearch() {
       if (maxsat_formula->getFormat() == _FORMAT_PB_) {
         // optimization problem
         if (maxsat_formula->getObjFunction() != NULL) {
-          printf("o %" PRId64 "\n", computeOriginalCost(solver->model) + off_set);
+          printf("o %" PRId64 " ", computeOriginalCost(solver->model));
+          printf("cho %" PRId64 "\n", newCost + off_set);
         }
-      } else
-        printf("o %" PRId64 "\n", computeOriginalCost(solver->model) + off_set);
+      } else {
+        printf("o %" PRId64 " ", computeOriginalCost(solver->model));
+        printf("cho %" PRId64 "\n", newCost + off_set);
+      }
+
 
       if (newCost == 0) {
         // If there is a model with value 0 then it is an optimal model
