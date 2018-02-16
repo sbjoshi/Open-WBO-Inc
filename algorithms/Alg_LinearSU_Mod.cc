@@ -376,7 +376,7 @@ void LinearSUMod::normalSearch() {
 // Public search method
 void LinearSUMod::search() {
 
-  cluster->clusterWeights(static_cast<MaxSATFormulaExtended*>(maxsat_formula),1);
+  cluster->clusterWeights(static_cast<MaxSATFormulaExtended*>(maxsat_formula),num_clusters);
   printf("AFTER CLUSTER WEIGHTS : \n");
 	for(int i = 0; i < maxsat_formula->soft_clauses.size(); i++) {
 		printf("%d ",maxsat_formula->soft_clauses[i].weight);

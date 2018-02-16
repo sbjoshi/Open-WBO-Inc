@@ -55,7 +55,7 @@ class LinearSUMod : public MaxSAT {
 public:
   LinearSUMod(int verb = _VERBOSITY_MINIMAL_, bool bmo = true,
            int enc = _CARD_MTOTALIZER_, int pb = _PB_SWC_,
-           ClusterAlg ca = ClusterAlg::_DIVISIVE_, Statistics cs = Statistics::_MEAN_)
+           ClusterAlg ca = ClusterAlg::_DIVISIVE_, Statistics cs = Statistics::_MEAN_, unsigned num_clusters = 1)
       : solver(NULL), is_bmo(false) {
     pb_encoding = pb;
     verbosity = verb;
@@ -65,6 +65,7 @@ public:
     encoder.setPBEncoding(pb);
     cluster_algo = ca;
     cluster_stat = cs;
+    this->num_clusters = num_clusters;
   }
 
   ~LinearSUMod() {
@@ -142,6 +143,8 @@ protected:
                         // constraint that excludes models.
 
   bool is_bmo; // Stores if the formula is BMO or not.
+  
+  unsigned num_clusters;
 };
 } // namespace openwbo
 

@@ -118,7 +118,7 @@ int main(int argc, char **argv) {
                         "Search algorithm "
                         "(0=wbo,1=linear-su,2=msu3,3=part-msu3,4=oll,5=best)."
                         "\n",
-                        4, IntRange(0, 5));
+                        5, IntRange(0, 5));
 
     IntOption partition_strategy("PartMSU3", "partition-strategy",
                                  "Partition strategy (0=sequential, "
@@ -160,8 +160,9 @@ int main(int argc, char **argv) {
         IntRange(0, INT32_MAX));
         
     IntOption cluster_algorithm("Clustering", "ca", "Clustering algorithm "
-    							              "(0=none, 1=DivisiveMaxSeparate)", 1, 
+    							              "(0=none, 1=DivisiveMaxSeparate)", 0, 
     							              IntRange(0, 1));
+    IntOption num_clusters("Clustering", "c", "Number of agglomerated clusters", 1, IntRange(1,INT_MAX));
 
     parseOptions(argc, argv, true);
 
@@ -176,7 +177,7 @@ int main(int argc, char **argv) {
     case _ALGORITHM_LINEAR_SU_:
       if((int)(cluster_algorithm) == 1) {
         printf("Using clustering!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n");
-        S = new LinearSUMod(verbosity, bmo, cardinality, pb);
+        S = new LinearSUMod(verbosity, bmo, cardinality, pb, ClusterAlg::_DIVISIVE_, Statistics::_MEAN_, (int)(num_clusters));
       }
       else {
         printf("REGULAR!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n");
