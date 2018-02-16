@@ -29,6 +29,8 @@
 #include "../MaxTypes.h"
 
 #include <algorithm>
+#include <fstream>
+#include <iostream>
 
 using namespace openwbo;
 
@@ -381,6 +383,36 @@ void LinearSUMod::search() {
 	for(int i = 0; i < maxsat_formula->soft_clauses.size(); i++) {
 		printf("%d ",maxsat_formula->soft_clauses[i].weight);
 	}
+
+  // std::ofstream wcnffile("../test.wcnf");
+
+  // wcnffile << "p wcnf " << maxsat_formula->nHard()
+  //         << " " << maxsat_formula->nSoft()
+  //         << " " << maxsat_formula->getHardWeight() << std::endl;
+  // for (int i=0; i<maxsat_formula->nHard(); i++) {
+  //   wcnffile << maxsat_formula->getHardWeight()
+  //         << " ";
+  //   for (int j=0; j<maxsat_formula->getHardClause(i).clause.size(); j++) {
+  //     if (NSPACE::sign(maxsat_formula->getHardClause(i).clause[j])) wcnffile << "-";
+  //     wcnffile << NSPACE::var(maxsat_formula->getHardClause(i).clause[j])+1 << " ";
+  //   }
+  //   wcnffile << "0" << std::endl;
+  // }
+
+  // for (int i=0; i<maxsat_formula->nSoft(); i++) {
+  //   wcnffile << maxsat_formula->getSoftClause(i).weight
+  //         << " ";
+  //   for (int j=0; j<maxsat_formula->getSoftClause(i).clause.size(); j++) {
+  //     if (NSPACE::sign(maxsat_formula->getSoftClause(i).clause[j])) wcnffile << "-";
+  //     wcnffile << NSPACE::var(maxsat_formula->getSoftClause(i).clause[j])+1 << " ";
+  //   }
+  //   wcnffile << "0" << std::endl;
+  // }
+
+  // wcnffile.close();
+  // std::cout << "c DONE PRINTING" << std::endl;
+
+
   if (maxsat_formula->getProblemType() == _WEIGHTED_)
     is_bmo = isBMO();
 
