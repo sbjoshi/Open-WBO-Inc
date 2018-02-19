@@ -192,9 +192,15 @@ void LinearSUMod::bmoSearch() {
       if (currentWeight == minWeight) {
         // If current weight is the same as the minimum weight, then we are in
         // the last lexicographical function.
-        saveModel(solver->model);
-        printf("o %" PRId64 " ", computeOriginalCost(solver->model));
-        printf("cho %" PRId64 "\n", newCost + lbCost + off_set);
+        uint64_t originalCost = computeOriginalCost(solver->model);
+        if(best_cost >= originalCost) {
+          printf("c BC : %lld, OC : %lld\n", best_cost, originalCost);
+        	saveModel(solver->model);
+        	solver->model.copyTo(best_model);
+        	best_cost = originalCost;
+          printf("o %" PRId64 " ", originalCost);
+          printf("cho %" PRId64 "\n", newCost + lbCost + off_set);
+        }
         ubCost = newCost + lbCost;
       } else {
         if (verbosity > 0)
@@ -316,17 +322,24 @@ void LinearSUMod::normalSearch() {
     if (res == l_True) {
       nbSatisfiable++;
       uint64_t newCost = computeCostModel(solver->model);
-      saveModel(solver->model);
-      if (maxsat_formula->getFormat() == _FORMAT_PB_) {
-        // optimization problem
-        if (maxsat_formula->getObjFunction() != NULL) {
-          printf("o %" PRId64 " ", computeOriginalCost(solver->model));
-          printf("cho %" PRId64 "\n", newCost + off_set);
-        }
-      } else {
-        printf("o %" PRId64 " ", computeOriginalCost(solver->model));
-        printf("cho %" PRId64 "\n", newCost + off_set);
-      }
+      uint64_t originalCost = computeOriginalCost(solver->model);
+      if(best_cost >= originalCost) {
+        printf("c BC : %lld, OC : %lld\n", best_cost, originalCost);
+      	saveModel(solver->model);
+      	solver->model.copyTo(best_model);
+      	best_cost = originalCost;
+      
+		    if (maxsat_formula->getFormat() == _FORMAT_PB_) {
+		      // optimization problem
+		      if (maxsat_formula->getObjFunction() != NULL) {
+		        printf("o %" PRId64 " ", originalCost);
+		        printf("cho %" PRId64 "\n", newCost + off_set);
+		      }
+		    } else {
+		      printf("o %" PRId64 " ", originalCost);
+		      printf("cho %" PRId64 "\n", newCost + off_set);
+		    }
+		 }
 
 
       if (newCost == 0) {

@@ -66,6 +66,7 @@ public:
     cluster_algo = ca;
     cluster_stat = cs;
     this->num_clusters = num_clusters;
+    best_cost = UINT64_MAX;
   }
 
   ~LinearSUMod() {
@@ -145,6 +146,8 @@ protected:
   bool is_bmo; // Stores if the formula is BMO or not.
   
   unsigned num_clusters;
+  vec<lbool> best_model;
+  uint64_t best_cost;
 };
 } // namespace openwbo
 

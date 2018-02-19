@@ -36,3 +36,6 @@
 
 depend.mk
 open-wbo
+*idea
+CMakeLists.txt
+cmake-build-debug
