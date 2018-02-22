@@ -57,6 +57,10 @@ public:
     encoding = enc;
     encoder.setCardEncoding(enc);
     min_weight = 1;
+    cluster_algo = ca;
+    cluster_stat = cs;
+    this->num_clusters = num_clusters;
+    best_cost = UINT64_MAX;
   }
   ~OLLMod() {
     if (solver != NULL)
@@ -132,6 +136,9 @@ protected:
                           std::set<Lit> &cardinality_assumptions);
 
   uint64_t min_weight;
+  uint64_t num_clusters;
+  vec<lbool> best_model;
+  uint64_t best_cost;
 };
 } // namespace openwbo
 

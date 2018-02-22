@@ -145,7 +145,7 @@ protected:
 
   bool is_bmo; // Stores if the formula is BMO or not.
   
-  unsigned num_clusters;
+  uint64_t num_clusters;
   vec<lbool> best_model;
   uint64_t best_cost;
 };

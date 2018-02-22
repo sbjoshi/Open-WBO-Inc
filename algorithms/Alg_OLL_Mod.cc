@@ -175,19 +175,25 @@ void OLLMod::unweighted() {
     if (res == l_True) {
       nbSatisfiable++;
       uint64_t newCost = computeCostModel(solver->model);
-      saveModel(solver->model);
-      if (maxsat_formula->getFormat() == _FORMAT_PB_) {
-        // optimization problem
-        if (maxsat_formula->getObjFunction() != NULL) {
-          // printf("o %" PRId64 "\n", newCost + off_set);
-          printf("o %" PRId64 " ", computeOriginalCost(solver->model));
-          printf("cho %" PRId64 "\n", newCost + off_set);
-        }
-      } else {
-        // printf("o %" PRId64 "\n", newCost + off_set);
-        printf("o %" PRId64 " ", computeOriginalCost(solver->model));
-        printf("cho %" PRId64 "\n", newCost + off_set);
-      }
+      uint64_t originalCost = computeOriginalCost(solver->model);
+      if(best_cost >= originalCost) {
+        printf("c BC : %lld, OC : %lld\n", best_cost, originalCost);
+      	saveModel(solver->model);
+      	solver->model.copyTo(best_model);
+      	best_cost = originalCost;
+		    if (maxsat_formula->getFormat() == _FORMAT_PB_) {
+		      // optimization problem
+		      if (maxsat_formula->getObjFunction() != NULL) {
+		        // printf("o %" PRId64 "\n", newCost + off_set);
+		        printf("o %" PRId64 " ", computeOriginalCost(solver->model));
+		        printf("cho %" PRId64 "\n", newCost + off_set);
+		      }
+		    } else {
+		      // printf("o %" PRId64 "\n", newCost + off_set);
+		      printf("o %" PRId64 " ", computeOriginalCost(solver->model));
+		      printf("cho %" PRId64 "\n", newCost + off_set);
+		    }
+		  }  
 
       ubCost = newCost;
 
@@ -379,19 +385,25 @@ void OLLMod::weighted() {
       nbSatisfiable++;
       uint64_t newCost = computeCostModel(solver->model);
       if (newCost < ubCost || nbSatisfiable == 1) {
-        saveModel(solver->model);
-        if (maxsat_formula->getFormat() == _FORMAT_PB_) {
-          // optimization problem
-          if (maxsat_formula->getObjFunction() != NULL) {
-            //printf("o %" PRId64 "\n", newCost + off_set);
-            printf("o %" PRId64 " ", computeOriginalCost(solver->model));
-            printf("cho %" PRId64 "\n", newCost + off_set);
-          }
-        } else {
-          // printf("o %" PRId64 "\n", newCost + off_set);
-          printf("o %" PRId64 " ", computeOriginalCost(solver->model));
-          printf("cho %" PRId64 "\n", newCost + off_set);
-        }
+      	uint64_t originalCost = computeOriginalCost(solver->model);
+      	if(best_cost >= originalCost) {
+      		printf("c BC : %lld, OC : %lld\n", best_cost, originalCost);
+        	saveModel(solver->model);
+        	solver->model.copyTo(best_model);
+      		best_cost = originalCost;
+		      if (maxsat_formula->getFormat() == _FORMAT_PB_) {
+		        // optimization problem
+		        if (maxsat_formula->getObjFunction() != NULL) {
+		          //printf("o %" PRId64 "\n", newCost + off_set);
+		          printf("o %" PRId64 " ", computeOriginalCost(solver->model));
+		          printf("cho %" PRId64 "\n", newCost + off_set);
+		        }
+		      } else {
+		        // printf("o %" PRId64 "\n", newCost + off_set);
+		        printf("o %" PRId64 " ", computeOriginalCost(solver->model));
+		        printf("cho %" PRId64 "\n", newCost + off_set);
+		      }
+		    }
         ubCost = newCost;
       }
 
@@ -819,7 +831,7 @@ void OLLMod::weighted() {
 
 void OLLMod::search() {
 
-  cluster->clusterWeights(static_cast<MaxSATFormulaExtended*>(maxsat_formula),1);
+  cluster->clusterWeights(static_cast<MaxSATFormulaExtended*>(maxsat_formula),num_clusters);
   printf("AFTER CLUSTER WEIGHTS : \n");
   for(int i = 0; i < maxsat_formula->soft_clauses.size(); i++) {
     printf("%d ",maxsat_formula->soft_clauses[i].weight);
