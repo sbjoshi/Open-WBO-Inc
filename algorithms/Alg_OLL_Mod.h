@@ -50,7 +50,7 @@ class OLLMod : public MaxSAT {
 
 public:
   OLLMod(int verb = _VERBOSITY_MINIMAL_, int enc = _CARD_TOTALIZER_,
-    ClusterAlg ca = ClusterAlg::_DIVISIVE_, Statistics cs = Statistics::_MEAN_) {
+    ClusterAlg ca = ClusterAlg::_DIVISIVE_, Statistics cs = Statistics::_MEAN_, uint64_t num_clusters = 1) {
     solver = NULL;
     verbosity = verb;
     incremental_strategy = _INCREMENTAL_ITERATIVE_;

@@ -196,7 +196,7 @@ int main(int argc, char **argv) {
     case _ALGORITHM_OLL_:
       if((int)(cluster_algorithm) == 1) {
         printf("Using clustering!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n");
-        S = new OLLMod(verbosity, cardinality);
+        S = new OLLMod(verbosity, cardinality, ClusterAlg::_DIVISIVE_, Statistics::_MEAN_, (int)(num_clusters));
       }
       else {
         printf("REGULAR!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n");
