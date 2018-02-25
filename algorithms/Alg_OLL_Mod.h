@@ -93,6 +93,8 @@ protected:
   //
   Solver *rebuildSolver(); // Rebuild MaxSAT solver.
 
+  MaxSATFormula *original_formula;
+
   // Other
   void initRelaxation(); // Relaxes soft clauses.
 
