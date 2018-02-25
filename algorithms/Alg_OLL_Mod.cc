@@ -48,7 +48,7 @@ uint64_t OLLMod::computeOriginalCost(vec<lbool> &currentModel, uint64_t weight) 
 
   assert(currentModel.size() != 0);
   uint64_t currentCost = 0;
-
+//  printf("NSoft : %d\n",original_formula->nSoft());
   for (int i = 0; i < original_formula->nSoft(); i++) {
     bool unsatisfied = true;
     for (int j = 0; j < original_formula->getSoftClause(i).clause.size(); j++) {
@@ -74,6 +74,7 @@ uint64_t OLLMod::computeOriginalCost(vec<lbool> &currentModel, uint64_t weight) 
 
     if (unsatisfied) {
       // currentCost += maxsat_formula->getSoftClause(i).weight;
+//      printf("Index accessed: %d\n",i);
       currentCost += cluster->getOriginalWeight(i);
     }
   }

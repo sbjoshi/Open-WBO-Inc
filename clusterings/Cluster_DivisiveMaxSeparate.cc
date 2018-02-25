@@ -48,15 +48,17 @@ void Cluster_DivisiveMaxSeparate::clusterWeights(MaxSATFormulaExtended *formula,
         printf("LI : %d HI : %d\n",low_index,high_index);
         for(uint64_t k = low_index; k < high_index; k++) {
         	if(distances[k] >= max_distance) {
-        		printf("FOUND K : %d\n",k);
+        		printf("FOUND K : %d, DISTANCES[k] : %d, Max distance : %d\n",k,distances[k],max_distance);
         		max_distance = distances[k];
         		max_index = k+1; // TODO BE VERY CAREFUL FOR CHECKING LAST ELEMENT! TODO CHECK!
         	}
         }
       }
+      bool is_added = false;
       for(uint64_t j = 0; j < cluster_indices.size(); j++) {
-        if(cluster_indices[j] > max_index) {
+        if(cluster_indices[j] > max_index && !is_added) {
           temp.push(max_index);
+          is_added = true;
         }
       temp.push(cluster_indices[j]);
       }
