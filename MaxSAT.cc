@@ -272,6 +272,12 @@ void MaxSAT::print_PB_configuration(int encoding) {
            "GTE");
     break;
 
+  case _PB_GTECLUSTER_:
+    printf("c |  PB Encoding:         %13s                        "
+           "                                           |\n",
+           "GTECLUSTER");
+    break;
+
   default:
     printf("c Error: Invalid PB encoding.\n");
     printf("s UNKNOWN\n");
