@@ -141,8 +141,8 @@ int main(int argc, char **argv) {
     IntOption amo("Encodings", "amo", "AMO encoding (0=Ladder).\n", 0,
                   IntRange(0, 0));
 
-    IntOption pb("Encodings", "pb", "PB encoding (0=SWC,1=GTE).\n", 1,
-                 IntRange(0, 0));
+    IntOption pb("Encodings", "pb", "PB encoding (0=SWC,1=GTE,2=GTECluster).\n", 1,
+                 IntRange(0, 2));
 
     IntOption formula("Open-WBO", "formula",
                       "Type of formula (0=WCNF, 1=OPB).\n", 0, IntRange(0, 1));

@@ -207,6 +207,10 @@ void Encoder::encodePB(Solver *S, vec<Lit> &lits, vec<uint64_t> &coeffs,
     gte.encode(S, lits_copy, coeffs_copy, rhs);
     break;
 
+  case _PB_GTECLUSTER_:
+    gtecluster.encode(S, lits_copy, coeffs_copy, rhs);
+    break;
+
   default:
     printf("Error: Invalid PB encoding.\n");
     printf("s UNKNOWN\n");
@@ -224,6 +228,10 @@ void Encoder::updatePB(Solver *S, uint64_t rhs) {
 
   case _PB_GTE_:
     gte.update(S, rhs);
+    break;
+
+  case _PB_GTECLUSTER_:
+    gtecluster.update(S, rhs);
     break;
 
   default:
@@ -337,6 +345,8 @@ bool Encoder::hasPBEncoding() {
     return swc.hasCreatedEncoding();
   else if (pb_encoding == _PB_GTE_)
     return gte.hasCreatedEncoding();
+  else if (pb_encoding == _PB_GTECLUSTER_)
+    return gtecluster.hasCreatedEncoding();
 
   return false;
 }

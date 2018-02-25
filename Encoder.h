@@ -40,6 +40,7 @@
 // Encodings
 #include "encodings/Enc_CNetworks.h"
 #include "encodings/Enc_GTE.h"
+#include "encodings/Enc_GTECluster.h"
 #include "encodings/Enc_Ladder.h"
 #include "encodings/Enc_MTotalizer.h"
 #include "encodings/Enc_SWC.h"
@@ -177,6 +178,7 @@ protected:
   // PB encodings
   SWC swc;
   GTE gte;
+  GTECluster gtecluster;
 };
 } // namespace openwbo
 
