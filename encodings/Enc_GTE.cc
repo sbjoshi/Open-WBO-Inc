@@ -171,7 +171,8 @@ void GTE::encode(Solver *S, vec<Lit> &lits, vec<uint64_t> &coeffs,
 
   // If the rhs is larger than INT32_MAX is not feasible to encode this
   // pseudo-Boolean constraint to CNF.
-  if (rhs >= INT32_MAX) {
+  // CHANGED TO INT64_MAX for now - Sukrut
+  if (rhs >= INT64_MAX) {
     printf("c Overflow in the Encoding\n");
     printf("s UNKNOWN\n");
     exit(_ERROR_);
@@ -194,7 +195,8 @@ void GTE::encode(Solver *S, vec<Lit> &lits, vec<uint64_t> &coeffs,
     if (simp_coeffs[i] == 0)
       continue;
 
-    if (simp_coeffs[i] >= INT32_MAX) {
+	// CHANGED TO INT64_MAX for now - Sukrut
+    if (simp_coeffs[i] >= INT64_MAX) {
       printf("c Overflow in the Encoding\n");
       printf("s UNKNOWN\n");
       exit(_ERROR_);
