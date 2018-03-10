@@ -124,7 +124,7 @@ public:
 
   void loadFormula(MaxSATFormula *maxsat) {
     maxsat_formula = maxsat;
-    printf("size in load formula : %d\n",static_cast<MaxSATFormulaExtended*>(maxsat_formula)->soft_clauses.size());
+    printf("size in load formula : %d\n",static_cast<MaxSATFormulaExtended*>(maxsat_formula)->getSoftClauses().size());
     maxsat_formula->setInitialVars(maxsat_formula->nVars());
 
     if (maxsat_formula->getObjFunction() != NULL) {

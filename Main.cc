@@ -312,7 +312,7 @@ int main(int argc, char **argv) {
     }
 
     if (S->getMaxSATFormula() == NULL) {
-      printf("size before load : %d\n",maxsat_formula->soft_clauses.size());
+ //     printf("size before load : %d\n",maxsat_formula->getSoftClauses().size());
       S->loadFormula(maxsat_formula);
       if((int)(cluster_algorithm) == 1) {
         switch ((int)algorithm) {

@@ -203,13 +203,12 @@ public:
   int getFormat() { return format; }
 
   indexMap &getIndexToName() { return _indexToName; }
-  
-  vec<Soft> soft_clauses; //<! Stores the soft clauses of the MaxSAT formula. // TODO !!!!!!!!!!!!!!!!!!! Sukrut
 
 protected:
   // MaxSAT database
   //
   
+  vec<Soft> soft_clauses; //<! Stores the soft clauses of the MaxSAT formula. // TODO ! Sukrut
   vec<Hard> hard_clauses; //<! Stores the hard clauses of the MaxSAT formula.
 
   // PB database

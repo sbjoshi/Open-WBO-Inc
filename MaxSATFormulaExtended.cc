@@ -53,4 +53,6 @@ void MaxSATFormulaExtended::sortSoftClauses() {
 	}
 }
 
-
+vec<Soft> &MaxSATFormulaExtended::getSoftClauses() {
+	return soft_clauses;
+}
