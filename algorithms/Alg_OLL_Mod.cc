@@ -35,7 +35,7 @@ using namespace openwbo;
 void OLLMod::initializeCluster() {
   switch(cluster_algo) {
   case ClusterAlg::_DIVISIVE_:
-    printf("size in init : %ld\n",static_cast<MaxSATFormulaExtended*>(maxsat_formula)->soft_clauses.size());
+    printf("size in init : %ld\n",static_cast<MaxSATFormulaExtended*>(maxsat_formula)->getSoftClauses().size());
     cluster = new Cluster_DivisiveMaxSeparate(
       static_cast<MaxSATFormulaExtended*>(maxsat_formula), cluster_stat);
     break;
@@ -834,10 +834,12 @@ void OLLMod::weighted() {
 
 void OLLMod::search() {
 
-  cluster->clusterWeights(static_cast<MaxSATFormulaExtended*>(maxsat_formula),num_clusters);
+  MaxSATFormulaExtended *maxsat_formula_extended = 
+    static_cast<MaxSATFormulaExtended*>(maxsat_formula);
+  cluster->clusterWeights(maxsat_formula_extended,num_clusters);
   printf("AFTER CLUSTER WEIGHTS : \n");
-  for(int i = 0; i < maxsat_formula->soft_clauses.size(); i++) {
-    printf("%d ",maxsat_formula->soft_clauses[i].weight);
+  for(int i = 0; i < maxsat_formula_extended->getSoftClauses().size(); i++) {
+    printf("%d ",maxsat_formula_extended->getSoftClauses()[i].weight);
   }
 
   if (encoding != _CARD_TOTALIZER_) {
