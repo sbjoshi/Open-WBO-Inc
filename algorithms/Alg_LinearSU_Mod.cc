@@ -37,7 +37,7 @@ using namespace openwbo;
 void LinearSUMod::initializeCluster() {
   switch(cluster_algo) {
   case ClusterAlg::_DIVISIVE_:
-  	printf("size in init : %ld\n",static_cast<MaxSATFormulaExtended*>(maxsat_formula)->soft_clauses.size());
+  	printf("size in init : %ld\n",static_cast<MaxSATFormulaExtended*>(maxsat_formula)->getSoftClauses().size());
     cluster = new Cluster_DivisiveMaxSeparate(
       static_cast<MaxSATFormulaExtended*>(maxsat_formula), cluster_stat);
     break;
@@ -202,6 +202,9 @@ void LinearSUMod::bmoSearch() {
         	best_cost = originalCost;
           printf("o %" PRId64 " ", originalCost);
           printf("cho %" PRId64 "\n", newCost + lbCost + off_set);
+          printf("c nVar: %ld nSoft: %ld nHard: %ld\n",
+		        	maxsat_formula->nVars(), maxsat_formula->nSoft(),
+		        	maxsat_formula->nHard());
         }
         ubCost = newCost + lbCost;
       } else {
@@ -336,10 +339,16 @@ void LinearSUMod::normalSearch() {
 		      if (maxsat_formula->getObjFunction() != NULL) {
 		        printf("o %" PRId64 " ", originalCost);
 		        printf("cho %" PRId64 "\n", newCost + off_set);
+		        printf("c nVar: %ld nSoft: %ld nHard: %ld\n",
+		        	maxsat_formula->nVars(), maxsat_formula->nSoft(),
+		        	maxsat_formula->nHard());
 		      }
 		    } else {
 		      printf("o %" PRId64 " ", originalCost);
 		      printf("cho %" PRId64 "\n", newCost + off_set);
+		      printf("c nVar: %ld nSoft: %ld nHard: %ld\n",
+		        	maxsat_formula->nVars(), maxsat_formula->nSoft(),
+		        	maxsat_formula->nHard());
 		    }
 		 }
 
@@ -391,12 +400,18 @@ void LinearSUMod::normalSearch() {
 // Public search method
 void LinearSUMod::search() {
 
-  cluster->clusterWeights(static_cast<MaxSATFormulaExtended*>(maxsat_formula),num_clusters);
+  MaxSATFormulaExtended *maxsat_formula_extended = 
+  	static_cast<MaxSATFormulaExtended*>(maxsat_formula);
+  cluster->clusterWeights(maxsat_formula_extended,num_clusters);
   printf("AFTER CLUSTER WEIGHTS : \n");
-	for(int i = 0; i < maxsat_formula->soft_clauses.size(); i++) {
-		printf("%d ",maxsat_formula->soft_clauses[i].weight);
+	for(int i = 0; i < maxsat_formula_extended->getSoftClauses().size(); i++) {
+		printf("%d ",maxsat_formula_extended->getSoftClauses()[i].weight);
 	}
-
+  if(maxsat_formula->getProblemType() == _WEIGHTED_) {
+    printf("Weighted\n");
+  } else {
+    printf("Unweighted\n");
+  }
   // std::ofstream wcnffile("../test.wcnf");
 
   // wcnffile << "p wcnf " << maxsat_formula->nHard()
