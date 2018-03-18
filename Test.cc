@@ -44,7 +44,16 @@ void test_encoding()
 	}
 
 	openwbo::GTECluster gte;
-	uint64_t rhs = sum - 1;
+	uint64_t rhs = 0;
+	std::uniform_int_distribution<unsigned> dis_rhs(0,1);
+	unsigned unsat = dis_rhs(g);
+	if (unsat) {
+		std::uniform_int_distribution<unsigned> dis_rhs(sum/2-1, sum-1);
+		rhs = dis_rhs(g);
+	} else {
+		std::uniform_int_distribution<unsigned> dis_rhs(sum, 2*sum+1);
+		rhs = dis_rhs(g);
+	}
 
 	std::cout << "Number of lits: " << literals.size() << std::endl
 		<< "Number of unit clauses: " << num_unit_clauses << std::endl;
@@ -57,13 +66,26 @@ void test_encoding()
 
 	bool solved = s->solve();
 
-	if (solved) {
-		std::cout << "SATISFIED" << std::endl;
-		for (unsigned i=0; i<weights_vec.size(); i++) {
-			std::cout << weights_vec[i] << std::endl;
+	if (unsat) {
+		if (solved) {
+			std::cout << "TEST FAILED" << std::endl;
+			std::cout << "SAT" << std::endl;
+			for (unsigned i=0; i<weights_vec.size(); i++) {
+				std::cout << weights_vec[i] << std::endl;
+			}
+		} else {
+			std::cout << "UNSAT" << std::endl;
 		}
 	} else {
-		std::cout << "UNSAT" << std::endl;
+		if (solved) {
+			std::cout << "SAT" << std::endl;
+		} else {
+			std::cout << "TEST FAILED" << std::endl;
+			std::cout << "UNSAT" << std::endl;
+			for (unsigned i=0; i<weights_vec.size(); i++) {
+				std::cout << weights_vec[i] << std::endl;
+			}
+		}
 	}
 
 }
