@@ -84,6 +84,8 @@ static void SIGINT_exit(int signum) {
   exit(_UNKNOWN_);
 }
 
+void test_encoding();
+
 //=================================================================================================
 // Main:
 
@@ -109,6 +111,9 @@ int main(int argc, char **argv) {
 #endif
 
     BoolOption printmodel("Open-WBO", "print-model", "Print model.\n", true);
+
+    IntOption num_tests("Open-WBO", "num_tests",
+                        "Number of tests\n", 0, IntRange(0, 10000000));
 
     IntOption verbosity("Open-WBO", "verbosity",
                         "Verbosity level (0=minimal, 1=more).\n", 0,
@@ -174,6 +179,13 @@ int main(int argc, char **argv) {
     MaxSAT *S = NULL;
     
     Statistics rounding_statistic = static_cast<Statistics>((int)rounding_strategy);
+
+    if ((int)num_tests) {
+      for (int i=0; i<(int)num_tests; i++) {
+        test_encoding();
+      }
+      return 0;
+    }
 
     switch ((int)algorithm) {
     case _ALGORITHM_WBO_:
