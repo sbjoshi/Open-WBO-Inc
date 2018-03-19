@@ -59,10 +59,10 @@ enum { _PB_SWC_ = 0, _PB_GTE_, _PB_GTECLUSTER_ };
 enum { _PART_SEQUENTIAL_ = 0, _PART_SEQUENTIAL_SORTED_, _PART_BINARY_ };
 
 enum class Statistics {
-	_MEAN_,
-	_MEDIAN_,
-	_MAX_,
-	_MIN_
+	_MEAN_ = 0,
+	_MEDIAN_ = 1,
+	_MIN_ = 2,
+	_MAX_
 };
 
 enum class ClusterAlg {

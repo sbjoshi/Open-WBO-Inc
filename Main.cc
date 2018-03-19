@@ -163,11 +163,17 @@ int main(int argc, char **argv) {
     							              "(0=none, 1=DivisiveMaxSeparate)", 0, 
     							              IntRange(0, 1));
     IntOption num_clusters("Clustering", "c", "Number of agglomerated clusters", 1, IntRange(1,INT_MAX));
+    
+    IntOption rounding_strategy("Clustering", "rs", "Statistic used to select"
+	      " common weights in a cluster (0=Mean, 1=Median, 2=Min)", 0,
+	      IntRange(0,2));
 
     parseOptions(argc, argv, true);
 
     double initial_time = cpuTime();
     MaxSAT *S = NULL;
+    
+    Statistics rounding_statistic = static_cast<Statistics>((int)rounding_strategy);
 
     switch ((int)algorithm) {
     case _ALGORITHM_WBO_:
@@ -177,7 +183,7 @@ int main(int argc, char **argv) {
     case _ALGORITHM_LINEAR_SU_:
       if((int)(cluster_algorithm) == 1) {
         printf("Using clustering!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n");
-        S = new LinearSUMod(verbosity, bmo, cardinality, pb, ClusterAlg::_DIVISIVE_, Statistics::_MEAN_, (int)(num_clusters));
+        S = new LinearSUMod(verbosity, bmo, cardinality, pb, ClusterAlg::_DIVISIVE_, rounding_statistic, (int)(num_clusters));
       }
       else {
         printf("REGULAR!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n");
@@ -196,7 +202,7 @@ int main(int argc, char **argv) {
     case _ALGORITHM_OLL_:
       if((int)(cluster_algorithm) == 1) {
         printf("Using clustering!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n");
-        S = new OLLMod(verbosity, cardinality, ClusterAlg::_DIVISIVE_, Statistics::_MEAN_, (int)(num_clusters));
+        S = new OLLMod(verbosity, cardinality, ClusterAlg::_DIVISIVE_, rounding_statistic, (int)(num_clusters));
       }
       else {
         printf("REGULAR!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n");
