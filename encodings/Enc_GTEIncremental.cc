@@ -438,7 +438,7 @@ void GTEIncremental::encode(Solver *S, vec<Lit> &lits, vec<uint64_t> &coeffs,
   hasEncoding = true;
 }
 
-void GTEIncremental::update(Solver *S, uint64_t rhs) {
+void GTEIncremental::update(Solver *S, uint64_t rhs, vec<Lit> &assumptions) {
 
   // TODO - for now, I am assuming that RHS does not increase in a given tree
   // when incremental is not involved
@@ -461,10 +461,19 @@ void GTEIncremental::update(Solver *S, uint64_t rhs) {
   }
   /* ... PUT CODE HERE TO UPDATE THE RHS OF AN ALREADY EXISTING ENCODING ... */
   
-  if(incremental_strategy == _INCREMENTAL_ITERATIVE_ && rhs > current_pb_rhs) {
-    pb_oliterals.clear();
-    encodeLeqIncremental(rhs, S, enc_literals, pb_oliterals, 
+  if(incremental_strategy == _INCREMENTAL_ITERATIVE_) {
+    if(rhs > current_pb_rhs) {
+      pb_oliterals.clear();
+      encodeLeqIncremental(rhs, S, enc_literals, pb_oliterals, 
                       current_pb_rhs);
+    }
+    assumptions.clear();
+    for(wlit_mapt::reverse_iterator oit = ++(pb_oliterals.rbegin());
+      oit != pb_oliterals.rend(); oit++) {
+      if(oit->first > rhs) {
+        assumptions.push(~oit->second);
+      }
+    }
   }
   
   // add missing literals and clauses
@@ -472,14 +481,14 @@ void GTEIncremental::update(Solver *S, uint64_t rhs) {
 }
 
 void GTEIncremental::join(Solver *S, vec<Lit> &lits, vec<uint64_t> &coeffs,
-                 uint64_t rhs) {
+                 uint64_t rhs, vec<Lit> &assumptions) {
   
   assert(hasEncoding);	
   assert(incremental_strategy == _INCREMENTAL_ITERATIVE_);
 // uint64_t old_pb = current_pb_rhs;
   
   // add extra clauses in existing tree
-  update(S, rhs);
+  update(S, rhs, assumptions);
   
   wlit_mapt loutputs;
   wlit_mapt routputs;

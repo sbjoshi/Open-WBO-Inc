@@ -260,6 +260,11 @@ void Encoder::incEncodePB(Solver *S, vec<Lit> &lits, vec<uint64_t> &coeffs,
   case _PB_SWC_:
     swc.encode(S, lits_copy, coeffs_copy, rhs, assumptions, size);
     break;
+    
+  case _PB_GTE_INC_:
+  	gteinc.encode(S, lits_copy, coeffs_copy, rhs);
+  	gteinc.update(S, rhs, assumptions);
+    break;
 
   default:
     printf("Error: PB encoding does not support incrementality.\n");
@@ -283,6 +288,11 @@ void Encoder::incUpdatePB(Solver *S, vec<Lit> &lits, vec<uint64_t> &coeffs,
   case _PB_SWC_:
     swc.update(S, rhs, assumptions);
     swc.join(S, lits_copy, coeffs_copy, assumptions);
+    break;
+    
+  case _PB_GTE_INC_:
+  	gteinc.join(S, lits_copy, coeffs_copy, rhs, assumptions);
+  	gteinc.update(S, rhs, assumptions);
     break;
 
   default:
@@ -349,6 +359,7 @@ bool Encoder::hasPBEncoding() {
     return gte.hasCreatedEncoding();
   else if (pb_encoding == _PB_GTECLUSTER_)
     return gtecluster.hasCreatedEncoding();
-
+  else if (pb_encoding == _PB_GTE_INC_)
+    return gteinc.hasCreatedEncoding(); 
   return false;
 }

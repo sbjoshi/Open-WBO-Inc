@@ -14,31 +14,10 @@
 #include <utility>
 #include <vector>
 
+#include "Enc_GTE.h"
+
 namespace openwbo {
-struct wlitt {
-  Lit lit;
-  uint64_t weight;
-};
-struct less_than_wlitt {
-  inline bool operator()(const wlitt &wl1, const wlitt &wl2) {
-    return (wl1.weight < wl2.weight);
-  }
-};
 
-struct less_than_map { // Sukrut TODO - is this needed, or sorted by default?
-  inline bool operator()(const uint64_t &key1, const uint64_t &key2) {
-    return (key1 < key2);                          
-  }
-};
-
-struct wlit_sumt {
-  inline uint64_t operator()(const uint64_t &wl1, const wlitt &wl2) {
-    return (wl1 + wl2.weight);
-  }
-};
-typedef std::map<uint64_t, Lit, less_than_map> wlit_mapt;
-typedef std::vector<wlitt> weightedlitst;
-typedef std::pair<uint64_t, Lit> wlit_pairt;
 class GTEIncremental : public Encodings {
 
 public:
@@ -56,13 +35,14 @@ public:
   void build(Solver *S, vec<Lit> &lits, vec<uint64_t> &coeffs, uint64_t rhs);
 
   // Update constraint.
-  void update(Solver *S, uint64_t rhs);
+  void update(Solver *S, uint64_t rhs, vec<Lit> &assumptions);
 
   // Returns true if the encoding was built, otherwise returns false;
   bool hasCreatedEncoding() { return hasEncoding; }
   
   // Joins two trees in iterative encoding
-  void join(Solver *S, vec<Lit> &lits, vec<uint64_t> &coeffs, uint64_t rhs);
+  void join(Solver *S, vec<Lit> &lits, vec<uint64_t> &coeffs, uint64_t rhs, 
+  		vec<Lit> &assumptions);
 
 protected:
   void printLit(Lit l) { printf("%s%d\n", sign(l) ? "-" : "", var(l) + 1); }
@@ -91,7 +71,6 @@ protected:
   
   int incremental_strategy;
   weightedlitst enc_literals;
-  vec<Lit> assumptions;
 };
 
 } // namespace openwbo
