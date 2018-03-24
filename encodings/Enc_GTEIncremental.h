@@ -53,18 +53,26 @@ public:
 
   // Encode constraint.
   void encode(Solver *S, vec<Lit> &lits, vec<uint64_t> &coeffs, uint64_t rhs);
+  void build(Solver *S, vec<Lit> &lits, vec<uint64_t> &coeffs, uint64_t rhs);
 
   // Update constraint.
   void update(Solver *S, uint64_t rhs);
 
   // Returns true if the encoding was built, otherwise returns false;
   bool hasCreatedEncoding() { return hasEncoding; }
+  
+  // Joins two trees in iterative encoding
+  void join(Solver *S, vec<Lit> &lits, vec<uint64_t> &coeffs, uint64_t rhs);
 
 protected:
   void printLit(Lit l) { printf("%s%d\n", sign(l) ? "-" : "", var(l) + 1); }
 
   bool encodeLeq(uint64_t k, Solver *S, const weightedlitst &iliterals,
                  wlit_mapt &oliterals);
+  // encodeLeq for iterative encoding     
+  bool encodeLeqIncremental(uint64_t k, Solver *S,
+  				const weightedlitst &iliterals, 
+  				wlit_mapt &oliterals, uint64_t old_k = 0);
   Lit getNewLit(Solver *S);
   Lit get_var(Solver *S, wlit_mapt &oliterals, uint64_t weight);
   vec<Lit> pb_outlits; // Stores the outputs of the pseudo-Boolean constraint
