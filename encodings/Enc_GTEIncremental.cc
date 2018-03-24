@@ -304,24 +304,9 @@ bool GTEIncremental::encodeLeqIncremental(uint64_t k, Solver *S, const weightedl
   return true;
 }
 
-void GTEIncremental::encode(Solver *S, vec<Lit> &lits, vec<uint64_t> &coeffs,
-                 uint64_t rhs) {
-  // FIXME: do not change coeffs in this method. Make coeffs const.
-
-  // If the rhs is larger than INT32_MAX is not feasible to encode this
-  // pseudo-Boolean constraint to CNF.
-  // CHANGED TO INT64_MAX for now - Sukrut
-  if (rhs >= INT64_MAX) {
-    printf("c Overflow in the Encoding\n");
-    printf("s UNKNOWN\n");
-    exit(_ERROR_);
-  }
-
-  hasEncoding = false;
-  nb_variables = 0;
-  nb_clauses = 0;
-
-  vec<Lit> simp_lits;
+void GTEIncremental::build(Solver *S, vec<Lit> &lits, vec<uint64_t> &coeffs,
+				uint64_t rhs) {
+	vec<Lit> simp_lits;
   vec<uint64_t> simp_coeffs;
   lits.copyTo(simp_lits);
   coeffs.copyTo(simp_coeffs);
@@ -334,7 +319,7 @@ void GTEIncremental::encode(Solver *S, vec<Lit> &lits, vec<uint64_t> &coeffs,
     if (simp_coeffs[i] == 0)
       continue;
 	
-	// CHANGED TO INT64_MAX for now - Sukrut
+    // CHANGED TO INT64_MAX for now - Sukrut
     if (simp_coeffs[i] >= INT64_MAX) {
       printf("c Overflow in the Encoding\n");
       printf("s UNKNOWN\n");
@@ -388,16 +373,47 @@ void GTEIncremental::encode(Solver *S, vec<Lit> &lits, vec<uint64_t> &coeffs,
     encodeLeq(rhs + 1, S, iliterals, pb_oliterals);
   }
   
-  
+  // fill up assumptions outside, like in totalizer encoding 
+  // this function need not handle it
+  if(incremental_strategy == _INCREMENTAL_NONE_) {
+    for (wlit_mapt::reverse_iterator rit = pb_oliterals.rbegin();
+      rit != pb_oliterals.rend(); rit++) {
+      if (rit->first > rhs) {
+      //  assumptions.push(~rit->second);
+        addUnitClause(S, ~rit->second);
+      } else {
+        break;
+      }
+    } 
+  }	
+}
 
-  for (wlit_mapt::reverse_iterator rit = pb_oliterals.rbegin();
-       rit != pb_oliterals.rend(); rit++) {
-    if (rit->first > rhs) {
-      addUnitClause(S, ~rit->second);
-    } else {
-      break;
-    }
+void GTEIncremental::encode(Solver *S, vec<Lit> &lits, vec<uint64_t> &coeffs,
+                 uint64_t rhs) {
+  // FIXME: do not change coeffs in this method. Make coeffs const.
+
+  // If the rhs is larger than INT32_MAX is not feasible to encode this
+  // pseudo-Boolean constraint to CNF.
+  // CHANGED TO INT64_MAX for now - Sukrut
+  if (rhs >= INT64_MAX) {
+    printf("c Overflow in the Encoding\n");
+    printf("s UNKNOWN\n");
+    exit(_ERROR_);
   }
+
+  hasEncoding = false; // TODO, Sukrut - what is the purpose of this?
+  nb_variables = 0;
+  nb_clauses = 0;
+  
+  build(S, lits, coeffs, rhs);
+  
+  for (int i = 0; i < lits.size(); i++) {
+    wlitt wl;
+    wl.lit = lits[i];
+    wl.weight = coeffs[i];
+    enc_literals.push_back(wl);
+  }
+
   // addUnitClause(S,~pb_oliterals.rbegin()->second);
   /*
   if (pb_oliterals.rbegin()->first != rhs+1){
@@ -421,6 +437,7 @@ void GTEIncremental::encode(Solver *S, vec<Lit> &lits, vec<uint64_t> &coeffs,
 
 void GTEIncremental::update(Solver *S, uint64_t rhs) {
 
+  // TODO - for now, I am assuming that RHS does not increase in a given tree
   assert(hasEncoding);
   for (wlit_mapt::reverse_iterator rit = pb_oliterals.rbegin();
        rit != pb_oliterals.rend(); rit++) {
@@ -435,10 +452,6 @@ void GTEIncremental::update(Solver *S, uint64_t rhs) {
   /* ... PUT CODE HERE TO UPDATE THE RHS OF AN ALREADY EXISTING ENCODING ... */
   
   // add missing literals and clauses
-  if(incremental_strategy == _INCREMENTAL_ITERATIVE) {
-    
-  }
-
   current_pb_rhs = rhs;
 }
 
@@ -446,9 +459,11 @@ void GTEIncremental::join(Solver *S, vec<Lit> &lits, vec<uint64_t> &coeffs,
                  uint64_t rhs) {
 	
   assert(incremental_strategy == _INCREMENTAL_ITERATIVE_);
-	wlit_mapt left_pb_oliterals;
-	left_pb_oliterals.insert(pb_oliterals.begin(), pb_oliterals.end());
-	pb_oliterals.clear();
+  wlit_mapt old_pb_oliterals;
+  old_pb_oliterals.insert(pb_oliterals.begin(), pb_oliterals.end());
+  pb_oliterals.clear();
+  build(S, lits, coeffs, rhs);
+
   uint64_t old_pb = current_pb_rhs;
 
   encode(S, lits, coeffs, rhs);

@@ -82,6 +82,8 @@ protected:
   int nb_clauses;
   
   int incremental_strategy;
+  weightedlitst enc_literals;
+  vec<Lit> assumptions;
 };
 
 } // namespace openwbo
