@@ -64,10 +64,14 @@ Solver *MaxSAT::newSATSolver() {
 
 // Creates a new variable in the SAT solver.
 void MaxSAT::newSATVariable(Solver *S) {
+	
+  static int count = 0;
 
 #ifdef SIMP
   ((NSPACE::SimpSolver *)S)->newVar();
 #else
+  count++;
+  printf("Created new variable, count is : %d\n",count);
   S->newVar();
 #endif
 }

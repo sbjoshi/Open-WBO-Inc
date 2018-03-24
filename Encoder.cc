@@ -244,6 +244,8 @@ void Encoder::updatePB(Solver *S, uint64_t rhs) {
 // Incremental methods for PB encodings:
 //
 // Manages the incremental encode of PB encodings.
+// Sukrut - encode, but assumptions come from outside 
+// why don't PB encodings store them inside like totalizer? TODO
 void Encoder::incEncodePB(Solver *S, vec<Lit> &lits, vec<uint64_t> &coeffs,
                           int64_t rhs, vec<Lit> &assumptions, int size) {
   assert(incremental_strategy == _INCREMENTAL_ITERATIVE_);
@@ -257,6 +259,11 @@ void Encoder::incEncodePB(Solver *S, vec<Lit> &lits, vec<uint64_t> &coeffs,
   switch (pb_encoding) {
   case _PB_SWC_:
     swc.encode(S, lits_copy, coeffs_copy, rhs, assumptions, size);
+    break;
+    
+  case _PB_GTE_INC_:
+  	gteinc.encode(S, lits_copy, coeffs_copy, rhs);
+  	gteinc.update(S, rhs, assumptions);
     break;
 
   default:
@@ -281,6 +288,11 @@ void Encoder::incUpdatePB(Solver *S, vec<Lit> &lits, vec<uint64_t> &coeffs,
   case _PB_SWC_:
     swc.update(S, rhs, assumptions);
     swc.join(S, lits_copy, coeffs_copy, assumptions);
+    break;
+    
+  case _PB_GTE_INC_:
+  	gteinc.join(S, lits_copy, coeffs_copy, rhs, assumptions);
+  	gteinc.update(S, rhs, assumptions);
     break;
 
   default:
@@ -347,6 +359,7 @@ bool Encoder::hasPBEncoding() {
     return gte.hasCreatedEncoding();
   else if (pb_encoding == _PB_GTECLUSTER_)
     return gtecluster.hasCreatedEncoding();
-
+  else if (pb_encoding == _PB_GTE_INC_)
+    return gteinc.hasCreatedEncoding(); 
   return false;
 }

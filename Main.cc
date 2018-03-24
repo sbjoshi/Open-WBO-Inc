@@ -335,6 +335,7 @@ int main(int argc, char **argv) {
       if((int)(cluster_algorithm) == 1) {
         switch ((int)algorithm) {
         case _ALGORITHM_LINEAR_SU_:
+          printf("Choosing LINEARSU\n");
           static_cast<LinearSUMod*>(S)->initializeCluster();
           break;
         case _ALGORITHM_OLL_:

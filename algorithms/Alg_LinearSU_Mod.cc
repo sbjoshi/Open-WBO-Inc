@@ -202,6 +202,9 @@ void LinearSUMod::bmoSearch() {
         	best_cost = originalCost;
           printf("o %" PRId64 " ", originalCost);
           printf("cho %" PRId64 "\n", newCost + lbCost + off_set);
+          printf("c nVar: %ld nSoft: %ld nHard: %ld\n",
+		        	maxsat_formula->nVars(), maxsat_formula->nSoft(),
+		        	maxsat_formula->nHard());
         }
         ubCost = newCost + lbCost;
       } else {
@@ -336,10 +339,16 @@ void LinearSUMod::normalSearch() {
 		      if (maxsat_formula->getObjFunction() != NULL) {
 		        printf("o %" PRId64 " ", originalCost);
 		        printf("cho %" PRId64 "\n", newCost + off_set);
+		        printf("c nVar: %ld nSoft: %ld nHard: %ld\n",
+		        	maxsat_formula->nVars(), maxsat_formula->nSoft(),
+		        	maxsat_formula->nHard());
 		      }
 		    } else {
 		      printf("o %" PRId64 " ", originalCost);
 		      printf("cho %" PRId64 "\n", newCost + off_set);
+		      printf("c nVar: %ld nSoft: %ld nHard: %ld\n",
+		        	maxsat_formula->nVars(), maxsat_formula->nSoft(),
+		        	maxsat_formula->nHard());
 		    }
 		 }
 
@@ -398,7 +407,11 @@ void LinearSUMod::search() {
 	for(int i = 0; i < maxsat_formula_extended->getSoftClauses().size(); i++) {
 		printf("%d ", maxsat_formula_extended->getSoftClauses()[i].weight);
 	}
-
+  if(maxsat_formula->getProblemType() == _WEIGHTED_) {
+    printf("Weighted\n");
+  } else {
+    printf("Unweighted\n");
+  }
   // std::ofstream wcnffile("../test.wcnf");
 
   // wcnffile << "p wcnf " << maxsat_formula->nHard()
