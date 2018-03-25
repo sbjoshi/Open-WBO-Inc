@@ -3,6 +3,7 @@
 #include <vector>
 #include <iostream>
 #include "encodings/Enc_GTECluster.h"
+#include "encodings/Enc_GTEIncremental.h"
 
 #define NUM_CLUSTERS 10
 #define MAX_PER_CLUSTER 20
@@ -51,7 +52,8 @@ void test_encoding()
 		s->addClause(literals[i]);
 	}
 
-	openwbo::GTECluster gte;
+	openwbo::GTEIncremental gte(_INCREMENTAL_ITERATIVE_);
+	vec<Lit> assumptions;
 	uint64_t rhs = 0;
 	std::uniform_int_distribution<unsigned> dis_rhs(0,1);
 	unsigned unsat = dis_rhs(g);
@@ -68,11 +70,12 @@ void test_encoding()
 	std::cout << "RHS: " << rhs << std::endl;
 
 	gte.encode(s, literals, weights_vec, rhs);
+	gte.update(s, rhs, assumptions);
 
 	std::cout << "Encoded" << std::endl;
 	//return;
 
-	bool solved = s->solve();
+	bool solved = s->solve(assumptions);
 
 	if (unsat) {
 		if (solved) {

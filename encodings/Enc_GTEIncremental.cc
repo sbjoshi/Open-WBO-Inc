@@ -448,15 +448,16 @@ void GTEIncremental::update(Solver *S, uint64_t rhs, vec<Lit> &assumptions) {
     printf("s UNKNOWN\n");
     exit(_ERROR_);
   }
-
-  for (wlit_mapt::reverse_iterator rit = pb_oliterals.rbegin();
-       rit != pb_oliterals.rend(); rit++) {
-    if (rit->first > current_pb_rhs)
-      continue;
-    if (rit->first > rhs) {
-      addUnitClause(S, ~rit->second);
-    } else {
-      break;
+  if(incremental_strategy == _INCREMENTAL_NONE_) {
+    for (wlit_mapt::reverse_iterator rit = pb_oliterals.rbegin();
+         rit != pb_oliterals.rend(); rit++) {
+      if (rit->first > current_pb_rhs)
+        continue;
+      if (rit->first > rhs) {
+        addUnitClause(S, ~rit->second);
+      } else {
+        break;
+      }
     }
   }
   /* ... PUT CODE HERE TO UPDATE THE RHS OF AN ALREADY EXISTING ENCODING ... */
@@ -468,9 +469,11 @@ void GTEIncremental::update(Solver *S, uint64_t rhs, vec<Lit> &assumptions) {
                       current_pb_rhs);
     }
     assumptions.clear();
+    printf("Adding assumptions\n");
     for(wlit_mapt::reverse_iterator oit = ++(pb_oliterals.rbegin());
       oit != pb_oliterals.rend(); oit++) {
       if(oit->first > rhs) {
+        printf("Assumption for weight %ld\n", oit->first);
         assumptions.push(~oit->second);
       }
     }
