@@ -202,9 +202,6 @@ void LinearSUMod::bmoSearch() {
         	best_cost = originalCost;
           printf("o %" PRId64 " ", originalCost);
           printf("cho %" PRId64 "\n", newCost + lbCost + off_set);
-          printf("c nVar: %ld nSoft: %ld nHard: %ld\n",
-		        	maxsat_formula->nVars(), maxsat_formula->nSoft(),
-		        	maxsat_formula->nHard());
         }
         ubCost = newCost + lbCost;
       } else {
@@ -315,9 +312,8 @@ void LinearSUMod::normalSearch() {
 
   initRelaxation();
   solver = rebuildSolver();
-
   while (res == l_True) {
-
+    printf("c nVars : %d\nc nClauses : %d\n", solver->nVars(),solver->nClauses());
     vec<Lit> dummy;
     // Do not use preprocessing for linear search algorithm.
     // NOTE: When preprocessing is enabled the SAT solver simplifies the
@@ -339,16 +335,10 @@ void LinearSUMod::normalSearch() {
 		      if (maxsat_formula->getObjFunction() != NULL) {
 		        printf("o %" PRId64 " ", originalCost);
 		        printf("cho %" PRId64 "\n", newCost + off_set);
-		        printf("c nVar: %ld nSoft: %ld nHard: %ld\n",
-		        	maxsat_formula->nVars(), maxsat_formula->nSoft(),
-		        	maxsat_formula->nHard());
 		      }
 		    } else {
 		      printf("o %" PRId64 " ", originalCost);
 		      printf("cho %" PRId64 "\n", newCost + off_set);
-		      printf("c nVar: %ld nSoft: %ld nHard: %ld\n",
-		        	maxsat_formula->nVars(), maxsat_formula->nSoft(),
-		        	maxsat_formula->nHard());
 		    }
 		 }
 

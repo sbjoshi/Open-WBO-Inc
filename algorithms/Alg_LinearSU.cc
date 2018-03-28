@@ -90,10 +90,6 @@ void LinearSU::bmoSearch() {
         // the last lexicographical function.
         saveModel(solver->model);
         printf("o %" PRId64 "\n", newCost + lbCost + off_set);
-        // TODO Remove later - Sukrut
-        printf("c nVar: %ld nSoft: %ld nHard: %ld\n",
-		        	maxsat_formula->nVars(), maxsat_formula->nSoft(),
-		        	maxsat_formula->nHard());
         ubCost = newCost + lbCost;
       } else {
         if (verbosity > 0)
@@ -220,17 +216,9 @@ void LinearSU::normalSearch() {
         // optimization problem
         if (maxsat_formula->getObjFunction() != NULL) {
           printf("o %" PRId64 "\n", newCost + off_set);
-          // TODO Remove later - Sukrut
-          printf("c nVar: %ld nSoft: %ld nHard: %ld\n",
-		        	maxsat_formula->nVars(), maxsat_formula->nSoft(),
-		        	maxsat_formula->nHard());          
         }
       } else
-        printf("o %" PRId64 "\n", newCost + off_set);
-        // TODO Remove later - Sukrut
-          printf("c nVar: %ld nSoft: %ld nHard: %ld\n",
-		        	maxsat_formula->nVars(), maxsat_formula->nSoft(),
-		        	maxsat_formula->nHard());      
+        printf("o %" PRId64 "\n", newCost + off_set); 
 
       if (newCost == 0) {
         // If there is a model with value 0 then it is an optimal model

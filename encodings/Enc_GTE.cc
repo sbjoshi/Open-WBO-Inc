@@ -37,7 +37,10 @@ struct less_than_wlitt {
 };
 
 Lit GTE::getNewLit(Solver *S) {
+//  static int count = 0;
   Lit p = mkLit(S->nVars(), false);
+//  count++;
+//  printf("Count is %d\n",count);
   newSATVariable(S);
   nb_variables++;
   return p;
@@ -230,7 +233,7 @@ void GTE::encode(Solver *S, vec<Lit> &lits, vec<uint64_t> &coeffs,
   }
   less_than_wlitt lt_wlit;
   std::sort(iliterals.begin(), iliterals.end(), lt_wlit);
-  printf("ILITERALS ARE : \n");
+//  printf("ILITERALS ARE : \n");
   for(auto i = iliterals.begin(); i != iliterals.end(); i++) {
   	printf("%d ",(*i).weight);
   }
