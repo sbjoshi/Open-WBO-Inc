@@ -432,6 +432,11 @@ void MaxSAT::printAnswer(int type) {
   }
 }
 
+void MaxSAT::printFormulaStats(Solver *S) {
+	printf("c nVars: %d\n", S->nVars());
+	printf("c nClauses: %d\n", S->nClauses());
+}
+
 uint64_t MaxSAT::getUB() {
   // only works for partial MaxSAT currently
   Solver *solver = newSATSolver();

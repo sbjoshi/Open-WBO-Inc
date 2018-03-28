@@ -176,6 +176,7 @@ void OLLMod::unweighted() {
 
     res = searchSATSolver(solver, assumptions);
     if (res == l_True) {
+      printFormulaStats(solver);
       nbSatisfiable++;
       uint64_t newCost = computeCostModel(solver->model);
       uint64_t originalCost = computeOriginalCost(solver->model);
@@ -204,9 +205,11 @@ void OLLMod::unweighted() {
         if (newCost == 0) {
           if (maxsat_formula->getFormat() == _FORMAT_PB_ &&
               maxsat_formula->getObjFunction() == NULL) {
+            printFormulaStats(solver);
             printAnswer(_SATISFIABLE_);
             exit(_SATISFIABLE_);
           } else {
+            printFormulaStats(solver);
             printAnswer(_OPTIMUM_);
             exit(_OPTIMUM_);
           }
@@ -216,6 +219,7 @@ void OLLMod::unweighted() {
           assumptions.push(~maxsat_formula->getSoftClause(i).assumption_var);
       } else {
         assert(lbCost == newCost);
+        printFormulaStats(solver);
         printAnswer(_OPTIMUM_);
         exit(_OPTIMUM_);
       }
@@ -228,6 +232,7 @@ void OLLMod::unweighted() {
         printf("c LB : %-12" PRIu64 "\n", lbCost);
 
       if (nbSatisfiable == 0) {
+        printFormulaStats(solver);
         printAnswer(_UNSATISFIABLE_);
         exit(_UNSATISFIABLE_);
       }
@@ -236,6 +241,7 @@ void OLLMod::unweighted() {
         assert(nbSatisfiable > 0);
         if (verbosity > 0)
           printf("c LB = UB\n");
+        printFormulaStats(solver);
         printAnswer(_OPTIMUM_);
         exit(_OPTIMUM_);
       }
@@ -382,9 +388,10 @@ void OLLMod::weighted() {
   // printf("current weight %d\n",maxsat_formula->getMaximumWeight());
 
   for (;;) {
-
+    
     res = searchSATSolver(solver, assumptions);
     if (res == l_True) {
+      printFormulaStats(solver);
       nbSatisfiable++;
       uint64_t newCost = computeCostModel(solver->model);
       if (newCost < ubCost || nbSatisfiable == 1) {
@@ -470,6 +477,7 @@ void OLLMod::weighted() {
 
         } else {
           assert(lbCost == newCost);
+          printFormulaStats(solver);
           printAnswer(_OPTIMUM_);
           exit(_OPTIMUM_);
         }
@@ -507,6 +515,7 @@ void OLLMod::weighted() {
         printf("c LB : %-12" PRIu64 "\n", lbCost);
 
       if (nbSatisfiable == 0) {
+        printFormulaStats(solver);
         printAnswer(_UNSATISFIABLE_);
         exit(_UNSATISFIABLE_);
       }
@@ -515,6 +524,7 @@ void OLLMod::weighted() {
         assert(nbSatisfiable > 0);
         if (verbosity > 0)
           printf("c LB = UB\n");
+        printFormulaStats(solver);
         printAnswer(_OPTIMUM_);
         exit(_OPTIMUM_);
       }
