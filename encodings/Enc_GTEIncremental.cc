@@ -223,6 +223,7 @@ bool GTEIncremental::encodeLeqIncremental(uint64_t k, Solver *S, const weightedl
         // clause.push_back(get_var(auxvars,oliterals,l.first));
       } else {
         // just creating the literal
+        // TODO - NO! This is wrong! You don't create a new variable each time!
         get_var(S, oliterals, mit->first);
       }
 

@@ -71,7 +71,7 @@ void MaxSAT::newSATVariable(Solver *S) {
   ((NSPACE::SimpSolver *)S)->newVar();
 #else
   count++;
-  printf("Created new variable, count is : %d\n",count);
+//  printf("Created new variable, count is : %d\n",count);
   S->newVar();
 #endif
 }

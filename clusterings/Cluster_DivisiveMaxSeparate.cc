@@ -54,6 +54,11 @@ void Cluster_DivisiveMaxSeparate::clusterWeights(MaxSATFormulaExtended *formula,
         	}
         }
       }
+      // don't split if weights are equal anyway
+      if(max_distance == 0) {
+      	printf("Redundant split found\n");
+      	break;
+      } 
       bool is_added = false;
       for(uint64_t j = 0; j < cluster_indices.size(); j++) {
         if(cluster_indices[j] > max_index && !is_added) {

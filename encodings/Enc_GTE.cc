@@ -60,7 +60,7 @@ bool GTE::encodeLeq(uint64_t k, Solver *S, const weightedlitst &iliterals,
 
   if (iliterals.size() == 1) {
   	
-	printf("In 1, Inserting weight : %d\n", iliterals.front().weight);
+//	printf("In 1, Inserting weight : %d\n", iliterals.front().weight);
     oliterals.insert(
         wlit_pairt(iliterals.front().weight, iliterals.front().lit));
     return true;
@@ -100,10 +100,10 @@ bool GTE::encodeLeq(uint64_t k, Solver *S, const weightedlitst &iliterals,
 
   {
     assert(!loutputs.empty());
-	printf("START #################################################\n");
+//	printf("START #################################################\n");
     for (wlit_mapt::iterator mit = loutputs.begin(); mit != loutputs.end();
          mit++) {
-	  printf("MIT FIRST :%d\n",mit->first);
+	//  printf("MIT FIRST :%d\n",mit->first);
       if (mit->first > k) {
         addBinaryClause(S, ~mit->second, get_var(S, oliterals, k));
         nb_clauses++;
@@ -115,15 +115,15 @@ bool GTE::encodeLeq(uint64_t k, Solver *S, const weightedlitst &iliterals,
 
       // formula.push_back(std::move(clause));
     }
-    printf("END ###########################################\n");
+//    printf("END ###########################################\n");
   }
 
   {
     assert(!routputs.empty());
-    printf("RIGHT START #################################################\n");
+  //  printf("RIGHT START #################################################\n");
     for (wlit_mapt::iterator mit = routputs.begin(); mit != routputs.end();
          mit++) {
-      printf("RIGHT MIT FIRST :%d\n",mit->first);
+    //  printf("RIGHT MIT FIRST :%d\n",mit->first);
       if (mit->first > k) {
         addBinaryClause(S, ~mit->second, get_var(S, oliterals, k));
         nb_clauses++;
@@ -136,7 +136,7 @@ bool GTE::encodeLeq(uint64_t k, Solver *S, const weightedlitst &iliterals,
 
       // formula.push_back(std::move(clause));
     }
-    printf("RIGHT END ###########################################\n");
+//    printf("RIGHT END ###########################################\n");
   }
 
   // if(!lformula.empty() && !rformula.empty())
