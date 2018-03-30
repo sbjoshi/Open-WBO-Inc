@@ -1,6 +1,9 @@
 #include <random>
 #include <algorithm>
 #include <vector>
+#ifndef TEST_H
+#define TEST_H
+
 #include <iostream>
 #include "encodings/Enc_GTECluster.h"
 #include "encodings/Enc_GTEIncremental.h"
@@ -8,9 +11,39 @@
 #define NUM_CLUSTERS 10
 #define MAX_PER_CLUSTER 20
 
+void test_encoding(MaxSATFormula *maxsat_formula, uint64_t rhs) {
+	Solver *s = new Solver();
+
+	openwbo::GTEIncremental gte(_INCREMENTAL_ITERATIVE_);
+	vec<Lit> assumptions;
+	vec<Lit> literals;
+	vec<uint64_t> weights_vec;
+
+	for (int i=0; i<maxsat_formula->nSoft(); i++) {
+		s->newVar();
+		literals.push(maxsat_formula->getSoftClause(i).clause[0]);
+		weights_vec.push(maxsat_formula->getSoftClause(i).weight);
+	}
+
+	gte.encode(s, literals, weights_vec, rhs);
+	gte.update(s, rhs, assumptions);
+
+	std::cout << "Encoded" << std::endl;
+
+	for (int i=0; i<maxsat_formula->nHard(); i++) {
+		s->addClause(maxsat_formula->getHardClause(i).clause[0]);
+	}
+
+	bool solved = s->solve(assumptions);
+	if (solved) {
+		std::cout << "SAT" << std::endl;
+	} else {
+		std::cout << "UNSAT" << std::endl;
+	}
+}
+
 void test_encoding()
 {
-
 	std::random_device rd;
 	std::mt19937 g(rd());
 	std::uniform_int_distribution<unsigned int> dis(1, MAX_PER_CLUSTER);
@@ -100,3 +133,5 @@ void test_encoding()
 	}
 
 }
+
+#endif

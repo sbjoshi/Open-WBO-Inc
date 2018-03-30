@@ -84,7 +84,9 @@ static void SIGINT_exit(int signum) {
   exit(_UNKNOWN_);
 }
 
-void test_encoding();
+#include "Test.h"
+
+// void test_encoding();
 
 //=================================================================================================
 // Main:
@@ -114,6 +116,9 @@ int main(int argc, char **argv) {
 
     IntOption num_tests("Open-WBO", "num_tests",
                         "Number of tests\n", 0, IntRange(0, 10000000));
+
+    IntOption test_rhs("Open-WBO", "test_rhs",
+                        "Rhs for a custom encoding test\n", 0, IntRange(0, 10000000));
 
     IntOption verbosity("Open-WBO", "verbosity",
                         "Verbosity level (0=minimal, 1=more).\n", 0,
@@ -175,17 +180,17 @@ int main(int argc, char **argv) {
 
     parseOptions(argc, argv, true);
 
-    double initial_time = cpuTime();
-    MaxSAT *S = NULL;
-    
-    Statistics rounding_statistic = static_cast<Statistics>((int)rounding_strategy);
-
     if ((int)num_tests) {
       for (int i=0; i<(int)num_tests; i++) {
         test_encoding();
       }
       return 0;
     }
+
+    double initial_time = cpuTime();
+    MaxSAT *S = NULL;
+    
+    Statistics rounding_statistic = static_cast<Statistics>((int)rounding_strategy);
 
     switch ((int)algorithm) {
     case _ALGORITHM_WBO_:
@@ -258,6 +263,11 @@ int main(int argc, char **argv) {
       maxsat_formula->setFormat(_FORMAT_PB_);
     }
     gzclose(in);
+
+    if ((int)test_rhs) {
+      test_encoding(maxsat_formula, (uint64_t)test_rhs);
+      return 0;
+    }
 
     printf("c |                                                                "
            "                                       |\n");
