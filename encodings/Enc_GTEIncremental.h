@@ -52,7 +52,7 @@ protected:
   // encodeLeq for iterative encoding     
   bool encodeLeqIncremental(uint64_t k, Solver *S,
   				const weightedlitst &iliterals, 
-  				wlit_mapt &oliterals, uint64_t old_k = 0);
+  				wlit_mapt &oliterals);
   Lit getNewLit(Solver *S);
   Lit get_var(Solver *S, wlit_mapt &oliterals, uint64_t weight);
   vec<Lit> pb_outlits; // Stores the outputs of the pseudo-Boolean constraint
@@ -71,6 +71,17 @@ protected:
   
   int incremental_strategy;
   weightedlitst enc_literals;
+  
+  // this vs wlitt - which is better? TODO Sukrut
+  vec<wlit_mapt> gteIterative_left;
+  vec<wlit_mapt> gteIterative_right;
+  vec<wlit_mapt> gteIterative_output;
+  vec<uint64_t> gteIterative_rhs;
+  
+  void incremental(Solver *S, uint64_t rhs);
+  void adder(wlit_mapt &left, wlit_mapt &right, wlit_mapt &output, 
+              uint64_t rhs);
+  
 };
 
 } // namespace openwbo
