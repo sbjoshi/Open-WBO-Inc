@@ -192,20 +192,39 @@ bool GTEIncremental::encodeLeqIncremental(uint64_t k, Solver *S, const weightedl
   uint64_t left_largest_weight = loutputs.rbegin()->first;
   uint64_t right_largest_weight = routputs.rbegin()->first;
   
-  // find last element for current level, if it directly comes from the 
-  // level immediately below
-  if(left_largest_weight > k) {
+
+  least_weight_above_k = loutputs.rbegin()->first + routputs.rbegin()->first;
+  if(least_weight_above_k > k) {
     added_first_above_k = true;
-    if(right_largest_weight > k && 
-          right_largest_weight < left_largest_weight) {
-      least_weight_above_k = right_largest_weight;
-    } else {
-      least_weight_above_k = left_largest_weight;
+    for (wlit_mapt::iterator lit = loutputs.begin(); lit != loutputs.end();
+       lit++) {
+      for (wlit_mapt::iterator rit = routputs.begin(); rit != routputs.end();
+         rit++) {
+        uint64_t tw = lit->first + rit->first;
+        printf("TW : %d\n",tw);
+        if(tw > k && tw < least_weight_above_k) {
+          printf("Setting %d, earlier was %d, k is %d\n\n",tw,least_weight_above_k,k);
+          least_weight_above_k = tw;
+        }
+      }
     }
-  } else if(right_largest_weight > k) {
-    added_first_above_k = true;
-    least_weight_above_k = right_largest_weight;
   }
+  
+  if(added_first_above_k) {
+    if(left_largest_weight > k) {
+      if(right_largest_weight > k && 
+        right_largest_weight < left_largest_weight &&
+        right_largest_weight < least_weight_above_k) {
+        least_weight_above_k = right_largest_weight;
+      } else if(left_largest_weight < least_weight_above_k) {
+        least_weight_above_k = left_largest_weight;
+      }
+    } else if(right_largest_weight > k && 
+              right_largest_weight < least_weight_above_k) {
+      least_weight_above_k = right_largest_weight;
+    }
+  }
+  
 
   {
     
@@ -214,10 +233,12 @@ bool GTEIncremental::encodeLeqIncremental(uint64_t k, Solver *S, const weightedl
 
       if (mit->first > k) {
         assert(added_first_above_k);
+        implication(mit->first,least_weight_above_k);
         addBinaryClause(S, ~mit->second, 
           get_var(S, oliterals, least_weight_above_k));
         nb_clauses++;
       } else {
+        implication(mit->first,mit->first);
         addBinaryClause(S, ~mit->second, get_var(S, oliterals, mit->first));
         nb_clauses++;
         // clause.push_back(get_var(auxvars,oliterals,l.first));
@@ -238,11 +259,13 @@ bool GTEIncremental::encodeLeqIncremental(uint64_t k, Solver *S, const weightedl
 
       if (mit->first > k) {
         assert(added_first_above_k);
+        implication(mit->first,least_weight_above_k);
         addBinaryClause(S, ~mit->second,
           get_var(S, oliterals, least_weight_above_k));
         nb_clauses++;
         // clause.push_back(get_var(auxvars,oliterals,k));
       } else {
+        implication(mit->first,mit->first);
         addBinaryClause(S, ~mit->second, get_var(S, oliterals, mit->first));
         nb_clauses++;
         // clause.push_back(get_var(auxvars,oliterals,r.first));
@@ -252,25 +275,6 @@ bool GTEIncremental::encodeLeqIncremental(uint64_t k, Solver *S, const weightedl
       } */
 
       // formula.push_back(std::move(clause));
-    }
-  }
-  
-  // finding least weight above k among pairwise sums, since we already 
-  // know that no single weight is above k
-  if(!added_first_above_k) {
-    least_weight_above_k = loutputs.rbegin()->first + routputs.rbegin()->first;
-    if(least_weight_above_k > k) {
-      added_first_above_k = true;
-      for (wlit_mapt::iterator lit = loutputs.begin(); lit != loutputs.end();
-         lit++) {
-        for (wlit_mapt::iterator rit = routputs.begin(); rit != routputs.end();
-           rit++) {
-          uint64_t tw = lit->first + rit->first;
-          if(tw > k && tw < least_weight_above_k) {
-            least_weight_above_k = tw;
-          }
-        }
-      }
     }
   }
 
@@ -287,11 +291,13 @@ bool GTEIncremental::encodeLeqIncremental(uint64_t k, Solver *S, const weightedl
         uint64_t tw = lit->first + rit->first;
         if (tw > k) {
           assert(added_first_above_k);
+          implication(lit->first,rit->first,least_weight_above_k);
           addTernaryClause(S, ~lit->second, ~rit->second,
                            get_var(S, oliterals, least_weight_above_k)); // TODO - check
           nb_clauses++;
           // clause.push_back(get_var(auxvars,oliterals,k));
         } else {
+          implication(lit->first,rit->first,tw);
           addTernaryClause(S, ~lit->second, ~rit->second,
                            get_var(S, oliterals, tw));
           nb_clauses++;
@@ -318,10 +324,28 @@ bool GTEIncremental::encodeLeqIncremental(uint64_t k, Solver *S, const weightedl
     } */
     wlit_mapt::reverse_iterator implied_lit = oit;
     --implied_lit;
+    implication(oit->first,implied_lit->first);
     addBinaryClause(S, ~oit->second, implied_lit->second);
     nb_clauses++;
   }
   
+  printf("At this level ############################################\n");
+  printf("LEFT\n");
+  for (wlit_mapt::iterator mit = loutputs.begin(); mit != loutputs.end();
+         mit++) {
+    printf("%d ",mit->first);
+  }
+  printf("\nRIGHT\n");
+  for (wlit_mapt::iterator mit = routputs.begin(); mit != routputs.end();
+         mit++) {
+    printf("%d ",mit->first);
+  }
+  printf("\nOUTPUT\n");
+  for (wlit_mapt::iterator mit = oliterals.begin(); mit != oliterals.end();
+         mit++) {
+    printf("%d ",mit->first);
+  }
+  printf("\n\n#######################################################\n\n\n");
   adder(loutputs, routputs, oliterals, k);
 
   return true;
@@ -480,6 +504,8 @@ void GTEIncremental::update(Solver *S, uint64_t rhs, vec<Lit> &assumptions) {
       if(oit->first > rhs) {
         printf("Assumption for weight %ld\n", oit->first);
         assumptions.push(~oit->second);
+      } else {
+        printf("No assumption for weight %ld\n", oit->first);
       }
     }
   }

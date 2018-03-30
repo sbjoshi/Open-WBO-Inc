@@ -46,11 +46,11 @@ struct wlitt {
   uint64_t weight;
 };
 
-struct less_than_map { // Sukrut TODO - is this needed, or sorted by default?
-  inline bool operator()(const uint64_t &key1, const uint64_t &key2) {
-    return (key1 < key2);                          
-  }
-};
+//struct less_than_map { // Sukrut TODO - is this needed, or sorted by default?
+//  inline bool operator()(const uint64_t &key1, const uint64_t &key2) {
+//    return (key1 < key2);                          
+//  }
+//};
 
 struct less_than_wlitt {
   inline bool operator()(const wlitt &wl1, const wlitt &wl2) {
@@ -62,7 +62,7 @@ struct wlit_sumt {
     return (wl1 + wl2.weight);
   }
 };
-typedef std::map<uint64_t, Lit, less_than_map> wlit_mapt;
+//typedef std::map<uint64_t, Lit, less_than_map> wlit_mapt;
 typedef std::vector<wlitt> weightedlitst;
 typedef std::pair<uint64_t, Lit> wlit_pairt;
 class GTE : public Encodings {
