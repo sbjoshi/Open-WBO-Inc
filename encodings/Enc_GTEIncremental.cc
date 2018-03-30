@@ -324,8 +324,8 @@ bool GTEIncremental::encodeLeqIncremental(uint64_t k, Solver *S, const weightedl
     } */
     wlit_mapt::reverse_iterator implied_lit = oit;
     --implied_lit;
-    implication(oit->first,implied_lit->first);
-    addBinaryClause(S, ~oit->second, implied_lit->second);
+    implication(implied_lit->first,oit->first);
+    addBinaryClause(S, ~implied_lit->second, oit->second);
     nb_clauses++;
   }
   
@@ -492,6 +492,7 @@ void GTEIncremental::update(Solver *S, uint64_t rhs, vec<Lit> &assumptions) {
   
   if(incremental_strategy == _INCREMENTAL_ITERATIVE_) {
     if(rhs > current_pb_rhs) {
+      printf("Running incremental\n");
 //      pb_oliterals.clear();
       incremental(S, rhs);
 // TODO      encodeLeqIncremental(rhs, S, enc_literals, pb_oliterals, 
