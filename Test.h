@@ -8,9 +8,9 @@
 #include "encodings/Enc_GTECluster.h"
 #include "encodings/Enc_GTEIncremental.h"
 
-#define NUM_CLUSTERS 10
-#define MAX_PER_CLUSTER 20
-#define MAX_WEIGHT 1000
+#define NUM_CLUSTERS 3
+#define MAX_PER_CLUSTER 4
+#define MAX_WEIGHT 100
 
 void test_encoding(MaxSATFormula *maxsat_formula, uint64_t rhs) {
 	Solver *s = new Solver();
