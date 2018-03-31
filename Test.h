@@ -28,9 +28,9 @@ void test_encoding(MaxSATFormula *maxsat_formula, uint64_t rhs) {
 	gte.encode(s, literals, weights_vec, rhs);
 	gte.update(s, rhs, assumptions);
 	
-	for(int i = 0; i < assumptions.size(); i++) {
-		std::cout << var(assumptions[i]) << std::endl;
-	}
+//	for(int i = 0; i < assumptions.size(); i++) {
+//		std::cout << var(assumptions[i]) << std::endl;
+//	}
 
 	std::cout << "Encoded" << std::endl;
 
