@@ -168,6 +168,24 @@ bool GTE::encodeLeq(uint64_t k, Solver *S, const weightedlitst &iliterals,
       }
     }
   }
+  
+  printf("At this level ############################################\n");
+  printf("LEFT\n");
+  for (wlit_mapt::iterator mit = loutputs.begin(); mit != loutputs.end();
+         mit++) {
+    printf("%d ",mit->first);
+  }
+  printf("\nRIGHT\n");
+  for (wlit_mapt::iterator mit = routputs.begin(); mit != routputs.end();
+         mit++) {
+    printf("%d ",mit->first);
+  }
+  printf("\nOUTPUT\n");
+  for (wlit_mapt::iterator mit = oliterals.begin(); mit != oliterals.end();
+         mit++) {
+    printf("%d ",mit->first);
+  }
+  printf("\n\n#######################################################\n\n\n");
 
   return true;
 }
@@ -184,6 +202,7 @@ void GTE::encode(Solver *S, vec<Lit> &lits, vec<uint64_t> &coeffs,
     printf("s UNKNOWN\n");
     exit(_ERROR_);
   }
+  printf("Entered encode\n");
 
   hasEncoding = false;
   nb_variables = 0;
