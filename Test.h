@@ -10,6 +10,7 @@
 
 #define NUM_CLUSTERS 10
 #define MAX_PER_CLUSTER 20
+#define MAX_WEIGHT 1000
 
 void test_encoding(MaxSATFormula *maxsat_formula, uint64_t rhs) {
 	Solver *s = new Solver();
@@ -51,7 +52,7 @@ void test_encoding()
 	std::random_device rd;
 	std::mt19937 g(rd());
 	std::uniform_int_distribution<unsigned int> dis(1, MAX_PER_CLUSTER);
-	std::uniform_int_distribution<uint64_t> dis64(1, 1000);
+	std::uniform_int_distribution<uint64_t> dis64(1, MAX_WEIGHT);
 
 	std::vector<uint64_t> weights;
 	for (int i=0; i<NUM_CLUSTERS; i++) {
@@ -120,12 +121,12 @@ void test_encoding()
 			std::cout << "SAT" << std::endl;
 			std::cout << "c RHS " << rhs << std::endl;
 			std::cout << "p wcnf " << weights_vec.size() << " " << weights_vec.size()+num_unit_clauses
-				<< " " << 1500 << std::endl;
+				<< " " << MAX_WEIGHT+5 << std::endl;
 			for (int i=0; i<weights_vec.size(); i++) {
 				std::cout << weights_vec[i] << " " << i+1 << " 0" << std::endl;
 			}
 			for (int i=0; i<num_unit_clauses; i++) {
-				std::cout << "1500 " << i+1 << " 0" << std::endl;
+				std::cout << MAX_WEIGHT+5 << " " << i+1 << " 0" << std::endl;
 			}
 			std::cout << "c DONE" << std::endl;
 		} else {
@@ -139,12 +140,12 @@ void test_encoding()
 			std::cout << "UNSAT" << std::endl;
 			std::cout << "c RHS " << rhs << std::endl;
 			std::cout << "p wcnf " << weights_vec.size() << " " << weights_vec.size()+num_unit_clauses
-				<< " " << 1500 << std::endl;
+				<< " " << MAX_WEIGHT+5 << std::endl;
 			for (int i=0; i<weights_vec.size(); i++) {
 				std::cout << weights_vec[i] << " " << i+1 << " 0" << std::endl;
 			}
 			for (int i=0; i<num_unit_clauses; i++) {
-				std::cout << "1500 " << i+1 << " 0" << std::endl;
+				std::cout << MAX_WEIGHT+5 << " " << i+1 << " 0" << std::endl;
 			}
 			std::cout << "c DONE" << std::endl;
 		}
