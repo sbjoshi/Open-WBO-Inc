@@ -103,53 +103,66 @@ void test_encoding()
 		rhs = dis_rhs(g);
 	}
 
-	std::cout << "Number of lits: " << literals.size() << std::endl
-		<< "Number of unit clauses: " << num_unit_clauses << std::endl;
-	std::cout << "RHS: " << rhs << std::endl;
+	// std::cout << "Number of lits: " << literals.size() << std::endl
+	// 	<< "Number of unit clauses: " << num_unit_clauses << std::endl;
+	// std::cout << "RHS: " << rhs << std::endl;
 
 	gte.encode(s, literals, weights_vec, rhs);
-	gte.update(s, rhs, assumptions);
 
-	std::cout << "Encoded" << std::endl;
-	//return;
+	for (int k=0; k<5; k++) {
+		gte.update(s, rhs, assumptions);
 
-	bool solved = s->solve(assumptions);
+		std::cout << "Encoded" << std::endl;
 
-	if (unsat) {
-		if (solved) {
-			std::cout << "TEST FAILED" << std::endl;
-			std::cout << "SAT" << std::endl;
-			std::cout << "c RHS " << rhs << std::endl;
-			std::cout << "p wcnf " << weights_vec.size() << " " << weights_vec.size()+num_unit_clauses
-				<< " " << MAX_WEIGHT+5 << std::endl;
-			for (int i=0; i<weights_vec.size(); i++) {
-				std::cout << weights_vec[i] << " " << i+1 << " 0" << std::endl;
+		bool solved = s->solve(assumptions);
+
+		if (unsat) {
+			if (solved) {
+				std::cout << "TEST FAILED" << std::endl;
+				std::cout << "SAT" << std::endl;
+				std::cout << "c RHS " << rhs << std::endl;
+				std::cout << "p wcnf " << weights_vec.size() << " " << weights_vec.size()+num_unit_clauses
+					<< " " << MAX_WEIGHT+5 << std::endl;
+				for (int i=0; i<weights_vec.size(); i++) {
+					std::cout << weights_vec[i] << " " << i+1 << " 0" << std::endl;
+				}
+				for (int i=0; i<num_unit_clauses; i++) {
+					std::cout << MAX_WEIGHT+5 << " " << i+1 << " 0" << std::endl;
+				}
+				std::cout << "c DONE" << std::endl;
+			} else {
+				std::cout << "UNSAT" << std::endl;
 			}
-			for (int i=0; i<num_unit_clauses; i++) {
-				std::cout << MAX_WEIGHT+5 << " " << i+1 << " 0" << std::endl;
-			}
-			std::cout << "c DONE" << std::endl;
 		} else {
-			std::cout << "UNSAT" << std::endl;
+			if (solved) {
+				std::cout << "SAT" << std::endl;
+			} else {
+				std::cout << "TEST FAILED" << std::endl;
+				std::cout << "UNSAT" << std::endl;
+				std::cout << "c RHS " << rhs << std::endl;
+				std::cout << "p wcnf " << weights_vec.size() << " " << weights_vec.size()+num_unit_clauses
+					<< " " << MAX_WEIGHT+5 << std::endl;
+				for (int i=0; i<weights_vec.size(); i++) {
+					std::cout << weights_vec[i] << " " << i+1 << " 0" << std::endl;
+				}
+				for (int i=0; i<num_unit_clauses; i++) {
+					std::cout << MAX_WEIGHT+5 << " " << i+1 << " 0" << std::endl;
+				}
+				std::cout << "c DONE" << std::endl;
+			}
 		}
-	} else {
-		if (solved) {
-			std::cout << "SAT" << std::endl;
+
+		std::uniform_int_distribution<unsigned> dis_rhs(0,1);
+		unsat = dis_rhs(g);
+		if (unsat) {
+			std::uniform_int_distribution<unsigned> dis_rhs(sum/2-1, sum-1);
+			rhs = dis_rhs(g);
 		} else {
-			std::cout << "TEST FAILED" << std::endl;
-			std::cout << "UNSAT" << std::endl;
-			std::cout << "c RHS " << rhs << std::endl;
-			std::cout << "p wcnf " << weights_vec.size() << " " << weights_vec.size()+num_unit_clauses
-				<< " " << MAX_WEIGHT+5 << std::endl;
-			for (int i=0; i<weights_vec.size(); i++) {
-				std::cout << weights_vec[i] << " " << i+1 << " 0" << std::endl;
-			}
-			for (int i=0; i<num_unit_clauses; i++) {
-				std::cout << MAX_WEIGHT+5 << " " << i+1 << " 0" << std::endl;
-			}
-			std::cout << "c DONE" << std::endl;
+			std::uniform_int_distribution<unsigned> dis_rhs(sum, 2*sum+1);
+			rhs = dis_rhs(g);
 		}
 	}
+	
 
 }
 
