@@ -118,9 +118,16 @@ void test_encoding()
 		if (solved) {
 			std::cout << "TEST FAILED" << std::endl;
 			std::cout << "SAT" << std::endl;
+			std::cout << "c RHS " << rhs << std::endl;
+			std::cout << "p wcnf " << weights_vec.size() << " " << weights_vec.size()+num_unit_clauses
+				<< " " << 1500 << std::endl;
 			for (int i=0; i<weights_vec.size(); i++) {
-				std::cout << weights_vec[i] << std::endl;
+				std::cout << weights_vec[i] << " " << i+1 << " 0" << std::endl;
 			}
+			for (int i=0; i<num_unit_clauses; i++) {
+				std::cout << "1500 " << i+1 << " 0" << std::endl;
+			}
+			std::cout << "c DONE" << std::endl;
 		} else {
 			std::cout << "UNSAT" << std::endl;
 		}
@@ -130,9 +137,16 @@ void test_encoding()
 		} else {
 			std::cout << "TEST FAILED" << std::endl;
 			std::cout << "UNSAT" << std::endl;
+			std::cout << "c RHS " << rhs << std::endl;
+			std::cout << "p wcnf " << weights_vec.size() << " " << weights_vec.size()+num_unit_clauses
+				<< " " << 1500 << std::endl;
 			for (int i=0; i<weights_vec.size(); i++) {
-				std::cout << weights_vec[i] << std::endl;
+				std::cout << weights_vec[i] << " " << i+1 << " 0" << std::endl;
 			}
+			for (int i=0; i<num_unit_clauses; i++) {
+				std::cout << "1500 " << i+1 << " 0" << std::endl;
+			}
+			std::cout << "c DONE" << std::endl;
 		}
 	}
 
