@@ -22,11 +22,9 @@ class GTENode {
 public:
   wlit_mapt node;
   uint64_t rhs;
-  GTENode *parent;
   GTENode *left;
   GTENode *right;
   GTENode() {
-    parent = nullptr;
     left = nullptr;
     right = nullptr;
   }
