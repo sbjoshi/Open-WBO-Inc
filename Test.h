@@ -110,7 +110,7 @@ void test_encoding()
 	std::uniform_int_distribution<unsigned> dis_rhs(0,1);
 	unsigned unsat = dis_rhs(g);
 	if (unsat) {
-		std::uniform_int_distribution<unsigned> dis_rhs(1, sum-1);
+		std::uniform_int_distribution<unsigned> dis_rhs(0, sum-1);
 		rhs = dis_rhs(g);
 	} else {
 		std::uniform_int_distribution<unsigned> dis_rhs(sum, 2*sum+1);
@@ -187,7 +187,7 @@ void test_encoding()
 		std::uniform_int_distribution<unsigned> dis_rhs(0,1);
 		unsat = dis_rhs(g);
 		if (unsat) {
-			std::uniform_int_distribution<unsigned> dis_rhs(1, sum-1);
+			std::uniform_int_distribution<unsigned> dis_rhs(0, sum-1);
 			rhs = dis_rhs(g);
 		} else {
 			std::uniform_int_distribution<unsigned> dis_rhs(sum, 2*sum+1);
