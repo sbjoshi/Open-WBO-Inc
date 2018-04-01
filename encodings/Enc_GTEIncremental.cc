@@ -529,7 +529,7 @@ void GTEIncremental::join(Solver *S, vec<Lit> &lits, vec<uint64_t> &coeffs,
 // uint64_t old_pb = current_pb_rhs;
   
   // add extra clauses in existing tree
-//  update(S, rhs, assumptions);
+  incremental(S, rhs);
   
   wlit_mapt loutputs;
   wlit_mapt routputs;
@@ -538,7 +538,7 @@ void GTEIncremental::join(Solver *S, vec<Lit> &lits, vec<uint64_t> &coeffs,
   loutputs.insert(pb_oliterals.begin(), pb_oliterals.end());
   pb_oliterals.clear();
   
-  GTENode *right_tree;
+  GTENode *right_tree = nullptr;
   
   // build right tree
   build(S, lits, coeffs, rhs, &right_tree);
@@ -702,7 +702,7 @@ void GTEIncremental::join(Solver *S, vec<Lit> &lits, vec<uint64_t> &coeffs,
 //  current_pb_rhs = rhs;
 //  gteIterative_rhs.push(current_pb_rhs);
 
-  incremental(S, rhs);
+//  incremental(S, rhs);
   
   GTENode *top = new GTENode;
   top->left = root;
@@ -714,6 +714,8 @@ void GTEIncremental::join(Solver *S, vec<Lit> &lits, vec<uint64_t> &coeffs,
   current_pb_rhs = rhs;
   
   pb_oliterals.clear();
+  pb_oliterals.insert(root->node.begin(),
+    root->node.end());
 //  pb_oliterals.insert(gteIterative_output[gteIterative_output.size()-1].begin(),
 //    gteIterative_output[gteIterative_output.size()-1].end());
   
@@ -812,11 +814,11 @@ void GTEIncremental::incrementNode(Solver *S, uint64_t rhs, GTENode *current) {
   least_weight_above_k = left_largest_weight + right_largest_weight;
   if(least_weight_above_k > rhs) {
     added_first_above_k = true;
-    int i = 0, j = 0;
+//    int i = 0, j = 0;
 //    printf("LSize : %d, RSize : %d, OSize : %d, RHSSize : %d\n",
 //    loutputs.size(),routputs.size(),
 //    oliterals.size(),current->rhs);
-    i=0;
+//    i=0;
  /*   for (wlit_mapt::iterator lit = gteIterative_left[z].begin(); 
         lit != gteIterative_left[z].end(); lit++) {
       printf("%d\n",i);
@@ -825,12 +827,12 @@ void GTEIncremental::incrementNode(Solver *S, uint64_t rhs, GTENode *current) {
 //     exit(1);
     for (wlit_mapt::iterator lit = loutputs.begin(); 
         lit != loutputs.end(); lit++) {
-        i++;
-        j=0;
+//        i++;
+//        j=0;
       for (wlit_mapt::iterator rit = routputs.begin(); 
           rit != routputs.end(); rit++) {
 //        printf("In loop: %d\n",i);
-        j++;
+//        j++;
 //         if(j==10) break;
 //          printf("In loop : %d, %d\n",i,j);
         uint64_t tw = lit->first + rit->first;
