@@ -141,15 +141,14 @@ bool GTEIncremental::encodeLeq(uint64_t k, Solver *S, const weightedlitst &ilite
 bool GTEIncremental::encodeLeqIncremental(uint64_t k, Solver *S, const weightedlitst &iliterals,
                     wlit_mapt &oliterals, GTENode **current) {
 //  printf("Entered encodeLeqIncremental\n");   
-  if(*current == nullptr) {
-//  	printf("CURRENT IS NULLPTR!!!!!!!!!!!!\n");
-    *current = new GTENode;
-  } else {
-//  	printf("CURRENT IS NOT NULLPTR!!!!!!!!!!!!!!!!!\n");
-  }
 //  printf("Start Iliterals size : %d\n",iliterals.size());
-  if (iliterals.size() == 0 || k == 0)
+  // TODO - remove k == 0. Is this ok? - Sukrut
+  if (iliterals.size() == 0)
     return false;
+  
+  if(*current == nullptr) {
+    *current = new GTENode;
+  }
 
   if (iliterals.size() == 1) {
 //	printf("INSERTED %d\n",iliterals.front().weight);
@@ -397,7 +396,7 @@ void GTEIncremental::build(Solver *S, vec<Lit> &lits, vec<uint64_t> &coeffs,
     return;
   }
 
-  if (lits.size() == 0)
+  if (lits.size() == 0 && incremental_strategy == _INCREMENTAL_NONE_)
     return;
 
   weightedlitst iliterals;

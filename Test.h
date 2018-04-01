@@ -127,6 +127,7 @@ void test_encoding_join()
 	std::cout << "Number of lits1: " << literals1.size() << std::endl
 		<< "Number of lits2: " << literals2.size() << std::endl
 	 	<< "Number of unit clauses: " << num_unit_clauses << std::endl;
+	std::cout << "RHS1: " << rhs1 << std::endl;
 	std::cout << "RHS: " << rhs << std::endl;
 
 	gte.encode(s, literals1, weights_vec1, rhs1);
