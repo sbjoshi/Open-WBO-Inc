@@ -12,6 +12,45 @@
 #define MAX_PER_CLUSTER 4
 #define MAX_WEIGHT 10
 
+void test_encoding(MaxSATFormula *maxsat_formula, uint64_t rhs1, uint64_t rhs2, int nsoft1) {
+	Solver *s = new Solver();
+
+	vec<Lit> assumptions;
+	vec<Lit> literals1;
+	vec<uint64_t> weights_vec1;
+	vec<Lit> literals2;
+	vec<uint64_t> weights_vec2;
+
+	for (int i=0; i<maxsat_formula->nSoft(); i++) {
+		s->newVar();
+		if (i<nsoft1) {
+			literals1.push(maxsat_formula->getSoftClause(i).clause[0]);
+			weights_vec1.push(maxsat_formula->getSoftClause(i).weight);
+		} else {
+			literals2.push(maxsat_formula->getSoftClause(i).clause[0]);
+			weights_vec2.push(maxsat_formula->getSoftClause(i).weight);
+		}
+	}
+
+	openwbo::GTEIncremental gte(_INCREMENTAL_ITERATIVE_);
+	gte.encode(s, literals1, weights_vec1, rhs1);
+	gte.update(s, rhs1, assumptions);
+	gte.join(s, literals2, weights_vec2, rhs2, assumptions);
+
+	for (int i=0; i<maxsat_formula->nHard(); i++) {
+		s->addClause(maxsat_formula->getHardClause(i).clause[0]);
+	}
+
+	bool solved = s->solve(assumptions);
+	if (solved) {
+		std::cout << "SAT" << std::endl;
+	} else {
+		std::cout << "UNSAT" << std::endl;
+	}
+	
+	delete s;
+}
+
 void test_encoding(MaxSATFormula *maxsat_formula, uint64_t rhs) {
 	Solver *s = new Solver();
 
@@ -196,8 +235,6 @@ void test_encoding()
 	}
 	
 	delete s;
-	
-
 }
 
 #endif

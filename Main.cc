@@ -120,6 +120,12 @@ int main(int argc, char **argv) {
     IntOption test_rhs("Open-WBO", "test_rhs",
                         "Rhs for a custom encoding test\n", 0, IntRange(0, 10000000));
 
+    IntOption test_rhs2("Open-WBO", "test_rhs2",
+                        "Rhs2 for a custom encoding test\n", 0, IntRange(0, 10000000));
+
+    IntOption test_nsoft("Open-WBO", "test_nsoft",
+                        "Nsoft for a custom encoding test\n", 0, IntRange(0, 10000000));
+
     IntOption verbosity("Open-WBO", "verbosity",
                         "Verbosity level (0=minimal, 1=more).\n", 0,
                         IntRange(0, 1));
@@ -265,7 +271,12 @@ int main(int argc, char **argv) {
     gzclose(in);
 
     if ((int)test_rhs) {
-      test_encoding(maxsat_formula, (uint64_t)test_rhs);
+      if ((int)test_rhs2) {
+        test_encoding(maxsat_formula, (uint64_t)test_rhs, (uint64_t)test_rhs2, (uint64_t)test_nsoft);
+      }
+      else {
+        test_encoding(maxsat_formula, (uint64_t)test_rhs);
+      }
       return 0;
     }
 
