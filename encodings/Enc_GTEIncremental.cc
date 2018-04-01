@@ -140,16 +140,21 @@ bool GTEIncremental::encodeLeq(uint64_t k, Solver *S, const weightedlitst &ilite
 
 bool GTEIncremental::encodeLeqIncremental(uint64_t k, Solver *S, const weightedlitst &iliterals,
                     wlit_mapt &oliterals, GTENode **current) {
-                      
+//  printf("Entered encodeLeqIncremental\n");   
   if(*current == nullptr) {
+//  	printf("CURRENT IS NULLPTR!!!!!!!!!!!!\n");
     *current = new GTENode;
+  } else {
+//  	printf("CURRENT IS NOT NULLPTR!!!!!!!!!!!!!!!!!\n");
   }
 //  printf("Start Iliterals size : %d\n",iliterals.size());
   if (iliterals.size() == 0 || k == 0)
     return false;
 
   if (iliterals.size() == 1) {
-
+//	printf("INSERTED %d\n",iliterals.front().weight);
+	(*current)->node[iliterals.front().weight] = iliterals.front().lit;
+	(*current)->rhs = k;
     oliterals.insert(
         wlit_pairt(iliterals.front().weight, iliterals.front().lit));
     return true;
@@ -333,24 +338,25 @@ bool GTEIncremental::encodeLeqIncremental(uint64_t k, Solver *S, const weightedl
     addBinaryClause(S, ~implied_lit->second, oit->second);
     nb_clauses++;
   }
-  
-//  printf("At this level ############################################\n");
-//  printf("LEFT\n");
-//  for (wlit_mapt::iterator mit = loutputs.begin(); mit != loutputs.end();
-//         mit++) {
-//    printf("%d ",mit->first);
-//  }
-//  printf("\nRIGHT\n");
-//  for (wlit_mapt::iterator mit = routputs.begin(); mit != routputs.end();
-//         mit++) {
-//    printf("%d ",mit->first);
-//  }
-//  printf("\nOUTPUT\n");
-//  for (wlit_mapt::iterator mit = oliterals.begin(); mit != oliterals.end();
-//         mit++) {
-//    printf("%d ",mit->first);
-//  }
-//  printf("\n\n#######################################################\n\n\n");
+  #ifdef VERB
+  printf("At this level ############################################\n");
+  printf("LEFT\n");
+  for (wlit_mapt::iterator mit = loutputs.begin(); mit != loutputs.end();
+         mit++) {
+    printf("%d ",mit->first);
+  }
+  printf("\nRIGHT\n");
+  for (wlit_mapt::iterator mit = routputs.begin(); mit != routputs.end();
+         mit++) {
+    printf("%d ",mit->first);
+  }
+  printf("\nOUTPUT\n");
+  for (wlit_mapt::iterator mit = oliterals.begin(); mit != oliterals.end();
+         mit++) {
+    printf("%d ",mit->first);
+  }
+  printf("\n\n#######################################################\n\n\n");
+  #endif
   adder(loutputs, routputs, oliterals, k, *current);
 //  printf("End Iliterals size : %d, loutputs size : %d, routputs size : %d, oliterals size : %d\n",iliterals.size(),loutputs.size(),routputs.size(),oliterals.size());
   return true;
@@ -386,7 +392,7 @@ void GTEIncremental::build(Solver *S, vec<Lit> &lits, vec<uint64_t> &coeffs,
       addUnitClause(S, ~simp_lits[i]);
   }
 
-  if (lits.size() == 1) { // TODO - how is this sound? - Sukrut
+  if (lits.size() == 1 && incremental_strategy == _INCREMENTAL_NONE_) { // TODO - how is this sound? - Sukrut
     // addUnitClause(S, ~lits[0]);
     return;
   }
@@ -404,7 +410,7 @@ void GTEIncremental::build(Solver *S, vec<Lit> &lits, vec<uint64_t> &coeffs,
   less_than_wlitt lt_wlit;
   std::sort(iliterals.begin(), iliterals.end(), lt_wlit);
   if(incremental_strategy == _INCREMENTAL_ITERATIVE_) {
-    encodeLeqIncremental(rhs + 1, S, iliterals, pb_oliterals, current);
+    encodeLeqIncremental(rhs, S, iliterals, pb_oliterals, current);
   } else {
     encodeLeq(rhs + 1, S, iliterals, pb_oliterals);
   }
@@ -442,6 +448,10 @@ void GTEIncremental::encode(Solver *S, vec<Lit> &lits, vec<uint64_t> &coeffs,
   nb_clauses = 0;
   
   build(S, lits, coeffs, rhs, &root);
+  
+//  if(root == nullptr) {
+//  	printf("NULLPTR!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n");
+//  }
   
   for (int i = 0; i < lits.size(); i++) {
     wlitt wl;
@@ -523,201 +533,215 @@ void GTEIncremental::update(Solver *S, uint64_t rhs, vec<Lit> &assumptions) {
 void GTEIncremental::join(Solver *S, vec<Lit> &lits, vec<uint64_t> &coeffs,
                  uint64_t rhs, vec<Lit> &assumptions) {
   
-  assert(hasEncoding);	
-  assert(root != nullptr);
-  assert(incremental_strategy == _INCREMENTAL_ITERATIVE_);
-// uint64_t old_pb = current_pb_rhs;
+  if(lits.size() == 0) {
+    incremental(S, rhs);
+    return;
+  }
   
-  // add extra clauses in existing tree
-  incremental(S, rhs);
-  
-  wlit_mapt loutputs;
-  wlit_mapt routputs;
-  
-  // backup literals in left tree
-  loutputs.insert(pb_oliterals.begin(), pb_oliterals.end());
-  pb_oliterals.clear();
-  
-  GTENode *right_tree = nullptr;
-  
-  // build right tree
-  build(S, lits, coeffs, rhs, &right_tree);
+  if(root != nullptr) {
+    assert(hasEncoding);	
+    assert(incremental_strategy == _INCREMENTAL_ITERATIVE_);
+  // uint64_t old_pb = current_pb_rhs;
+    
+    // add extra clauses in existing tree
+//    printf("Calling incremental ####################\n");
+    incremental(S, rhs);
+//    printf("Incremental done ########################\n");
+    
+    wlit_mapt loutputs;
+    wlit_mapt routputs;
+    
+    // backup literals in left tree
+    loutputs.insert(pb_oliterals.begin(), pb_oliterals.end());
+    pb_oliterals.clear();
+    
+    GTENode *right_tree = nullptr;
+    
+//    printf("Building right tree #######################\n");
+    // build right tree
+    build(S, lits, coeffs, rhs, &right_tree);
+//    printf("Built right tree ##########################\n");
 
-  // backup literals in right tree
-  routputs.insert(pb_oliterals.begin(), pb_oliterals.end());
-  pb_oliterals.clear();
-  
-  // code copied from encodeLeqIncremental, create one new level in tree
-  bool added_first_above_k = false;
-  uint64_t least_weight_above_k = 0;
-  
-  assert(!loutputs.empty());
-  assert(!routputs.empty());
-  
-  uint64_t left_largest_weight = loutputs.rbegin()->first;
-  uint64_t right_largest_weight = routputs.rbegin()->first;
-  
-  least_weight_above_k = loutputs.rbegin()->first + routputs.rbegin()->first;
-  if(least_weight_above_k > rhs) {
-    added_first_above_k = true;
-    for (wlit_mapt::iterator lit = loutputs.begin(); lit != loutputs.end();
-       lit++) {
-      for (wlit_mapt::iterator rit = routputs.begin(); rit != routputs.end();
-         rit++) {
-        uint64_t tw = lit->first + rit->first;
-//        printf("TW : %d\n",tw);
-        if(tw > rhs && tw < least_weight_above_k) {
-//          printf("Setting %d, earlier was %d, k is %d\n\n",tw,least_weight_above_k,rhs);
-          least_weight_above_k = tw;
+    // backup literals in right tree
+    routputs.insert(pb_oliterals.begin(), pb_oliterals.end());
+    pb_oliterals.clear();
+    
+    // code copied from encodeLeqIncremental, create one new level in tree
+    bool added_first_above_k = false;
+    uint64_t least_weight_above_k = 0;
+    
+    assert(!loutputs.empty());
+    assert(!routputs.empty());
+    
+    uint64_t left_largest_weight = loutputs.rbegin()->first;
+    uint64_t right_largest_weight = routputs.rbegin()->first;
+    
+    least_weight_above_k = loutputs.rbegin()->first + routputs.rbegin()->first;
+    if(least_weight_above_k > rhs) {
+      added_first_above_k = true;
+      for (wlit_mapt::iterator lit = loutputs.begin(); lit != loutputs.end();
+         lit++) {
+        for (wlit_mapt::iterator rit = routputs.begin(); rit != routputs.end();
+           rit++) {
+          uint64_t tw = lit->first + rit->first;
+  //        printf("TW : %d\n",tw);
+          if(tw > rhs && tw < least_weight_above_k) {
+  //          printf("Setting %d, earlier was %d, k is %d\n\n",tw,least_weight_above_k,rhs);
+            least_weight_above_k = tw;
+          }
         }
       }
     }
-  }
-  
-  if(added_first_above_k) {
-    if(left_largest_weight > rhs) {
-      if(right_largest_weight > rhs && 
-        right_largest_weight < left_largest_weight &&
-        right_largest_weight < least_weight_above_k) {
+    
+    if(added_first_above_k) {
+      if(left_largest_weight > rhs) {
+        if(right_largest_weight > rhs && 
+          right_largest_weight < left_largest_weight &&
+          right_largest_weight < least_weight_above_k) {
+          least_weight_above_k = right_largest_weight;
+        } else if(left_largest_weight < least_weight_above_k) {
+          least_weight_above_k = left_largest_weight;
+        }
+      } else if(right_largest_weight > rhs && 
+                right_largest_weight < least_weight_above_k) {
         least_weight_above_k = right_largest_weight;
-      } else if(left_largest_weight < least_weight_above_k) {
-        least_weight_above_k = left_largest_weight;
       }
-    } else if(right_largest_weight > rhs && 
-              right_largest_weight < least_weight_above_k) {
-      least_weight_above_k = right_largest_weight;
     }
-  }
 
-  {
-    
-    for (wlit_mapt::iterator mit = loutputs.begin(); mit != loutputs.end();
-         mit++) {
+    {
+      
+      for (wlit_mapt::iterator mit = loutputs.begin(); mit != loutputs.end();
+           mit++) {
 
-      if (mit->first > rhs) {
-        assert(added_first_above_k);
-        addBinaryClause(S, ~mit->second, 
-          get_var(S, pb_oliterals, least_weight_above_k));
-        nb_clauses++;
-      } else {
-        addBinaryClause(S, ~mit->second, get_var(S, pb_oliterals, mit->first));
-        nb_clauses++;
-        // clause.push_back(get_var(auxvars,oliterals,l.first));
-      }
-      // formula.push_back(std::move(clause));
-    }
-  }
-
-  {
-    
-    for (wlit_mapt::iterator mit = routputs.begin(); mit != routputs.end();
-         mit++) {
-
-      if (mit->first > rhs) {
-        assert(added_first_above_k);
-        addBinaryClause(S, ~mit->second,
-          get_var(S, pb_oliterals, least_weight_above_k));
-        nb_clauses++;
-        // clause.push_back(get_var(auxvars,oliterals,k));
-      } else {
-        addBinaryClause(S, ~mit->second, get_var(S, pb_oliterals, mit->first));
-        nb_clauses++;
-        // clause.push_back(get_var(auxvars,oliterals,r.first));
-      }
-
-      // formula.push_back(std::move(clause));
-    }
-  }
-
-
-  // if(!lformula.empty() && !rformula.empty())
-  {
-    // sending pairwise sums to parent
-    for (wlit_mapt::iterator lit = loutputs.begin(); lit != loutputs.end();
-         lit++) {
-      for (wlit_mapt::iterator rit = routputs.begin(); rit != routputs.end();
-           rit++) {
-        /*clauset clause;
-        clause.push_back(-l.second);
-        clause.push_back(-r.second);*/
-        uint64_t tw = lit->first + rit->first;
-        if (tw > rhs) {
+        if (mit->first > rhs) {
           assert(added_first_above_k);
-          addTernaryClause(S, ~lit->second, ~rit->second,
-                           get_var(S, pb_oliterals, least_weight_above_k)); // TODO - check
+          addBinaryClause(S, ~mit->second, 
+            get_var(S, pb_oliterals, least_weight_above_k));
+          nb_clauses++;
+        } else {
+          addBinaryClause(S, ~mit->second, get_var(S, pb_oliterals, mit->first));
+          nb_clauses++;
+          // clause.push_back(get_var(auxvars,oliterals,l.first));
+        }
+        // formula.push_back(std::move(clause));
+      }
+    }
+
+    {
+      
+      for (wlit_mapt::iterator mit = routputs.begin(); mit != routputs.end();
+           mit++) {
+
+        if (mit->first > rhs) {
+          assert(added_first_above_k);
+          addBinaryClause(S, ~mit->second,
+            get_var(S, pb_oliterals, least_weight_above_k));
           nb_clauses++;
           // clause.push_back(get_var(auxvars,oliterals,k));
         } else {
-          addTernaryClause(S, ~lit->second, ~rit->second,
-                           get_var(S, pb_oliterals, tw));
+          addBinaryClause(S, ~mit->second, get_var(S, pb_oliterals, mit->first));
           nb_clauses++;
-          // clause.push_back(get_var(auxvars,oliterals,tw));
+          // clause.push_back(get_var(auxvars,oliterals,r.first));
         }
 
         // formula.push_back(std::move(clause));
       }
     }
+
+
+    // if(!lformula.empty() && !rformula.empty())
+    {
+      // sending pairwise sums to parent
+      for (wlit_mapt::iterator lit = loutputs.begin(); lit != loutputs.end();
+           lit++) {
+        for (wlit_mapt::iterator rit = routputs.begin(); rit != routputs.end();
+             rit++) {
+          /*clauset clause;
+          clause.push_back(-l.second);
+          clause.push_back(-r.second);*/
+          uint64_t tw = lit->first + rit->first;
+          if (tw > rhs) {
+            assert(added_first_above_k);
+            addTernaryClause(S, ~lit->second, ~rit->second,
+                             get_var(S, pb_oliterals, least_weight_above_k)); // TODO - check
+            nb_clauses++;
+            // clause.push_back(get_var(auxvars,oliterals,k));
+          } else {
+            addTernaryClause(S, ~lit->second, ~rit->second,
+                             get_var(S, pb_oliterals, tw));
+            nb_clauses++;
+            // clause.push_back(get_var(auxvars,oliterals,tw));
+          }
+
+          // formula.push_back(std::move(clause));
+        }
+      }
+    }
+    
+    // TODO - check if needed
+  /*  less_than_map sort_map;
+    std::sort(pb_oliterals.begin(), pb_oliterals.end(), sort_map); */
+    
+    for(wlit_mapt::reverse_iterator oit = ++(pb_oliterals.rbegin());
+        oit != pb_oliterals.rend(); oit++) {
+      wlit_mapt::reverse_iterator implied_lit = oit;
+      --implied_lit;
+      addBinaryClause(S, ~implied_lit->second, oit->second);
+      nb_clauses++;
+    } 
+    
+  //  gteIterative_left.push();
+  //  new (&gteIterative_left[gteIterative_left.size() - 1])
+  //      weightedlitst();
+  //  gteIterative_right.push();
+  //  new (&gteIterative_right[gteIterative_right.size() - 1])
+  //      weightedlitst();
+  //  gteIterative_output.push();  
+  //  new (&gteIterative_output[gteIterative_output.size() - 1])
+  //      weightedlitst();
+  //      
+  //  for(wlit_mapt::iterator lit = loutputs.begin(); lit != loutputs.end();
+  //         lit++) {
+  //    gteIterative_left[gteIterative_left.size() - 1].emplace_back(
+  //      wlitt{lit->second, lit->first});
+  //  }
+  //  
+  //  for(wlit_mapt::iterator rit = routputs.begin(); rit != routputs.end();
+  //        rit++) {
+  //    gteIterative_right[gteIterative_right.size() - 1].emplace_back(
+  //      wlitt{rit->second, rit->first});
+  //  }
+  //  
+  //  for(wlit_mapt::iterator oit = pb_oliterals.begin(); oit != pb_oliterals.end();
+  //         oit++) {
+  //    gteIterative_output[gteIterative_output.size() - 1].emplace_back(
+  //      wlitt{oit->second, oit->first});
+  //  }
+  //  
+  //  current_pb_rhs = rhs;
+  //  gteIterative_rhs.push(current_pb_rhs);
+
+  //  incremental(S, rhs);
+  
+//    printf("Join1 done #################################\n");
+    GTENode *top = new GTENode;
+    top->left = root;
+    top->right = right_tree;
+    top->rhs = rhs;
+    root = top;
+//    printf("Adding #####################################\n");
+    adder(loutputs, routputs, pb_oliterals, rhs, top);
+    current_pb_rhs = rhs;
+    
+    pb_oliterals.clear();
+    pb_oliterals.insert(root->node.begin(),
+      root->node.end());
+  //  pb_oliterals.insert(gteIterative_output[gteIterative_output.size()-1].begin(),
+  //    gteIterative_output[gteIterative_output.size()-1].end());
+//    printf("All done ####################################\n");
+  } else {
+    encode(S, lits, coeffs, rhs);
   }
-  
-  // TODO - check if needed
-/*  less_than_map sort_map;
-  std::sort(pb_oliterals.begin(), pb_oliterals.end(), sort_map); */
-  
-  for(wlit_mapt::reverse_iterator oit = ++(pb_oliterals.rbegin());
-      oit != pb_oliterals.rend(); oit++) {
-    wlit_mapt::reverse_iterator implied_lit = oit;
-    --implied_lit;
-    addBinaryClause(S, ~implied_lit->second, oit->second);
-    nb_clauses++;
-  } 
-  
-//  gteIterative_left.push();
-//  new (&gteIterative_left[gteIterative_left.size() - 1])
-//      weightedlitst();
-//  gteIterative_right.push();
-//  new (&gteIterative_right[gteIterative_right.size() - 1])
-//      weightedlitst();
-//  gteIterative_output.push();  
-//  new (&gteIterative_output[gteIterative_output.size() - 1])
-//      weightedlitst();
-//      
-//  for(wlit_mapt::iterator lit = loutputs.begin(); lit != loutputs.end();
-//         lit++) {
-//    gteIterative_left[gteIterative_left.size() - 1].emplace_back(
-//      wlitt{lit->second, lit->first});
-//  }
-//  
-//  for(wlit_mapt::iterator rit = routputs.begin(); rit != routputs.end();
-//        rit++) {
-//    gteIterative_right[gteIterative_right.size() - 1].emplace_back(
-//      wlitt{rit->second, rit->first});
-//  }
-//  
-//  for(wlit_mapt::iterator oit = pb_oliterals.begin(); oit != pb_oliterals.end();
-//         oit++) {
-//    gteIterative_output[gteIterative_output.size() - 1].emplace_back(
-//      wlitt{oit->second, oit->first});
-//  }
-//  
-//  current_pb_rhs = rhs;
-//  gteIterative_rhs.push(current_pb_rhs);
-
-//  incremental(S, rhs);
-  
-  GTENode *top = new GTENode;
-  top->left = root;
-  top->right = right_tree;
-  top->rhs = rhs;
-  root = top;
-
-  adder(loutputs, routputs, pb_oliterals, rhs, top);
-  current_pb_rhs = rhs;
-  
-  pb_oliterals.clear();
-  pb_oliterals.insert(root->node.begin(),
-    root->node.end());
-//  pb_oliterals.insert(gteIterative_output[gteIterative_output.size()-1].begin(),
-//    gteIterative_output[gteIterative_output.size()-1].end());
   
 }
 
@@ -948,29 +972,30 @@ void GTEIncremental::incrementNode(Solver *S, uint64_t rhs, GTENode *current) {
   }  
   
   current->rhs = rhs;   
-  
-//  printf("At this level ############################################\n");
-//  printf("LEFT\n");
-//  for (wlit_mapt::iterator mit = loutputs.begin(); mit != loutputs.end();
-//         mit++) {
-//    printf("%d ",mit->first);
-//  }
-//  printf("\nRIGHT\n");
-//  for (wlit_mapt::iterator mit = routputs.begin(); mit != routputs.end();
-//         mit++) {
-//    printf("%d ",mit->first);
-//  }
-//  printf("\nOUTPUT\n");
-//  for (wlit_mapt::iterator mit = oliterals.begin(); mit != oliterals.end();
-//         mit++) {
-//    printf("%d ",mit->first);
-//  }
-//  printf("\n\n#######################################################\n\n\n");
+  #ifdef VERB
+  printf("At this level ############################################\n");
+  printf("LEFT\n");
+  for (wlit_mapt::iterator mit = loutputs.begin(); mit != loutputs.end();
+         mit++) {
+    printf("%d ",mit->first);
+  }
+  printf("\nRIGHT\n");
+  for (wlit_mapt::iterator mit = routputs.begin(); mit != routputs.end();
+         mit++) {
+    printf("%d ",mit->first);
+  }
+  printf("\nOUTPUT\n");
+  for (wlit_mapt::iterator mit = oliterals.begin(); mit != oliterals.end();
+         mit++) {
+    printf("%d ",mit->first);
+  }
+  printf("\n\n#######################################################\n\n\n");
+  #endif
 }
 
 void GTEIncremental::incremental(Solver *S, uint64_t rhs) {
   
-  
+  printf("Entered incremental\n");
   assert(root != nullptr);
   
   incrementNode(S, rhs, root);

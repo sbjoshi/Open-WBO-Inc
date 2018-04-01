@@ -36,6 +36,7 @@ void test_encoding(MaxSATFormula *maxsat_formula, uint64_t rhs1, uint64_t rhs2, 
 	gte.encode(s, literals1, weights_vec1, rhs1);
 	gte.update(s, rhs1, assumptions);
 	gte.join(s, literals2, weights_vec2, rhs2, assumptions);
+	gte.update(s, rhs2, assumptions);
 
 	for (int i=0; i<maxsat_formula->nHard(); i++) {
 		s->addClause(maxsat_formula->getHardClause(i).clause[0]);
