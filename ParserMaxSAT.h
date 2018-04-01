@@ -81,7 +81,7 @@ template <class B, class MaxSATFormula>
 static void parseMaxSAT(B &in, MaxSATFormula *maxsat_formula) {
   vec<Lit> lits;
   uint64_t hard_weight = UINT64_MAX;
-  int count = 0;
+  //int count = 0;
   for (;;) {
     skipWhitespace(in);
     if (*in == EOF)

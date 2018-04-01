@@ -478,7 +478,7 @@ void GTEIncremental::update(Solver *S, uint64_t rhs, vec<Lit> &assumptions) {
     for(wlit_mapt::reverse_iterator oit = ++(pb_oliterals.rbegin());
       oit != pb_oliterals.rend(); oit++) {
       if(oit->first > rhs) {
-        printf("Assumption for weight %ld\n", oit->first);
+        printf("Assumption for weight %llu\n", oit->first);
         assumptions.push(~oit->second);
       }
     }

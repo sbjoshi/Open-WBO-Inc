@@ -31,7 +31,7 @@
 using namespace openwbo;
 
 struct less_than_wlitt {
-  inline bool operator()(const wlitt &wl1, const wlitt &wl2) {
+  inline bool operator()(const wlitt &wl1, const wlitt &wl2) const {
     return (wl1.weight < wl2.weight);
   }
 };
@@ -235,7 +235,7 @@ void GTE::encode(Solver *S, vec<Lit> &lits, vec<uint64_t> &coeffs,
   std::sort(iliterals.begin(), iliterals.end(), lt_wlit);
 //  printf("ILITERALS ARE : \n");
   for(auto i = iliterals.begin(); i != iliterals.end(); i++) {
-  	printf("%d ",(*i).weight);
+  	printf("%llu",(*i).weight);
   }
   printf("\n");
   encodeLeq(rhs + 1, S, iliterals, pb_oliterals);

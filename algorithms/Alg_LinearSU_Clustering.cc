@@ -25,7 +25,7 @@
  *
  */
 
-#include "Alg_LinearSU_Mod.h"
+#include "Alg_LinearSU_Clustering.h"
 #include "../MaxTypes.h"
 
 #include <algorithm>
@@ -34,7 +34,7 @@
 
 using namespace openwbo;
 
-void LinearSUMod::initializeCluster() {
+void LinearSUClustering::initializeCluster() {
   switch(cluster_algo) {
   case ClusterAlg::_DIVISIVE_:
   	printf("size in init : %d\n",static_cast<MaxSATFormulaExtended*>(maxsat_formula)->getSoftClauses().size());
@@ -60,7 +60,7 @@ void LinearSUMod::initializeCluster() {
   |    * Assumes that 'currentModel' is not empty.
   |
   |________________________________________________________________________________________________@*/
-uint64_t LinearSUMod::computeCostModel(vec<lbool> &currentModel, uint64_t weight) {
+uint64_t LinearSUClustering::computeCostModel(vec<lbool> &currentModel, uint64_t weight) {
 
   assert(currentModel.size() != 0);
   uint64_t currentCost = 0;
@@ -97,7 +97,7 @@ uint64_t LinearSUMod::computeCostModel(vec<lbool> &currentModel, uint64_t weight
   return currentCost;
 }
 
-uint64_t LinearSUMod::computeOriginalCost(vec<lbool> &currentModel, uint64_t weight) {
+uint64_t LinearSUClustering::computeOriginalCost(vec<lbool> &currentModel, uint64_t weight) {
 
   assert(currentModel.size() != 0);
   uint64_t currentCost = 0;
@@ -161,7 +161,7 @@ uint64_t LinearSUMod::computeOriginalCost(vec<lbool> &currentModel, uint64_t wei
   |    * 'nbCores' is updated.
   |
   |________________________________________________________________________________________________@*/
-void LinearSUMod::bmoSearch() {
+void LinearSUClustering::bmoSearch() {
   assert(orderWeights.size() > 0);
   lbool res = l_True;
 
@@ -208,6 +208,15 @@ void LinearSUMod::bmoSearch() {
         if (verbosity > 0)
           printf("c BMO-UB : %-12" PRIu64 "\t (Function %d/%d)\n", newCost,
                  posWeight + 1, (int)orderWeights.size());
+        uint64_t originalCost = computeOriginalCost(solver->model);
+        if(best_cost >= originalCost) {
+          printf("c BC : %lld, OC : %lld\n", best_cost, originalCost);
+          saveModel(solver->model);
+          solver->model.copyTo(best_model);
+          best_cost = originalCost;
+          printf("o %" PRId64 " ", originalCost);
+          printf("cho %" PRId64 "\n", newCost + lbCost + off_set);
+        }
       }
 
       if (newCost == 0 && currentWeight == minWeight) {
@@ -309,7 +318,7 @@ void LinearSUMod::bmoSearch() {
   |    * 'nbCores' is updated.
   |
   |________________________________________________________________________________________________@*/
-void LinearSUMod::normalSearch() {
+void LinearSUClustering::normalSearch() {
 
   lbool res = l_True;
 
@@ -395,61 +404,29 @@ void LinearSUMod::normalSearch() {
 }
 
 // Public search method
-void LinearSUMod::search() {
+void LinearSUClustering::search() {
 
   MaxSATFormulaExtended *maxsat_formula_extended = 
     static_cast<MaxSATFormulaExtended*>(maxsat_formula);
   cluster->clusterWeights(maxsat_formula_extended,num_clusters);
-  printf("AFTER CLUSTER WEIGHTS : \n");
+
 	for(int i = 0; i < maxsat_formula_extended->getSoftClauses().size(); i++) {
-		printf("%llu ", maxsat_formula_extended->getSoftClauses()[i].weight);
+    printf("%llu ", maxsat_formula_extended->getSoftClauses()[i].weight);
+    unique_weights.insert(maxsat_formula_extended->getSoftClauses()[i].weight);
 	}
-  if(maxsat_formula->getProblemType() == _WEIGHTED_) {
-    printf("Weighted\n");
-  } else {
-    printf("Unweighted\n");
+
+  // considers the problem as a lexicographical problem using the clustering as objective functions
+  orderWeights.clear();
+  for (std::set<uint64_t>::iterator it=unique_weights.begin(); it!=unique_weights.end(); ++it){
+    //printf("weight= %llu\n", *it);
+    orderWeights.push_back(*it);
   }
-  // std::ofstream wcnffile("../test.wcnf");
 
-  // wcnffile << "p wcnf " << maxsat_formula->nHard()
-  //         << " " << maxsat_formula->nSoft()
-  //         << " " << maxsat_formula->getHardWeight() << std::endl;
-  // for (int i=0; i<maxsat_formula->nHard(); i++) {
-  //   wcnffile << maxsat_formula->getHardWeight()
-  //         << " ";
-  //   for (int j=0; j<maxsat_formula->getHardClause(i).clause.size(); j++) {
-  //     if (NSPACE::sign(maxsat_formula->getHardClause(i).clause[j])) wcnffile << "-";
-  //     wcnffile << NSPACE::var(maxsat_formula->getHardClause(i).clause[j])+1 << " ";
-  //   }
-  //   wcnffile << "0" << std::endl;
-  // }
+  std::sort(orderWeights.begin(), orderWeights.end(), greaterThan);
 
-  // for (int i=0; i<maxsat_formula->nSoft(); i++) {
-  //   wcnffile << maxsat_formula->getSoftClause(i).weight
-  //         << " ";
-  //   for (int j=0; j<maxsat_formula->getSoftClause(i).clause.size(); j++) {
-  //     if (NSPACE::sign(maxsat_formula->getSoftClause(i).clause[j])) wcnffile << "-";
-  //     wcnffile << NSPACE::var(maxsat_formula->getSoftClause(i).clause[j])+1 << " ";
-  //   }
-  //   wcnffile << "0" << std::endl;
-  // }
-
-  // wcnffile.close();
-  // std::cout << "c DONE PRINTING" << std::endl;
-
-
-  if (maxsat_formula->getProblemType() == _WEIGHTED_)
-    is_bmo = isBMO();
-
-  printConfiguration(is_bmo, maxsat_formula->getProblemType());
-
-  if (maxsat_formula->getProblemType() == _WEIGHTED_) {
-    if (bmoMode && is_bmo)
-      bmoSearch();
-    else
-      normalSearch();
-  } else
-    normalSearch();
+  //printConfiguration(is_bmo, maxsat_formula->getProblemType());
+  bmoSearch();
+  
 }
 
 /************************************************************************************************
@@ -470,7 +447,7 @@ void LinearSUMod::search() {
   |    NOTE: a weight is specified in the 'bmo' approach.
   |
   |________________________________________________________________________________________________@*/
-Solver *LinearSUMod::rebuildSolver(uint64_t min_weight) {
+Solver *LinearSUClustering::rebuildSolver(uint64_t min_weight) {
 
   vec<bool> seen;
   seen.growTo(maxsat_formula->nVars(), false);
@@ -547,7 +524,7 @@ Solver *LinearSUMod::rebuildSolver(uint64_t min_weight) {
   |    respective cardinality constraint.
   |
   |________________________________________________________________________________________________@*/
-Solver *LinearSUMod::rebuildBMO(vec<vec<Lit>> &functions, vec<int> &rhs,
+Solver *LinearSUClustering::rebuildBMO(vec<vec<Lit>> &functions, vec<int> &rhs,
                              uint64_t currentWeight) {
 
   assert(functions.size() == rhs.size());
@@ -590,7 +567,7 @@ Solver *LinearSUMod::rebuildBMO(vec<vec<Lit>> &functions, vec<int> &rhs,
   |    * 'coeffs' contains the weights of all soft clauses.
   |
   |________________________________________________________________________________________________@*/
-void LinearSUMod::initRelaxation() {
+void LinearSUClustering::initRelaxation() {
   for (int i = 0; i < maxsat_formula->nSoft(); i++) {
     Lit l = maxsat_formula->newLiteral();
     maxsat_formula->getSoftClause(i).relaxation_vars.push(l);
@@ -600,7 +577,7 @@ void LinearSUMod::initRelaxation() {
 }
 
 // Print LinearSU configuration.
-void LinearSUMod::print_LinearSU_configuration() {
+void LinearSUClustering::print_LinearSU_configuration() {
   printf("c |  Algorithm: %23s                                             "
          "                      |\n",
          "LinearSU");

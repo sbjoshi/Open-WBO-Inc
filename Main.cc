@@ -60,6 +60,7 @@
 #include "algorithms/Alg_WBO.h"
 #include "algorithms/Alg_LinearSU_Mod.h"
 #include "algorithms/Alg_OLL_Mod.h"
+#include "algorithms/Alg_LinearSU_Clustering.h"
 
 #define VER1_(x) #x
 #define VER_(x) VER1_(x)
@@ -126,9 +127,9 @@ int main(int argc, char **argv) {
 
     IntOption algorithm("Open-WBO", "algorithm",
                         "Search algorithm "
-                        "(0=wbo,1=linear-su,2=msu3,3=part-msu3,4=oll,5=best)."
+                        "(0=wbo,1=linear-su,2=msu3,3=part-msu3,4=oll,5=best,6=linear-su-cluster)."
                         "\n",
-                        5, IntRange(0, 5));
+                        5, IntRange(0, 6));
 
     IntOption partition_strategy("PartMSU3", "partition-strategy",
                                  "Partition strategy (0=sequential, "
@@ -214,6 +215,10 @@ int main(int argc, char **argv) {
 
     case _ALGORITHM_MSU3_:
       S = new MSU3(verbosity);
+      break;
+
+    case _ALGORITHM_LSU_CLUSTER_:
+      S = new LinearSUClustering(verbosity, bmo, cardinality, pb, ClusterAlg::_DIVISIVE_, rounding_statistic, (int)(num_clusters));
       break;
 
     case _ALGORITHM_OLL_:
@@ -350,6 +355,9 @@ int main(int argc, char **argv) {
           break;
         case _ALGORITHM_OLL_:
           static_cast<OLLMod*>(S)->initializeCluster();
+          break;
+        case _ALGORITHM_LSU_CLUSTER_:
+          static_cast<LinearSUClustering*>(S)->initializeCluster();
           break;
         }
         

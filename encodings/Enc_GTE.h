@@ -47,18 +47,18 @@ struct wlitt {
 };
 
 struct less_than_map { // Sukrut TODO - is this needed, or sorted by default?
-  inline bool operator()(const uint64_t &key1, const uint64_t &key2) {
+  inline bool operator()(const uint64_t &key1, const uint64_t &key2) const {
     return (key1 < key2);                          
   }
 };
 
 struct less_than_wlitt {
-  inline bool operator()(const wlitt &wl1, const wlitt &wl2) {
+  inline bool operator()(const wlitt &wl1, const wlitt &wl2) const {
     return (wl1.weight < wl2.weight);
   }
 };
 struct wlit_sumt {
-  inline uint64_t operator()(const uint64_t &wl1, const wlitt &wl2) {
+  inline uint64_t operator()(const uint64_t &wl1, const wlitt &wl2) const {
     return (wl1 + wl2.weight);
   }
 };

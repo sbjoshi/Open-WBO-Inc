@@ -15,7 +15,7 @@ bool compare(const Soft &a, const Soft &b) { return a.weight < b.weight; }
 void MaxSATFormulaExtended::sortSoftClauses() {
 	printf("BEFORE SORTING WEIGHTS : \n");
 	for(int i = 0; i < soft_clauses.size(); i++) {
-		printf("%d ",soft_clauses[i].weight);
+		printf("%llu ",soft_clauses[i].weight);
 	}
 	printf("\n");
 	uint64_t size = soft_clauses.size();
@@ -49,7 +49,7 @@ void MaxSATFormulaExtended::sortSoftClauses() {
 	});
 	printf("AFTER WEIGHTS : \n");
 	for(int i = 0; i < soft_clauses.size(); i++) {
-		printf("%d ",soft_clauses[i].weight);
+		printf("%llu ",soft_clauses[i].weight);
 	}
 }
 
