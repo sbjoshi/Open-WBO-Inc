@@ -334,23 +334,23 @@ bool GTEIncremental::encodeLeqIncremental(uint64_t k, Solver *S, const weightedl
     nb_clauses++;
   }
   
-  printf("At this level ############################################\n");
-  printf("LEFT\n");
-  for (wlit_mapt::iterator mit = loutputs.begin(); mit != loutputs.end();
-         mit++) {
-    printf("%d ",mit->first);
-  }
-  printf("\nRIGHT\n");
-  for (wlit_mapt::iterator mit = routputs.begin(); mit != routputs.end();
-         mit++) {
-    printf("%d ",mit->first);
-  }
-  printf("\nOUTPUT\n");
-  for (wlit_mapt::iterator mit = oliterals.begin(); mit != oliterals.end();
-         mit++) {
-    printf("%d ",mit->first);
-  }
-  printf("\n\n#######################################################\n\n\n");
+//  printf("At this level ############################################\n");
+//  printf("LEFT\n");
+//  for (wlit_mapt::iterator mit = loutputs.begin(); mit != loutputs.end();
+//         mit++) {
+//    printf("%d ",mit->first);
+//  }
+//  printf("\nRIGHT\n");
+//  for (wlit_mapt::iterator mit = routputs.begin(); mit != routputs.end();
+//         mit++) {
+//    printf("%d ",mit->first);
+//  }
+//  printf("\nOUTPUT\n");
+//  for (wlit_mapt::iterator mit = oliterals.begin(); mit != oliterals.end();
+//         mit++) {
+//    printf("%d ",mit->first);
+//  }
+//  printf("\n\n#######################################################\n\n\n");
   adder(loutputs, routputs, oliterals, k, *current);
 //  printf("End Iliterals size : %d, loutputs size : %d, routputs size : %d, oliterals size : %d\n",iliterals.size(),loutputs.size(),routputs.size(),oliterals.size());
   return true;
@@ -508,10 +508,10 @@ void GTEIncremental::update(Solver *S, uint64_t rhs, vec<Lit> &assumptions) {
     for(wlit_mapt::reverse_iterator oit = pb_oliterals.rbegin();
       oit != pb_oliterals.rend(); oit++) {
       if(oit->first > rhs) {
-        printf("Assumption for weight %ld\n", oit->first);
+//        printf("Assumption for weight %ld\n", oit->first);
         assumptions.push(~oit->second);
       } else {
-        printf("No assumption for weight %ld\n", oit->first);
+//        printf("No assumption for weight %ld\n", oit->first);
       }
     }
   }
@@ -565,9 +565,9 @@ void GTEIncremental::join(Solver *S, vec<Lit> &lits, vec<uint64_t> &coeffs,
       for (wlit_mapt::iterator rit = routputs.begin(); rit != routputs.end();
          rit++) {
         uint64_t tw = lit->first + rit->first;
-        printf("TW : %d\n",tw);
+//        printf("TW : %d\n",tw);
         if(tw > rhs && tw < least_weight_above_k) {
-          printf("Setting %d, earlier was %d, k is %d\n\n",tw,least_weight_above_k,rhs);
+//          printf("Setting %d, earlier was %d, k is %d\n\n",tw,least_weight_above_k,rhs);
           least_weight_above_k = tw;
         }
       }
@@ -813,9 +813,9 @@ void GTEIncremental::incrementNode(Solver *S, uint64_t rhs, GTENode *current) {
   if(least_weight_above_k > rhs) {
     added_first_above_k = true;
     int i = 0, j = 0;
-    printf("LSize : %d, RSize : %d, OSize : %d, RHSSize : %d\n",
-    loutputs.size(),routputs.size(),
-    oliterals.size(),current->rhs);
+//    printf("LSize : %d, RSize : %d, OSize : %d, RHSSize : %d\n",
+//    loutputs.size(),routputs.size(),
+//    oliterals.size(),current->rhs);
     i=0;
  /*   for (wlit_mapt::iterator lit = gteIterative_left[z].begin(); 
         lit != gteIterative_left[z].end(); lit++) {
@@ -860,7 +860,7 @@ void GTEIncremental::incrementNode(Solver *S, uint64_t rhs, GTENode *current) {
   
   uint64_t old_least_above_k = oliterals.rbegin()->first;
   
-  printf("LAK : %d, OLAK : %d\n",least_weight_above_k, old_least_above_k);
+//  printf("LAK : %d, OLAK : %d\n",least_weight_above_k, old_least_above_k);
   
   if(least_weight_above_k > old_least_above_k) {
     
@@ -947,23 +947,23 @@ void GTEIncremental::incrementNode(Solver *S, uint64_t rhs, GTENode *current) {
   
   current->rhs = rhs;   
   
-  printf("At this level ############################################\n");
-  printf("LEFT\n");
-  for (wlit_mapt::iterator mit = loutputs.begin(); mit != loutputs.end();
-         mit++) {
-    printf("%d ",mit->first);
-  }
-  printf("\nRIGHT\n");
-  for (wlit_mapt::iterator mit = routputs.begin(); mit != routputs.end();
-         mit++) {
-    printf("%d ",mit->first);
-  }
-  printf("\nOUTPUT\n");
-  for (wlit_mapt::iterator mit = oliterals.begin(); mit != oliterals.end();
-         mit++) {
-    printf("%d ",mit->first);
-  }
-  printf("\n\n#######################################################\n\n\n");
+//  printf("At this level ############################################\n");
+//  printf("LEFT\n");
+//  for (wlit_mapt::iterator mit = loutputs.begin(); mit != loutputs.end();
+//         mit++) {
+//    printf("%d ",mit->first);
+//  }
+//  printf("\nRIGHT\n");
+//  for (wlit_mapt::iterator mit = routputs.begin(); mit != routputs.end();
+//         mit++) {
+//    printf("%d ",mit->first);
+//  }
+//  printf("\nOUTPUT\n");
+//  for (wlit_mapt::iterator mit = oliterals.begin(); mit != oliterals.end();
+//         mit++) {
+//    printf("%d ",mit->first);
+//  }
+//  printf("\n\n#######################################################\n\n\n");
 }
 
 void GTEIncremental::incremental(Solver *S, uint64_t rhs) {
