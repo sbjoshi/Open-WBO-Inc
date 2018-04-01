@@ -142,11 +142,16 @@ void test_encoding_join()
 		if (solved) {
 			std::cout << "TEST FAILED" << std::endl;
 			std::cout << "SAT" << std::endl;
-			std::cout << "c RHS " << rhs << std::endl;
+			std::cout << "c RHS1 " << rhs1 << std::endl;
+			std::cout << "c RHS2 " << rhs << std::endl;
+			std::cout << "c Nsoft " << weights_vec1.size() << std::endl;
 			std::cout << "p wcnf " << weights_vec.size() << " " << weights_vec.size()+num_unit_clauses
 				<< " " << MAX_WEIGHT+5 << std::endl;
-			for (int i=0; i<weights_vec.size(); i++) {
-				std::cout << weights_vec[i] << " " << i+1 << " 0" << std::endl;
+			for (int i=0; i<weights_vec1.size(); i++) {
+				std::cout << weights_vec1[i] << " " << i+1 << " 0" << std::endl;
+			}
+			for (int i=0; i<weights_vec2.size(); i++) {
+				std::cout << weights_vec2[i] << " " << i+1 << " 0" << std::endl;
 			}
 			for (int i=0; i<num_unit_clauses; i++) {
 				std::cout << MAX_WEIGHT+5 << " " << i+1 << " 0" << std::endl;
@@ -161,11 +166,16 @@ void test_encoding_join()
 		} else {
 			std::cout << "TEST FAILED" << std::endl;
 			std::cout << "UNSAT" << std::endl;
-			std::cout << "c RHS " << rhs << std::endl;
+			std::cout << "c RHS1 " << rhs1 << std::endl;
+			std::cout << "c RHS2 " << rhs << std::endl;
+			std::cout << "c Nsoft " << weights_vec1.size() << std::endl;
 			std::cout << "p wcnf " << weights_vec.size() << " " << weights_vec.size()+num_unit_clauses
 				<< " " << MAX_WEIGHT+5 << std::endl;
-			for (int i=0; i<weights_vec.size(); i++) {
-				std::cout << weights_vec[i] << " " << i+1 << " 0" << std::endl;
+			for (int i=0; i<weights_vec1.size(); i++) {
+				std::cout << weights_vec1[i] << " " << i+1 << " 0" << std::endl;
+			}
+			for (int i=0; i<weights_vec2.size(); i++) {
+				std::cout << weights_vec2[i] << " " << i+1 << " 0" << std::endl;
 			}
 			for (int i=0; i<num_unit_clauses; i++) {
 				std::cout << MAX_WEIGHT+5 << " " << i+1 << " 0" << std::endl;
