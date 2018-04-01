@@ -43,7 +43,9 @@ public:
     incremental_strategy = strategy;
     root = nullptr;
   }
-  ~GTEIncremental() {}
+  ~GTEIncremental() {
+    freeNode(root);
+  }
 
   // Encode constraint.
   void encode(Solver *S, vec<Lit> &lits, vec<uint64_t> &coeffs, uint64_t rhs);
@@ -102,6 +104,7 @@ protected:
               uint64_t rhs, GTENode *current);
               
   void incrementNode(Solver *S, uint64_t rhs, GTENode *current);
+  void freeNode(GTENode *current);
   
 };
 

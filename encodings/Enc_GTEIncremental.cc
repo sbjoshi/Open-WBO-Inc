@@ -714,8 +714,8 @@ void GTEIncremental::join(Solver *S, vec<Lit> &lits, vec<uint64_t> &coeffs,
   current_pb_rhs = rhs;
   
   pb_oliterals.clear();
-  pb_oliterals.insert(gteIterative_output[gteIterative_output.size()-1].begin(),
-    gteIterative_output[gteIterative_output.size()-1].end());
+//  pb_oliterals.insert(gteIterative_output[gteIterative_output.size()-1].begin(),
+//    gteIterative_output[gteIterative_output.size()-1].end());
   
 }
 
@@ -1168,5 +1168,15 @@ void GTEIncremental::incremental(Solver *S, uint64_t rhs) {
   pb_oliterals.insert(root->node.begin(),
     root->node.end());
   
-  
+}
+
+void GTEIncremental::freeNode(GTENode *current) {
+  if(current == nullptr) {
+    return;
+  }
+  freeNode(current->left);
+  freeNode(current->right);
+//  freeNode(&((*current)->left));
+//  freeNode(&((*current)->right));
+  delete current;
 }
