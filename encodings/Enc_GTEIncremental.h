@@ -17,6 +17,20 @@
 #include "Enc_GTE.h"
 
 namespace openwbo {
+  
+class GTENode {
+public:
+  wlit_mapt node;
+  uint64_t rhs;
+  GTENode *parent;
+  GTENode *left;
+  GTENode *right;
+  GTENode() {
+    parent = nullptr;
+    left = nullptr;
+    right = nullptr;
+  }
+};
 
 class GTEIncremental : public Encodings {
 
@@ -27,12 +41,14 @@ public:
     nb_clauses = 0;
     nb_variables = 0;
     incremental_strategy = strategy;
+    root = nullptr;
   }
   ~GTEIncremental() {}
 
   // Encode constraint.
   void encode(Solver *S, vec<Lit> &lits, vec<uint64_t> &coeffs, uint64_t rhs);
-  void build(Solver *S, vec<Lit> &lits, vec<uint64_t> &coeffs, uint64_t rhs);
+  void build(Solver *S, vec<Lit> &lits, vec<uint64_t> &coeffs, uint64_t rhs, 
+              GTENode **current);
 
   // Update constraint.
   void update(Solver *S, uint64_t rhs, vec<Lit> &assumptions);
@@ -52,7 +68,7 @@ protected:
   // encodeLeq for iterative encoding     
   bool encodeLeqIncremental(uint64_t k, Solver *S,
   				const weightedlitst &iliterals, 
-  				wlit_mapt &oliterals);
+  				wlit_mapt &oliterals, GTENode **current);
   Lit getNewLit(Solver *S);
   Lit get_var(Solver *S, wlit_mapt &oliterals, uint64_t weight);
   vec<Lit> pb_outlits; // Stores the outputs of the pseudo-Boolean constraint
@@ -73,14 +89,19 @@ protected:
   weightedlitst enc_literals;
   
   // this vs wlitt - which is better? TODO Sukrut
-  vec<wlit_mapt> gteIterative_left;
-  vec<wlit_mapt> gteIterative_right;
-  vec<wlit_mapt> gteIterative_output;
-  vec<uint64_t> gteIterative_rhs;
+//  std::vector<wlit_mapt> gteIterative_left;
+//  std::vector<wlit_mapt> gteIterative_right;
+//  std::vector<wlit_mapt> gteIterative_output;
+//  std::vector<uint64_t> gteIterative_rhs;
+//  std::vector<bool> gteIterative_is_left;
+  
+  GTENode *root;
   
   void incremental(Solver *S, uint64_t rhs);
   void adder(wlit_mapt &left, wlit_mapt &right, wlit_mapt &output, 
-              uint64_t rhs);
+              uint64_t rhs, GTENode *current);
+              
+  void incrementNode(Solver *S, uint64_t rhs, GTENode *current);
   
 };
 

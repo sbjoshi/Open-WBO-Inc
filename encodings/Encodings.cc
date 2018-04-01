@@ -30,11 +30,11 @@
 using namespace openwbo;
 
 void Encodings::implication(uint64_t lit1, uint64_t lit2) {
-//	printf("%d -> %d\n",lit1,lit2);
+	printf("%d -> %d\n",lit1,lit2);
 }
 
 void Encodings::implication(uint64_t lit1, uint64_t lit2, uint64_t lit3) {
-//	printf("%d ^ %d -> %d\n",lit1,lit2,lit3);
+	printf("%d ^ %d -> %d\n",lit1,lit2,lit3);
 }
 
 // Creates an unit clause in the SAT solver

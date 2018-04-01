@@ -10,7 +10,7 @@
 
 #define NUM_CLUSTERS 3
 #define MAX_PER_CLUSTER 4
-#define MAX_WEIGHT 100
+#define MAX_WEIGHT 10
 
 void test_encoding(MaxSATFormula *maxsat_formula, uint64_t rhs) {
 	Solver *s = new Solver();
@@ -45,6 +45,20 @@ void test_encoding(MaxSATFormula *maxsat_formula, uint64_t rhs) {
 	} else {
 		std::cout << "UNSAT" << std::endl;
 	}
+	std::cout << "Inc" << std::endl;
+	while(rhs > 0) {
+		std::cin >> rhs;
+		if(rhs <= 0) break;
+		gte.update(s, rhs, assumptions);
+		bool solved = s->solve(assumptions);
+		if (solved) {
+			std::cout << "SAT" << std::endl;
+		} else {
+			std::cout << "UNSAT" << std::endl;
+		}
+	}
+	
+	delete s;
 }
 
 void test_encoding()
@@ -81,7 +95,7 @@ void test_encoding()
 		literals.push(literals_vector[i]);
 	}
 
-	std::uniform_int_distribution<unsigned> dis_unit(1, weights.size()/4);
+	std::uniform_int_distribution<unsigned> dis_unit(1, weights.size()/4+1);
 	unsigned num_unit_clauses = dis_unit(g);
 
 	uint64_t sum = 0;
@@ -96,20 +110,38 @@ void test_encoding()
 	std::uniform_int_distribution<unsigned> dis_rhs(0,1);
 	unsigned unsat = dis_rhs(g);
 	if (unsat) {
-		std::uniform_int_distribution<unsigned> dis_rhs(sum/2-1, sum-1);
+		std::uniform_int_distribution<unsigned> dis_rhs(1, sum-1);
 		rhs = dis_rhs(g);
 	} else {
 		std::uniform_int_distribution<unsigned> dis_rhs(sum, 2*sum+1);
 		rhs = dis_rhs(g);
 	}
 
-	// std::cout << "Number of lits: " << literals.size() << std::endl
-	// 	<< "Number of unit clauses: " << num_unit_clauses << std::endl;
-	// std::cout << "RHS: " << rhs << std::endl;
+	std::cout << "Number of lits: " << literals.size() << std::endl
+	 	<< "Number of unit clauses: " << num_unit_clauses << std::endl;
+	std::cout << "RHS: " << rhs << std::endl;
+	
+	std::cout << "c RHS " << rhs << std::endl;
+	std::cout << "p wcnf " << weights_vec.size() << " " << weights_vec.size()+num_unit_clauses
+		<< " " << MAX_WEIGHT+5 << std::endl;
+	for (int i=0; i<weights_vec.size(); i++) {
+		std::cout << weights_vec[i] << " " << i+1 << " 0" << std::endl;
+	}
+	for (int i=0; i<num_unit_clauses; i++) {
+		std::cout << MAX_WEIGHT+5 << " " << i+1 << " 0" << std::endl;
+	}
+	std::cout << "c DONE" << std::endl; 
 
 	gte.encode(s, literals, weights_vec, rhs);
 
 	for (int k=0; k<5; k++) {
+		std::cin >> rhs;
+		if(rhs < sum) {
+			unsat = true;
+		} else {
+			unsat = false;
+		}
+		std::cout << "RHS : " << rhs << std::endl;
 		gte.update(s, rhs, assumptions);
 
 		std::cout << "Encoded" << std::endl;
@@ -155,13 +187,15 @@ void test_encoding()
 		std::uniform_int_distribution<unsigned> dis_rhs(0,1);
 		unsat = dis_rhs(g);
 		if (unsat) {
-			std::uniform_int_distribution<unsigned> dis_rhs(sum/2-1, sum-1);
+			std::uniform_int_distribution<unsigned> dis_rhs(1, sum-1);
 			rhs = dis_rhs(g);
 		} else {
 			std::uniform_int_distribution<unsigned> dis_rhs(sum, 2*sum+1);
 			rhs = dis_rhs(g);
 		}
 	}
+	
+	delete s;
 	
 
 }
