@@ -8,9 +8,9 @@
 #include "encodings/Enc_GTECluster.h"
 #include "encodings/Enc_GTEIncremental.h"
 
-#define NUM_CLUSTERS 3
-#define MAX_PER_CLUSTER 4
-#define MAX_WEIGHT 10
+#define NUM_CLUSTERS 100
+#define MAX_PER_CLUSTER 200
+#define MAX_WEIGHT 100000
 
 void test_encoding(MaxSATFormula *maxsat_formula, uint64_t rhs1, uint64_t rhs2, int nsoft1) {
 	Solver *s = new Solver();
@@ -172,8 +172,11 @@ void test_encoding()
 //	std::cout << "c DONE" << std::endl; 
 
 	gte.encode(s, literals, weights_vec, rhs);
-
-	for (int k=0; k<5; k++) {
+	
+	std::uniform_int_distribution<unsigned> dis_num_inc(1, 100);
+	unsigned num_inc = dis_num_inc(g);
+	
+	for (int k=0; k < num_inc; k++) {
 //		std::cin >> rhs;
 //		if(rhs < sum) {
 //			unsat = true;
