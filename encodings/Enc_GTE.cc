@@ -234,10 +234,10 @@ void GTE::encode(Solver *S, vec<Lit> &lits, vec<uint64_t> &coeffs,
   less_than_wlitt lt_wlit;
   std::sort(iliterals.begin(), iliterals.end(), lt_wlit);
 //  printf("ILITERALS ARE : \n");
-  for(auto i = iliterals.begin(); i != iliterals.end(); i++) {
-  	printf("%llu",(*i).weight);
-  }
-  printf("\n");
+//  for(auto i = iliterals.begin(); i != iliterals.end(); i++) {
+//  	printf("%llu ",(*i).weight);
+//  }
+//  printf("\n");
   encodeLeq(rhs + 1, S, iliterals, pb_oliterals);
 
   for (wlit_mapt::reverse_iterator rit = pb_oliterals.rbegin();

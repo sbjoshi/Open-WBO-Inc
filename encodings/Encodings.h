@@ -36,6 +36,7 @@
 
 #include "../MaxTypes.h"
 #include "core/SolverTypes.h"
+#include <map> // TODO remove
 
 using NSPACE::vec;
 using NSPACE::Lit;
@@ -45,6 +46,14 @@ using NSPACE::lit_Undef;
 using NSPACE::Solver;
 
 namespace openwbo {
+	
+struct less_than_map { // TODO remove
+  inline bool operator()(const uint64_t &key1, const uint64_t &key2) const {
+    return (key1 < key2);                          
+  }
+};
+
+typedef std::map<uint64_t, Lit, less_than_map> wlit_mapt; // TODO remove
 
 //=================================================================================================
 class Encodings {
@@ -52,6 +61,9 @@ class Encodings {
 public:
   Encodings() { hasEncoding = false; }
   ~Encodings() {}
+  
+  void implication(uint64_t, uint64_t); // TODO remove
+  void implication(uint64_t, uint64_t, uint64_t); // TODO remove
 
   // Auxiliary methods for creating clauses
   //
