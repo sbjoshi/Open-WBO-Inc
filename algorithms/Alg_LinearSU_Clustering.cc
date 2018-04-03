@@ -195,8 +195,8 @@ void LinearSUClustering::bmoSearch() {
         // If current weight is the same as the minimum weight, then we are in
         // the last lexicographical function.
         uint64_t originalCost = computeOriginalCost(solver->model);
-        if(best_cost >= originalCost) {
-          printf("c BC : %lld, OC : %lld\n", best_cost, originalCost);
+        if(best_cost > originalCost) {
+          //printf("c BC : %lld, OC : %lld\n", best_cost, originalCost);
         	saveModel(solver->model);
         	solver->model.copyTo(best_model);
         	best_cost = originalCost;
@@ -209,8 +209,8 @@ void LinearSUClustering::bmoSearch() {
           printf("c BMO-UB : %-12" PRIu64 "\t (Function %d/%d)\n", newCost,
                  posWeight + 1, (int)orderWeights.size());
         uint64_t originalCost = computeOriginalCost(solver->model);
-        if(best_cost >= originalCost) {
-          printf("c BC : %lld, OC : %lld\n", best_cost, originalCost);
+        if(best_cost > originalCost) {
+          //printf("c BC : %lld, OC : %lld\n", best_cost, originalCost);
           saveModel(solver->model);
           solver->model.copyTo(best_model);
           best_cost = originalCost;
@@ -325,7 +325,7 @@ void LinearSUClustering::normalSearch() {
   initRelaxation();
   solver = rebuildSolver();
   while (res == l_True) {
-    printFormulaStats(solver);
+    //printFormulaStats(solver);
     vec<Lit> dummy;
     // Do not use preprocessing for linear search algorithm.
     // NOTE: When preprocessing is enabled the SAT solver simplifies the
@@ -337,7 +337,7 @@ void LinearSUClustering::normalSearch() {
       uint64_t newCost = computeCostModel(solver->model);
       uint64_t originalCost = computeOriginalCost(solver->model);
       if(best_cost >= originalCost) {
-        printf("c BC : %lld, OC : %lld\n", best_cost, originalCost);
+        //printf("c BC : %lld, OC : %lld\n", best_cost, originalCost);
       	saveModel(solver->model);
       	solver->model.copyTo(best_model);
       	best_cost = originalCost;
@@ -411,9 +411,14 @@ void LinearSUClustering::search() {
   cluster->clusterWeights(maxsat_formula_extended,num_clusters);
 
 	for(int i = 0; i < maxsat_formula_extended->getSoftClauses().size(); i++) {
-    printf("%llu ", maxsat_formula_extended->getSoftClauses()[i].weight);
+    //printf("%llu ", maxsat_formula_extended->getSoftClauses()[i].weight);
     unique_weights.insert(maxsat_formula_extended->getSoftClauses()[i].weight);
 	}
+
+  std::set<uint64_t> originalWeights;
+    for (int i = 0; i < maxsat_formula->nSoft(); i++) {
+      originalWeights.insert(cluster->getOriginalWeight(i));
+    }
 
   // considers the problem as a lexicographical problem using the clustering as objective functions
   orderWeights.clear();
@@ -423,6 +428,8 @@ void LinearSUClustering::search() {
   }
 
   std::sort(orderWeights.begin(), orderWeights.end(), greaterThan);
+
+  printf("c #Diff Weights= %lu | #Modified Weights= %lu\n",originalWeights.size(),orderWeights.size());
 
   //printConfiguration(is_bmo, maxsat_formula->getProblemType());
   bmoSearch();
