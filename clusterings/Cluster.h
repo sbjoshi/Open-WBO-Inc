@@ -15,6 +15,11 @@ using NSPACE::vec;
 using std::vector;
 
 namespace openwbo {
+	
+struct cluster_index {
+  uint64_t index;
+  bool all_equal_in_cluster;
+};
   
 class Cluster {
   
@@ -29,6 +34,8 @@ public:
   void saveWeights(MaxSATFormulaExtended *formula);
   void restoreWeights(MaxSATFormulaExtended *formula);
   void replaceWeights(MaxSATFormulaExtended *formula, vec<uint64_t> &clusters);
+  void replaceWeights(MaxSATFormulaExtended *formula, 
+                      vec<cluster_index> &clusters);
   uint64_t getOriginalWeight(int index);
   
 }; // class Cluster
