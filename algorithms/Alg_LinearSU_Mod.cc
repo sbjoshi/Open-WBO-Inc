@@ -37,7 +37,6 @@ using namespace openwbo;
 void LinearSUMod::initializeCluster() {
   switch(cluster_algo) {
   case ClusterAlg::_DIVISIVE_:
-  	printf("size in init : %d\n",static_cast<MaxSATFormulaExtended*>(maxsat_formula)->getSoftClauses().size());
     cluster = new Cluster_DivisiveMaxSeparate(
       static_cast<MaxSATFormulaExtended*>(maxsat_formula), cluster_stat);
     break;
@@ -196,12 +195,12 @@ void LinearSUMod::bmoSearch() {
         // the last lexicographical function.
         uint64_t originalCost = computeOriginalCost(solver->model);
         if(best_cost >= originalCost) {
-          printf("c BC : %lld, OC : %lld\n", best_cost, originalCost);
+//          printf("c BC : %lld, OC : %lld\n", best_cost, originalCost);
         	saveModel(solver->model);
         	solver->model.copyTo(best_model);
         	best_cost = originalCost;
-          printf("o %" PRId64 " ", originalCost);
-          printf("cho %" PRId64 "\n", newCost + lbCost + off_set);
+          printf("o %" PRId64 "\n", originalCost);
+//          printf("cho %" PRId64 "\n", newCost + lbCost + off_set);
         }
         ubCost = newCost + lbCost;
       } else {
@@ -316,7 +315,7 @@ void LinearSUMod::normalSearch() {
   initRelaxation();
   solver = rebuildSolver();
   while (res == l_True) {
-    printFormulaStats(solver);
+//    printFormulaStats(solver);
     vec<Lit> dummy;
     // Do not use preprocessing for linear search algorithm.
     // NOTE: When preprocessing is enabled the SAT solver simplifies the
@@ -328,7 +327,7 @@ void LinearSUMod::normalSearch() {
       uint64_t newCost = computeCostModel(solver->model);
       uint64_t originalCost = computeOriginalCost(solver->model);
       if(best_cost >= originalCost) {
-        printf("c BC : %lld, OC : %lld\n", best_cost, originalCost);
+//        printf("c BC : %lld, OC : %lld\n", best_cost, originalCost);
       	saveModel(solver->model);
       	solver->model.copyTo(best_model);
       	best_cost = originalCost;
@@ -336,12 +335,12 @@ void LinearSUMod::normalSearch() {
 		    if (maxsat_formula->getFormat() == _FORMAT_PB_) {
 		      // optimization problem
 		      if (maxsat_formula->getObjFunction() != NULL) {
-		        printf("o %" PRId64 " ", originalCost);
-		        printf("cho %" PRId64 "\n", newCost + off_set);
+		        printf("o %" PRId64 "\n", originalCost);
+//		        printf("cho %" PRId64 "\n", newCost + off_set);
 		      }
 		    } else {
-		      printf("o %" PRId64 " ", originalCost);
-		      printf("cho %" PRId64 "\n", newCost + off_set);
+		      printf("o %" PRId64 "\n", originalCost);
+//		      printf("cho %" PRId64 "\n", newCost + off_set);
 		    }
 		 }
 
@@ -400,15 +399,11 @@ void LinearSUMod::search() {
   MaxSATFormulaExtended *maxsat_formula_extended = 
     static_cast<MaxSATFormulaExtended*>(maxsat_formula);
   cluster->clusterWeights(maxsat_formula_extended,num_clusters);
-  printf("AFTER CLUSTER WEIGHTS : \n");
-	for(int i = 0; i < maxsat_formula_extended->getSoftClauses().size(); i++) {
-		printf("%llu ", maxsat_formula_extended->getSoftClauses()[i].weight);
-	}
-  if(maxsat_formula->getProblemType() == _WEIGHTED_) {
-    printf("Weighted\n");
-  } else {
-    printf("Unweighted\n");
-  }
+//  printf("AFTER CLUSTER WEIGHTS : \n");
+//	for(int i = 0; i < maxsat_formula_extended->getSoftClauses().size(); i++) {
+//		printf("%llu ", maxsat_formula_extended->getSoftClauses()[i].weight);
+//	}
+
   // std::ofstream wcnffile("../test.wcnf");
 
   // wcnffile << "p wcnf " << maxsat_formula->nHard()

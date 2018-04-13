@@ -16,7 +16,6 @@ Cluster_DivisiveMaxSeparate::Cluster_DivisiveMaxSeparate(
 ) : Cluster(formula, cluster_statistic) {
 	max_c = 1;
 	cluster_indices.push(0);
-	printf("CI SIZE : %d\n",cluster_indices.size());
 	distances.growTo(original_weights.size()-1);
 	for(uint64_t i = 0; i < original_weights.size()-1; i++) {
 	  distances[i] = original_weights[i+1] - original_weights[i];
@@ -25,6 +24,7 @@ Cluster_DivisiveMaxSeparate::Cluster_DivisiveMaxSeparate(
 
 void Cluster_DivisiveMaxSeparate::clusterWeights(MaxSATFormulaExtended *formula, uint64_t c) {
   if(c > original_weights.size()) {
+  	printf("c Limiting number of clusters to number of weights\n");
     c = original_weights.size();
   }
   if(c == max_c) {
@@ -45,10 +45,8 @@ void Cluster_DivisiveMaxSeparate::clusterWeights(MaxSATFormulaExtended *formula,
       for(uint64_t j = 0; j < cluster_indices.size(); j++) {
         low_index = cluster_indices[j];
         high_index = (j == cluster_indices.size()-1 ? original_weights.size()-1 : cluster_indices[j+1]-1);
-        printf("LI : %llu HI : %llu\n",low_index,high_index);
         for(uint64_t k = low_index; k < high_index; k++) {
         	if(distances[k] >= max_distance) {
-        		printf("FOUND K : %llu, DISTANCES[k] : %llu, Max distance : %llu\n",k,distances[k],max_distance);
         		max_distance = distances[k];
         		max_index = k+1; // TODO BE VERY CAREFUL FOR CHECKING LAST ELEMENT! TODO CHECK!
         	}
@@ -56,7 +54,7 @@ void Cluster_DivisiveMaxSeparate::clusterWeights(MaxSATFormulaExtended *formula,
       }
       // don't split if weights are equal anyway
       if(max_distance == 0) {
-      	printf("Redundant split found\n");
+      	printf("c Redundant split found\n");
       	break;
       } 
       bool is_added = false;
@@ -72,10 +70,10 @@ void Cluster_DivisiveMaxSeparate::clusterWeights(MaxSATFormulaExtended *formula,
       }
       temp.copyTo(cluster_indices);
     }
-    for(int i1 = 0; i1 < cluster_indices.size(); i1++) {
-      printf("%llu ",cluster_indices[i1]);
-    }
-    printf("\n");
+//    for(int i1 = 0; i1 < cluster_indices.size(); i1++) {
+//      printf("%llu ",cluster_indices[i1]);
+//    }
+//    printf("\n");
     replaceWeights(formula,cluster_indices);
   }
 }

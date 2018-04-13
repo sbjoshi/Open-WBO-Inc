@@ -13,11 +13,11 @@ using namespace openwbo;
 bool compare(const Soft &a, const Soft &b) { return a.weight < b.weight; }
 
 void MaxSATFormulaExtended::sortSoftClauses() {
-	printf("BEFORE SORTING WEIGHTS : \n");
-	for(int i = 0; i < soft_clauses.size(); i++) {
-		printf("%llu ",soft_clauses[i].weight);
-	}
-	printf("\n");
+//	printf("BEFORE SORTING WEIGHTS : \n");
+//	for(int i = 0; i < soft_clauses.size(); i++) {
+//		printf("%llu ",soft_clauses[i].weight);
+//	}
+//	printf("\n");
 	uint64_t size = soft_clauses.size();
 	/*std::vector<Soft> temp(size);
 	soft_clauses[0];
@@ -47,10 +47,10 @@ void MaxSATFormulaExtended::sortSoftClauses() {
 	std::sort(soft_clauses + 0, soft_clauses + size, [](const Soft &a, const Soft &b) {
 		return a.weight < b.weight;
 	});
-	printf("AFTER WEIGHTS : \n");
-	for(int i = 0; i < soft_clauses.size(); i++) {
-		printf("%llu ",soft_clauses[i].weight);
-	}
+//	printf("AFTER WEIGHTS : \n");
+//	for(int i = 0; i < soft_clauses.size(); i++) {
+//		printf("%llu ",soft_clauses[i].weight);
+//	}
 }
 
 vec<Soft> &MaxSATFormulaExtended::getSoftClauses() {

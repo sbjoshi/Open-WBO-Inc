@@ -37,7 +37,6 @@ using namespace openwbo;
 void LinearSUClustering::initializeCluster() {
   switch(cluster_algo) {
   case ClusterAlg::_DIVISIVE_:
-  	printf("size in init : %d\n",static_cast<MaxSATFormulaExtended*>(maxsat_formula)->getSoftClauses().size());
     cluster = new Cluster_DivisiveMaxSeparate(
       static_cast<MaxSATFormulaExtended*>(maxsat_formula), cluster_stat);
     break;

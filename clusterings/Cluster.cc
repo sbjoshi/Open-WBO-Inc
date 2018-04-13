@@ -25,7 +25,6 @@ void Cluster::saveWeights(MaxSATFormulaExtended *formula) {
  // 	printf("2 %d %d\n",i,formula->soft_clauses[i].weight);
     original_weights[i] = soft_clauses[i].weight;
   }
-  printf("SAVED ORIGINAL WEIGHTS!!!\n");
 }
 
 void Cluster::restoreWeights(MaxSATFormulaExtended *formula) {

@@ -216,11 +216,9 @@ int main(int argc, char **argv) {
 
     case _ALGORITHM_LINEAR_SU_:
       if((int)(cluster_algorithm) == 1) {
-        printf("Using clustering!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n");
         S = new LinearSUMod(verbosity, bmo, cardinality, pb, ClusterAlg::_DIVISIVE_, rounding_statistic, (int)(num_clusters));
       }
       else {
-        printf("REGULAR!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n");
         S = new LinearSU(verbosity, bmo, cardinality, pb);
       }
       break;
@@ -239,11 +237,9 @@ int main(int argc, char **argv) {
 
     case _ALGORITHM_OLL_:
       if((int)(cluster_algorithm) == 1) {
-        printf("Using clustering!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n");
         S = new OLLMod(verbosity, cardinality, ClusterAlg::_DIVISIVE_, rounding_statistic, (int)(num_clusters));
       }
       else {
-        printf("REGULAR!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n");
         S = new OLL(verbosity, cardinality);
       }
       break;
@@ -275,7 +271,6 @@ int main(int argc, char **argv) {
     MaxSATFormula *maxsat_formula = new MaxSATFormula();
 
     if ((int)formula == _FORMAT_MAXSAT_) {
-      printf("_FORMAT_MAXSAT_ taken\n");
       parseMaxSATFormula(in, maxsat_formula);
       maxsat_formula->setFormat(_FORMAT_MAXSAT_);
     } else {
@@ -366,12 +361,10 @@ int main(int argc, char **argv) {
     }
 
     if (S->getMaxSATFormula() == NULL) {
- //     printf("size before load : %d\n",maxsat_formula->getSoftClauses().size());
       S->loadFormula(maxsat_formula);
       if((int)(cluster_algorithm) == 1) {
         switch ((int)algorithm) {
         case _ALGORITHM_LINEAR_SU_:
-          printf("Choosing LINEARSU\n");
           static_cast<LinearSUMod*>(S)->initializeCluster();
           break;
         case _ALGORITHM_OLL_:
