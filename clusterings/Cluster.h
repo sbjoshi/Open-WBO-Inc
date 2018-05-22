@@ -44,34 +44,30 @@ using std::vector;
 namespace openwbo {
 
 /*
- * Store indices to demarcate clusters in a formula
+ * Store indices to demarcate clusters in a formula.
  * An index 'x' indicates the xth clause in order of increasing weights marks
- * the start of a new cluster
+ * the start of a new cluster.
  * '0' is always a clustering index, marking the starting point of the first
- * cluster
+ * cluster.
  */
 struct cluster_index {
   uint64_t index;
   bool all_equal_in_cluster;
 };
 
-/**
- * @brief      Base class for all clustering algorithms
+/*
+ * Base class for all clustering algorithms.
  */
 class Cluster {
 
 public:
-  // The original weights of the formula
-  vec<uint64_t> original_weights;
+  vec<uint64_t> original_weights; // The original weights of the formula
 
-  // The statistic used to store the clustered weights. Default is Mean
-  Statistics cluster_statistic;
+  Statistics cluster_statistic; // The statistic used to store the clustered
+                                // weights. Default is Mean
 
   // Handle finding the appropriate statistic
   SequenceStatistic statistic_finder;
-
-  // Number of clauses in the formula
-  uint64_t num_clauses;
 
   Cluster(MaxSATFormulaExtended *formula, Statistics cluster_statistic);
 

@@ -31,13 +31,31 @@
 
 using namespace openwbo;
 
+/*_________________________________________________________________________________________________
+  |
+  |  Cluster : (formula : MaxSATFormulaExtended *) (cluster_stat : Statisticss)
+  |
+  |  Description:
+  |
+  |    Constructor for cluster base class.
+  |
+  |  Pre-conditions:
+  |    * `formula` must not be NULL.
+  |
+  |  Post-conditions:
+  |    * Weights in `formula` are sorted in ascending order.
+  |    * Weights in `formula` are stored in `original_weights` in ascending
+  |      order.
+  |    * `cluster_stat` is stored in `cluster_statistic`.
+  |    * Statistic is set in `statistic_finder`.
+  |
+  |________________________________________________________________________________________________@*/
 Cluster::Cluster(MaxSATFormulaExtended *formula, Statistics cluster_stat) {
   assert(formula != NULL);
   formula->sortSoftClauses();
   saveWeights(formula);
   cluster_statistic = cluster_stat;
   statistic_finder.setStatistic(cluster_statistic);
-  num_clauses = formula->getSoftClauses().size();
 }
 
 /*_________________________________________________________________________________________________
@@ -54,6 +72,8 @@ Cluster::Cluster(MaxSATFormulaExtended *formula, Statistics cluster_stat) {
   |
   |  Post-conditions:
   |    * 'formula' is not modified.
+  |    * 'original_weights' store the set of weights in `formula` in increasing
+  |      order, if `formula` was not NULL.
   |
   |________________________________________________________________________________________________@*/
 void Cluster::saveWeights(MaxSATFormulaExtended *formula) {
@@ -116,7 +136,7 @@ void Cluster::restoreWeights(MaxSATFormulaExtended *formula) {
   |
   |  Post-conditions:
   |    * Weights in 'formula' are replaced with clustered weights. For every
-  |      consecutive pair of value i and j in `clusters`, indices [i,j-1] in
+  |      consecutive pair of values i and j in `clusters`, indices [i,j-1] in
   |      the soft clauses of the formula are replaced with a common weight based
   |      on the statistic. For the last value in `clusters`, all weights from
   |      that index till the last index are replaced with a common weight based
@@ -131,17 +151,50 @@ void Cluster::replaceWeights(MaxSATFormulaExtended *formula,
   vec<Soft> &soft_clauses = formula->getSoftClauses();
   uint64_t low_index, high_index, replacement_weight;
   for (uint64_t i = 0; i < clusters.size(); i++) {
+    // find lower and upper bounds of the indices for the current cluster
+    // for the last cluster, the upper bound is the last index
     low_index = clusters[i];
     high_index = (i == clusters.size() - 1 ? original_weights.size() - 1
                                            : clusters[i + 1] - 1);
+    // find the representative weight for this cluster
     replacement_weight = statistic_finder.getSequenceStatistic(
         original_weights, low_index, high_index);
+    // replace the weights
     for (uint64_t j = low_index; j <= high_index; j++) {
       soft_clauses[j].weight = replacement_weight;
     }
   }
 }
 
+/*_________________________________________________________________________________________________
+  |
+  |  replaceWeights : (formula : MaxSATFormulaExtended *) (clusters :
+  |                    vec<cluster_index> &) ->  [void]
+  |
+  |  Description:
+  |
+  |    Replaces the weights in 'formula' by clustered weights. Clusters are
+  |    demarcated by indices in 'clusters', where each index value in the vec
+  |    represents the index of the start of a new cluster. The new weights are
+  |    computed based on the statistic specified in the constructor. If
+  |    'formula' is NULL, this function has no effect. This is more efficient
+  |    than the other definition of `replaceWeights` because the function does
+  |    not modify weights where they are already equal in a given cluster to be
+  |    formed.
+  |
+  |  Pre-conditions:
+  |    * 'clusters' be a sorted vec with all values unique and in the range of
+  |      indices of the soft clauses in `formula`.
+  |
+  |  Post-conditions:
+  |    * Weights in 'formula' are replaced with clustered weights. For every
+  |      consecutive pair of values i and j in `clusters`, indices [i,j-1] in
+  |      the soft clauses of the formula are replaced with a common weight based
+  |      on the statistic. For the last value in `clusters`, all weights from
+  |      that index till the last index are replaced with a common weight based
+  |      on the statistic.
+  |
+  |________________________________________________________________________________________________@*/
 void Cluster::replaceWeights(MaxSATFormulaExtended *formula,
                              vec<cluster_index> &clusters) {
   if (formula == NULL) {
@@ -150,20 +203,41 @@ void Cluster::replaceWeights(MaxSATFormulaExtended *formula,
   vec<Soft> &soft_clauses = formula->getSoftClauses();
   uint64_t low_index, high_index, replacement_weight;
   for (uint64_t i = 0; i < clusters.size(); i++) {
+    // if all weights in the cluster to be formed are already equal, do not do
+    // anything
     if (clusters[i].all_equal_in_cluster) {
       continue;
-    } // ASSUMPTION
+    }
+    // find lower and upper bounds of the indices for the current cluster
+    // for the last cluster, the upper bound is the last index
     low_index = clusters[i].index;
     high_index = (i == clusters.size() - 1 ? original_weights.size() - 1
                                            : clusters[i + 1].index - 1);
+    // find the representative weight for this cluster
     replacement_weight = statistic_finder.getSequenceStatistic(
         original_weights, low_index, high_index);
+    // replace the weights
     for (uint64_t j = low_index; j <= high_index; j++) {
       soft_clauses[j].weight = replacement_weight;
     }
   }
 }
 
+/*_________________________________________________________________________________________________
+  |
+  |  getOriginalWeight : (index : int) ->  [uint64_t]
+  |
+  |  Description:
+  |
+  |    Gets value of `original_weights` at index `index`.
+  |
+  |  Pre-conditions:
+  |    * `index` must be a valid index for the `original_weights` vec.
+  |
+  |  Post-conditions:
+  |    * `original_weights` is not modified.
+  |
+  |________________________________________________________________________________________________@*/
 uint64_t Cluster::getOriginalWeight(int index) {
   assert(index >= 0 && index < original_weights.size());
   return original_weights[index];
