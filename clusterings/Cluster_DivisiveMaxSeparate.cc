@@ -29,39 +29,115 @@
 
 using namespace openwbo;
 
+/*_________________________________________________________________________________________________
+  |
+  |  Cluster_DivisiveMaxSeparate : (formula : MaxSATFormulaExtended *)
+  |                                (cluster_stat : Statisticss)
+  |
+  |  Description:
+  |
+  |    Constructor for the class.
+  |
+  |  Pre-conditions:
+  |    * 'formula' must not be NULL.
+  |
+  |  Post-conditions:
+  |    * Weights in 'formula' are sorted in ascending order.
+  |    * Weights in 'formula' are stored in 'original_weights' in ascending
+  |      order.
+  |    * 'cluster_stat' is stored in 'cluster_statistic'.
+  |    * Statistic is set in 'statistic_finder'.
+  |    * 'max_c' is set to '1'. 'cluster_indices' contains {0,false}.
+  |    * 'distances' contains the differences of weights in 'formula' when
+  |      sorted in ascending order.
+  |
+  |________________________________________________________________________________________________@*/
 Cluster_DivisiveMaxSeparate::Cluster_DivisiveMaxSeparate(
     MaxSATFormulaExtended *formula, Statistics cluster_statistic)
     : Cluster(formula, cluster_statistic) {
+  // by default, set 'max_c' to one cluster, and set 'cluster_indices'
+  // appropriately. No extra information is need to create a single cluster
   max_c = 1;
   cluster_indices.push({0, false});
   distances.growTo(original_weights.size() - 1);
+  // store distances between weights
   for (uint64_t i = 0; i < original_weights.size() - 1; i++) {
     distances[i] = original_weights[i + 1] - original_weights[i];
   }
 }
 
+/*_________________________________________________________________________________________________
+  |
+  |  clusterWeights : (formula : MaxSATFormulaExtended *) (c : uint64_t) ->
+  |                   [void]
+  |
+  |  Description:
+  |
+  |    Performs divisive clustering over the weights of 'formula' to create 'c'
+  |    clusters. It starts off with all weights as a single cluster. Then,
+  |    iteratively, the algorithm splits out new clusters at the point where the
+  |    distance between consecutive weights inside some cluster is the highest.
+  |    This is done until 'c' clusters are created. The number of clusters
+  |    created so far is stored in 'max_c', so that the algorithm can continue
+  |    from that point if the number of clusters are to be incremented at a
+  |    later stage (assuming 'formula' is the same).
+  |
+  |  Pre-conditions:
+  |    * 'formula' must be the same as that passed to the constructor.
+  |
+  |  Post-conditions:
+  |    * Weights in 'formula' are replaced with clustered weights.
+  |    * 'max_c' is set to be 'c'.
+  |    * If 'c' is 0, then a single cluster is created.
+  |    * If 'c' is more than the number of weights,
+  |
+  |________________________________________________________________________________________________@*/
 void Cluster_DivisiveMaxSeparate::clusterWeights(MaxSATFormulaExtended *formula,
                                                  uint64_t c) {
+  // if the number of clusters is more than the number of weights, truncate it
+  // to the number of weights
   if (c > original_weights.size()) {
     printf("c Limiting number of clusters to number of weights\n");
     c = original_weights.size();
+    // weights will be the same as the original weights. This assumes that all
+    // statistics keep the weight intact if a singleton set of weights is
+    // passed.
+    restoreWeights(formula); // TODO - check this!
+    return;
   }
+
+  // if cluster indices for 'c' clusters are already available, use them
+  // directly
   if (c == max_c) {
     replaceWeights(formula, cluster_indices);
   } else {
     vec<cluster_index> temp;
+
+    // if 'c' is less than 'max_c', clustering needs to start afresh from '1',
+    // as the cluster configuration for intermediate steps is not stored
     if (c < max_c) {
       max_c = 1;
       cluster_indices.clear();
       cluster_indices.push({0, false});
     }
-    uint64_t low_index, high_index, max_distance, max_index;
+
+    // bounds for existing clusters
+    uint64_t low_index, high_index;
+    // distance and index of point where next split will occur
+    uint64_t max_distance, max_index;
+    // whether weights in a cluster are known to be not all equal
     bool intra_nonzero;
+
+    // iteratively create clusters
     for (uint64_t i = max_c; i < c; i++) {
       temp.clear();
       max_distance = 0;
       max_index = 0;
+
+      // iterate over existing clusters to find the point of next split
       for (uint64_t j = 0; j < cluster_indices.size(); j++) {
+        // if all weights in a cluster are known to be identical, do not
+        // iterate, as the max distance is known to be zero
         if (cluster_indices[j].all_equal_in_cluster) {
           continue;
         }
@@ -70,27 +146,37 @@ void Cluster_DivisiveMaxSeparate::clusterWeights(MaxSATFormulaExtended *formula,
                           ? original_weights.size() - 1
                           : cluster_indices[j + 1].index - 1);
         intra_nonzero = false;
+
+        // find max distance in this cluster, and compare with and set
+        // 'max_distance' and 'max_index' as applicable
         for (uint64_t k = low_index; k < high_index; k++) {
           if (distances[k] > max_distance) {
             max_distance = distances[k];
             max_index = k + 1;
           }
+
+          // check if there exist some weights that are unequal in this cluster
           if (distances[k] > 0) {
             intra_nonzero = true;
           }
         }
+
+        // if all weights in this cluster are known to be equal, set attribute
+        // so that unnecessary iterations can be avoided
         if (!intra_nonzero) {
           cluster_indices[j].all_equal_in_cluster = true;
         }
       }
-      // don't split if weights are equal anyway
+
+      // stop if all weights within all clusters are known to be equal.
+      // clustering from this point onwards will not change the weights in any
+      // way
       if (max_distance == 0) {
-        // need to add check for new clusters with intra cluster distance
-        // zero. not necessary until update to number of clusters is enabled
-        // TODO
         printf("c Redundant split found\n");
         break;
       }
+
+      // add newly found index to 'cluster_indices'
       bool is_added = false;
       for (uint64_t j = 0; j < cluster_indices.size(); j++) {
         if (cluster_indices[j].index > max_index && !is_added) {
@@ -104,6 +190,8 @@ void Cluster_DivisiveMaxSeparate::clusterWeights(MaxSATFormulaExtended *formula,
       }
       temp.copyTo(cluster_indices);
     }
+
+    // replace weights after finding all indices
     replaceWeights(formula, cluster_indices);
     max_c = c;
   }

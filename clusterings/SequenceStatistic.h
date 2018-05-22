@@ -41,23 +41,42 @@ using NSPACE::vec;
 namespace openwbo {
 
 // Assume that sequence is sorted
+
+/*
+ * Manager for finding a particular statistic for a sequence of weights.
+ * Currently supported statistics are Mean, Median, Max, and Min.
+ */
 class SequenceStatistic {
 
 public:
   SequenceStatistic(Statistics statistic = Statistics::_MEAN_);
+
+  // set the statistic to be used
   void setStatistic(Statistics statistic);
+
+  // get the statistic value corresponding to the set statistic for a sequence
+  // on a specific range of indices
   uint64_t getSequenceStatistic(vec<uint64_t> &sequence, uint64_t start_index,
-                                uint64_t end_index); // check for reference
+                                uint64_t end_index);
+
+  // get the mean statistic
   uint64_t meanStatistic(vec<uint64_t> &sequence, uint64_t start_index,
-                         uint64_t end_index); // check for reference
+                         uint64_t end_index);
+
+  // get the median statistic
   uint64_t medianStatistic(vec<uint64_t> &sequence, uint64_t start_index,
-                           uint64_t end_index); // check for reference
+                           uint64_t end_index);
+
+  // get the max statistic
   uint64_t maxStatistic(vec<uint64_t> &sequence, uint64_t start_index,
-                        uint64_t end_index); // check for reference
+                        uint64_t end_index);
+
+  // get the min statistic
   uint64_t minStatistic(vec<uint64_t> &sequence, uint64_t start_index,
-                        uint64_t end_index); // check for reference
+                        uint64_t end_index);
 
 protected:
+  // statistic to be used, set by constructor or 'setStatistic()'
   Statistics statistic;
 };
 

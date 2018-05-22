@@ -29,15 +29,64 @@
 
 using namespace openwbo;
 
+/*_________________________________________________________________________________________________
+  |
+  |  SequenceStatistic : (stat : Statistics)
+  |
+  |  Description:
+  |
+  |    Constructor for the class.
+  |
+  |  Pre-conditions:
+  |    * None.
+  |
+  |  Post-conditions:
+  |    * 'statistic' is set to 'stat'. Default is Mean.
+  |
+  |________________________________________________________________________________________________@*/
 SequenceStatistic::SequenceStatistic(Statistics stat) { statistic = stat; }
 
+/*_________________________________________________________________________________________________
+  |
+  |  setStatistic : (stat : Statistics) ->  [void]
+  |
+  |  Description:
+  |
+  |    Set the statistic to be used to 'stat'.
+  |
+  |  Pre-conditions:
+  |    * None.
+  |
+  |  Post-conditions:
+  |    * 'statistic' is set to 'stat'.
+  |
+  |________________________________________________________________________________________________@*/
 void SequenceStatistic::setStatistic(Statistics stat) { statistic = stat; }
 
+/*_________________________________________________________________________________________________
+  |
+  |  getSequenceStatistic : (sequence : vec<uint64_t> &) (start_index :
+  |                         uint64_t) (end_index : uint64_t) ->  [uint64_t]
+  |
+  |  Description:
+  |
+  |    Get the value of the statistic 'statistic' for 'sequence' in the range of
+  |    indices [start_index, end_index]
+  |
+  |  Pre-conditions:
+  |    * 'start_index' must be less than or equal to 'end_index'.
+  |    * 'start_index' and 'end_index' must be valid indices for 'sequence'.
+  |    * 'sequence' must be sorted in ascending order.
+  |
+  |  Post-conditions:
+  |    * 'sequence' is not modified.
+  |
+  |________________________________________________________________________________________________@*/
 uint64_t SequenceStatistic::getSequenceStatistic(vec<uint64_t> &sequence,
                                                  uint64_t start_index,
                                                  uint64_t end_index) {
   if (start_index > end_index) {
-    return 0; // check if this is ok, useful for CC
+    return 0;
   }
   switch (statistic) {
   case Statistics::_MEAN_:
@@ -52,12 +101,28 @@ uint64_t SequenceStatistic::getSequenceStatistic(vec<uint64_t> &sequence,
   case Statistics::_MIN_:
     return minStatistic(sequence, start_index, end_index);
     break;
-  default: // check this
-    return meanStatistic(sequence, start_index, end_index);
   }
   return meanStatistic(sequence, start_index, end_index);
 }
 
+/*_________________________________________________________________________________________________
+  |
+  |  meanStatistic : (sequence : vec<uint64_t> &) (start_index :
+  |                         uint64_t) (end_index : uint64_t) ->  [uint64_t]
+  |
+  |  Description:
+  |
+  |    Get the integer mean for 'sequence' in the range of indices
+  |    [start_index, end_index]
+  |
+  |  Pre-conditions:
+  |    * 'start_index' must be less than or equal to 'end_index'.
+  |    * 'start_index' and 'end_index' must be valid indices for 'sequence'.
+  |
+  |  Post-conditions:
+  |    * 'sequence' is not modified.
+  |
+  |________________________________________________________________________________________________@*/
 uint64_t SequenceStatistic::meanStatistic(vec<uint64_t> &sequence,
                                           uint64_t start_index,
                                           uint64_t end_index) {
@@ -70,6 +135,27 @@ uint64_t SequenceStatistic::meanStatistic(vec<uint64_t> &sequence,
   return sum;
 }
 
+/*_________________________________________________________________________________________________
+  |
+  |  medianStatistic : (sequence : vec<uint64_t> &) (start_index :
+  |                         uint64_t) (end_index : uint64_t) ->  [uint64_t]
+  |
+  |  Description:
+  |
+  |    Get the median for 'sequence' in the range of indices
+  |    [start_index, end_index]
+  |
+  |  Pre-conditions:
+  |    * 'start_index' must be less than or equal to 'end_index'.
+  |    * 'start_index' and 'end_index' must be valid indices for 'sequence'.
+  |    * 'sequence' must be sorted in ascending order.
+  |
+  |  Post-conditions:
+  |    * 'sequence' is not modified.
+  |    * When the length of 'sequence' is even, the right side median is
+  |      returned.
+  |
+  |________________________________________________________________________________________________@*/
 uint64_t SequenceStatistic::medianStatistic(vec<uint64_t> &sequence,
                                             uint64_t start_index,
                                             uint64_t end_index) {
@@ -78,6 +164,25 @@ uint64_t SequenceStatistic::medianStatistic(vec<uint64_t> &sequence,
   return sequence[index];
 }
 
+/*_________________________________________________________________________________________________
+  |
+  |  maxStatistic : (sequence : vec<uint64_t> &) (start_index :
+  |                         uint64_t) (end_index : uint64_t) ->  [uint64_t]
+  |
+  |  Description:
+  |
+  |    Get the maximum value in. 'sequence' in the range of indices
+  |    [start_index, end_index]
+  |
+  |  Pre-conditions:
+  |    * 'start_index' must be less than or equal to 'end_index'.
+  |    * 'start_index' and 'end_index' must be valid indices for 'sequence'.
+  |    * 'sequence' must be sorted in ascending order.
+  |
+  |  Post-conditions:
+  |    * 'sequence' is not modified.
+  |
+  |________________________________________________________________________________________________@*/
 uint64_t SequenceStatistic::maxStatistic(vec<uint64_t> &sequence,
                                          uint64_t start_index,
                                          uint64_t end_index) {
@@ -85,6 +190,25 @@ uint64_t SequenceStatistic::maxStatistic(vec<uint64_t> &sequence,
   return sequence[end_index];
 }
 
+/*_________________________________________________________________________________________________
+  |
+  |  minStatistic : (sequence : vec<uint64_t> &) (start_index :
+  |                         uint64_t) (end_index : uint64_t) ->  [uint64_t]
+  |
+  |  Description:
+  |
+  |    Get the minimum value in. 'sequence' in the range of indices
+  |    [start_index, end_index]
+  |
+  |  Pre-conditions:
+  |    * 'start_index' must be less than or equal to 'end_index'.
+  |    * 'start_index' and 'end_index' must be valid indices for 'sequence'.
+  |    * 'sequence' must be sorted in ascending order.
+  |
+  |  Post-conditions:
+  |    * 'sequence' is not modified.
+  |
+  |________________________________________________________________________________________________@*/
 uint64_t SequenceStatistic::minStatistic(vec<uint64_t> &sequence,
                                          uint64_t start_index,
                                          uint64_t end_index) {

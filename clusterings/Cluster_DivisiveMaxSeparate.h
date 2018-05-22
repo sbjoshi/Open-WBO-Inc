@@ -42,15 +42,26 @@ using std::vector;
 
 namespace openwbo {
 
+/*
+ * Implements a divisive clustering algorithm. Clustering is performed in a
+ * top-down manner. Given a list of sorted weights in ascending order, this
+ * algorithm starts with all weights in one cluster and iteratively creates new
+ * clusters by splitting at points where the weight difference is highest inside
+ * a cluster, across all clusters.
+ */
 class Cluster_DivisiveMaxSeparate : public Cluster {
 
 public:
+  // indices to mark the start of each cluster
   vec<cluster_index> cluster_indices;
-  uint64_t max_c;
-  vec<uint64_t> distances;
+  uint64_t max_c;          // number of clusters created so far
+  vec<uint64_t> distances; // differences between consecutive weights, when
+                           // arranged in ascending order
 
   Cluster_DivisiveMaxSeparate(MaxSATFormulaExtended *formula,
                               Statistics cluster_stat);
+
+  // performs clustering
   void clusterWeights(MaxSATFormulaExtended *formula, uint64_t c);
 };
 
