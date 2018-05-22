@@ -13,6 +13,14 @@
 #define MAX_PER_CLUSTER 4
 #define MAX_WEIGHT 10
 
+/**
+ * This functions tests GTE Incremental by creating two trees and joining them.
+ * The clauses for both the trees are given in a file which is loaded by main
+ * function into maxsat_formula. The first nsoft soft clauses of maxsat_formula
+ * is used to create the first tree and remaining are used to create the second tree.
+ * The first tree has <= rhs1 constraint and second tree has <= rhs2 constraint.
+ * After joining, the RHS for AMK cnstraint is rhs2.
+ */
 void test_encoding(MaxSATFormula *maxsat_formula, uint64_t rhs1, uint64_t rhs2, int nsoft1) {
 	Solver *s = new Solver();
 
@@ -53,6 +61,9 @@ void test_encoding(MaxSATFormula *maxsat_formula, uint64_t rhs1, uint64_t rhs2, 
 	delete s;
 }
 
+/**
+ * This function randomly creates two GTE trees and joins them
+ */
 void test_encoding_join()
 {
 	std::random_device rd;
@@ -60,6 +71,7 @@ void test_encoding_join()
 	std::uniform_int_distribution<unsigned int> dis(1, MAX_PER_CLUSTER);
 	std::uniform_int_distribution<uint64_t> dis64(1, MAX_WEIGHT);
 
+	// Generate random weights to be used by the trees
 	std::vector<uint64_t> weights;
 	for (int i=0; i<NUM_CLUSTERS; i++) {
 		int n = dis(g);
@@ -71,23 +83,26 @@ void test_encoding_join()
 
 	Solver *s = new Solver();
 
-	std::vector<Lit> literals_vector;
 	vec<Lit> literals1;
 	vec<Lit> literals2;
-	vec<uint64_t> weights_vec;
 	vec<uint64_t> weights_vec1;
 	vec<uint64_t> weights_vec2;
 
+	// Create literals and push into a vector
+	std::vector<Lit> literals_vector;
+	vec<uint64_t> weights_vec;
 	for (unsigned i=0; i<weights.size(); i++) {
 		literals_vector.push_back(mkLit(s->newVar(), false));
 		weights_vec.push(weights[i]);
 	}
 
+	// Shuffle the literals
 	std::shuffle(literals_vector.begin(), literals_vector.end(), g);
 
 	std::uniform_int_distribution<unsigned> dis_tree2(0,1);
 
 	for (unsigned i=0; i<literals_vector.size(); i++) {
+		// Decide randomly whether to have the literal in first tree or second tree
 		unsigned take_tree2 = dis_tree2(g);
 		if (take_tree2) {
 			literals2.push(literals_vector[i]);
@@ -99,6 +114,8 @@ void test_encoding_join()
 		}
 	}
 
+	// Decide the number of unit clauses to be used as hard clauses and find the sum
+	// of weights of those unit clauses
 	std::uniform_int_distribution<unsigned> dis_unit(1, weights.size()/4+1);
 	unsigned num_unit_clauses = dis_unit(g);
 
@@ -112,7 +129,8 @@ void test_encoding_join()
 	vec<Lit> assumptions;
 	uint64_t rhs = 0;
 	std::uniform_int_distribution<unsigned> dis_rhs(0,1);
-	unsigned unsat = dis_rhs(g);
+	unsigned unsat = dis_rhs(g); // Randomly decide whether formula should be SAT or UNSAT
+	// Acoordingly randomly select RHS for atmost constraint for the final tree
 	if (unsat) {
 		std::uniform_int_distribution<unsigned> dis_rhs(0, sum-1);
 		rhs = dis_rhs(g);
@@ -121,6 +139,7 @@ void test_encoding_join()
 		rhs = dis_rhs(g);
 	}
 
+	// Randomly select RHS for the first tree
 	std::uniform_int_distribution<unsigned> dis_rhs1(0, 2*sum+1);
 	uint64_t rhs1 = dis_rhs1(g);
 
@@ -130,6 +149,7 @@ void test_encoding_join()
 	std::cout << "RHS1: " << rhs1 << std::endl;
 	std::cout << "RHS: " << rhs << std::endl;
 
+	// Encode using GTE and join the tree
 	gte.encode(s, literals1, weights_vec1, rhs1);
 	gte.update(s, rhs1, assumptions);
 	gte.join(s, literals2, weights_vec2, rhs, assumptions);
@@ -137,8 +157,10 @@ void test_encoding_join()
 
 	std::cout << "Encoded" << std::endl;
 
+	// Solve the constraints
 	bool solved = s->solve(assumptions);
 
+	// Check if the answer was correct and print the case if test failed
 	if (unsat) {
 		if (solved) {
 			std::cout << "TEST FAILED" << std::endl;
@@ -188,6 +210,10 @@ void test_encoding_join()
 	delete s;
 }
 
+/**
+ * Test for GTE Incremental encoding for the given test case in a file
+ * which is loaded by main function in maxsat_formula.
+ */
 void test_encoding(MaxSATFormula *maxsat_formula, uint64_t rhs) {
 	Solver *s = new Solver();
 
@@ -204,10 +230,6 @@ void test_encoding(MaxSATFormula *maxsat_formula, uint64_t rhs) {
 
 	gte.encode(s, literals, weights_vec, rhs);
 	gte.update(s, rhs, assumptions);
-	
-//	for(int i = 0; i < assumptions.size(); i++) {
-//		std::cout << var(assumptions[i]) << std::endl;
-//	}
 
 	std::cout << "Encoded" << std::endl;
 
@@ -221,22 +243,13 @@ void test_encoding(MaxSATFormula *maxsat_formula, uint64_t rhs) {
 	} else {
 		std::cout << "UNSAT" << std::endl;
 	}
-//	std::cout << "Inc" << std::endl;
-//	while(rhs > 0) {
-//		std::cin >> rhs;
-//		if(rhs <= 0) break;
-//		gte.update(s, rhs, assumptions);
-//		bool solved = s->solve(assumptions);
-//		if (solved) {
-//			std::cout << "SAT" << std::endl;
-//		} else {
-//			std::cout << "UNSAT" << std::endl;
-//		}
-//	}
 	
 	delete s;
 }
 
+/**
+ * Randomly create a AMK constraint, encode using GTE and check SAT/UNSAT
+ */
 void test_encoding()
 {
 	std::random_device rd;
@@ -244,6 +257,7 @@ void test_encoding()
 	std::uniform_int_distribution<unsigned int> dis(1, MAX_PER_CLUSTER);
 	std::uniform_int_distribution<uint64_t> dis64(1, MAX_WEIGHT);
 
+	// Create Random weights to be used for the soft clauses
 	std::vector<uint64_t> weights;
 	for (int i=0; i<NUM_CLUSTERS; i++) {
 		int n = dis(g);
@@ -259,21 +273,24 @@ void test_encoding()
 	vec<Lit> literals;
 	vec<uint64_t> weights_vec;
 
-	// std::shuffle(weights.begin(), weights.end(), g);
+	// Get literals from the solvers
 	for (unsigned i=0; i<weights.size(); i++) {
 		literals_vector.push_back(mkLit(s->newVar(), false));
 		weights_vec.push(weights[i]);
 	}
 
+	// Shuffle the literals
 	std::shuffle(literals_vector.begin(), literals_vector.end(), g);
 
 	for (unsigned i=0; i<literals_vector.size(); i++) {
 		literals.push(literals_vector[i]);
 	}
 
+	// Decide number of unit clauses as hard clauses
 	std::uniform_int_distribution<unsigned> dis_unit(1, weights.size()/4+1);
 	unsigned num_unit_clauses = dis_unit(g);
 
+	// Find the sum of weights of the unit hard clauses
 	uint64_t sum = 0;
 	for (unsigned i=0; i<num_unit_clauses; i++) {
 		sum += weights[i];
@@ -284,6 +301,7 @@ void test_encoding()
 	vec<Lit> assumptions;
 	uint64_t rhs = 0;
 	std::uniform_int_distribution<unsigned> dis_rhs(0,1);
+	// Randomly decide SAT/UNSAT and choose RHS of AMK constraint
 	unsigned unsat = dis_rhs(g);
 	if (unsat) {
 		std::uniform_int_distribution<unsigned> dis_rhs(0, sum-1);
@@ -296,36 +314,23 @@ void test_encoding()
 	std::cout << "Number of lits: " << literals.size() << std::endl
 	 	<< "Number of unit clauses: " << num_unit_clauses << std::endl;
 	std::cout << "RHS: " << rhs << std::endl;
-	
-//	std::cout << "c RHS " << rhs << std::endl;
-//	std::cout << "p wcnf " << weights_vec.size() << " " << weights_vec.size()+num_unit_clauses
-//		<< " " << MAX_WEIGHT+5 << std::endl;
-//	for (int i=0; i<weights_vec.size(); i++) {
-//		std::cout << weights_vec[i] << " " << i+1 << " 0" << std::endl;
-//	}
-//	for (int i=0; i<num_unit_clauses; i++) {
-//		std::cout << MAX_WEIGHT+5 << " " << i+1 << " 0" << std::endl;
-//	}
-//	std::cout << "c DONE" << std::endl; 
-
+	// Encode the AMK constraint
 	gte.encode(s, literals, weights_vec, rhs);
 	
+	// Randomly choose number of times to update the RHS
 	std::uniform_int_distribution<unsigned> dis_num_inc(1, 100);
 	unsigned num_inc = dis_num_inc(g);
 	
 	for (int k=0; k < num_inc; k++) {
-//		std::cin >> rhs;
-//		if(rhs < sum) {
-//			unsat = true;
-//		} else {
-//			unsat = false;
-//		}
 		std::cout << "RHS : " << rhs << std::endl;
+		// Update RHS and solve
 		gte.update(s, rhs, assumptions);
 
 		std::cout << "Encoded" << std::endl;
 
 		bool solved = s->solve(assumptions);
+
+		// Check SAT/UNSAT and print the test case if failed
 
 		if (unsat) {
 			if (solved) {
