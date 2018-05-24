@@ -36,12 +36,12 @@
 
 #include "../Encoder.h"
 #include "../MaxSAT.h"
+#include "../MaxTypes.h"
+#include "../clusterings/Cluster.h"
+#include "../clusterings/Cluster_DivisiveMaxSeparate.h"
 #include <map>
 #include <set>
 #include <vector>
-#include "../clusterings/Cluster.h"
-#include "../clusterings/Cluster_DivisiveMaxSeparate.h"
-#include "../MaxTypes.h"
 
 namespace openwbo {
 
@@ -50,7 +50,8 @@ class OLLMod : public MaxSAT {
 
 public:
   OLLMod(int verb = _VERBOSITY_MINIMAL_, int enc = _CARD_TOTALIZER_,
-    ClusterAlg ca = ClusterAlg::_DIVISIVE_, Statistics cs = Statistics::_MEAN_, uint64_t num_clusters = 1) {
+         ClusterAlg ca = ClusterAlg::_DIVISIVE_,
+         Statistics cs = Statistics::_MEAN_, uint64_t num_clusters = 1) {
     solver = NULL;
     verbosity = verb;
     incremental_strategy = _INCREMENTAL_ITERATIVE_;
@@ -105,7 +106,7 @@ protected:
   Encoder encoder; // Interface for the encoder of constraints to CNF.
 
   uint64_t computeOriginalCost(vec<lbool> &currentModel,
-                            uint64_t weight = UINT64_MAX);
+                               uint64_t weight = UINT64_MAX);
 
   // Controls the incremental strategy used by MSU3 algorithms.
   int incremental_strategy;

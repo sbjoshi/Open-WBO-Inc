@@ -54,25 +54,25 @@
 
 // Algorithms
 #include "algorithms/Alg_LinearSU.h"
+#include "algorithms/Alg_LinearSU_Clustering.h"
+#include "algorithms/Alg_LinearSU_Mod.h"
 #include "algorithms/Alg_MSU3.h"
 #include "algorithms/Alg_OLL.h"
+#include "algorithms/Alg_OLL_Mod.h"
 #include "algorithms/Alg_PartMSU3.h"
 #include "algorithms/Alg_WBO.h"
-#include "algorithms/Alg_LinearSU_Mod.h"
-#include "algorithms/Alg_OLL_Mod.h"
-#include "algorithms/Alg_LinearSU_Clustering.h"
 
 #define VER1_(x) #x
 #define VER_(x) VER1_(x)
 #define SATVER VER_(SOLVERNAME)
 #define VER VER_(VERSION)
 
-using NSPACE::cpuTime;
-using NSPACE::OutOfMemoryException;
-using NSPACE::IntOption;
 using NSPACE::BoolOption;
-using NSPACE::StringOption;
+using NSPACE::IntOption;
 using NSPACE::IntRange;
+using NSPACE::OutOfMemoryException;
+using NSPACE::StringOption;
+using NSPACE::cpuTime;
 using NSPACE::parseOptions;
 using namespace openwbo;
 
@@ -115,17 +115,20 @@ int main(int argc, char **argv) {
 
     BoolOption printmodel("Open-WBO", "print-model", "Print model.\n", true);
 
-    IntOption num_tests("Open-WBO", "num_tests",
-                        "Number of tests\n", 0, IntRange(0, 10000000));
+    IntOption num_tests("Open-WBO", "num_tests", "Number of tests\n", 0,
+                        IntRange(0, 10000000));
 
     IntOption test_rhs("Open-WBO", "test_rhs",
-                        "Rhs for a custom encoding test\n", 0, IntRange(0, 10000000));
+                       "Rhs for a custom encoding test\n", 0,
+                       IntRange(0, 10000000));
 
     IntOption test_rhs2("Open-WBO", "test_rhs2",
-                        "Rhs2 for a custom encoding test\n", 0, IntRange(0, 10000000));
+                        "Rhs2 for a custom encoding test\n", 0,
+                        IntRange(0, 10000000));
 
     IntOption test_nsoft("Open-WBO", "test_nsoft",
-                        "Nsoft for a custom encoding test\n", 0, IntRange(0, 10000000));
+                         "Nsoft for a custom encoding test\n", 0,
+                         IntRange(0, 10000000));
 
     IntOption test_join("Open-WBO", "test_join",
                         "Join for a custom encoding test\n", 0, IntRange(0, 1));
@@ -136,7 +139,8 @@ int main(int argc, char **argv) {
 
     IntOption algorithm("Open-WBO", "algorithm",
                         "Search algorithm "
-                        "(0=wbo,1=linear-su,2=msu3,3=part-msu3,4=oll,5=best,6=linear-su-cluster)."
+                        "(0=wbo,1=linear-su,2=msu3,3=part-msu3,4=oll,5=best,6="
+                        "linear-su-cluster)."
                         "\n",
                         5, IntRange(0, 6));
 
@@ -161,8 +165,8 @@ int main(int argc, char **argv) {
     IntOption amo("Encodings", "amo", "AMO encoding (0=Ladder).\n", 0,
                   IntRange(0, 0));
 
-    IntOption pb("Encodings", "pb", "PB encoding (0=SWC,1=GTE,2=GTECluster).\n", 1,
-                 IntRange(0, 2));
+    IntOption pb("Encodings", "pb", "PB encoding (0=SWC,1=GTE,2=GTECluster).\n",
+                 1, IntRange(0, 2));
 
     IntOption formula("Open-WBO", "formula",
                       "Type of formula (0=WCNF, 1=OPB).\n", 0, IntRange(0, 1));
@@ -178,36 +182,41 @@ int main(int argc, char **argv) {
         "WBO", "symmetry-limit",
         "Limit on the number of symmetry breaking clauses.\n", 500000,
         IntRange(0, INT32_MAX));
-        
-    IntOption cluster_algorithm("Clustering", "ca", "Clustering algorithm "
-    							              "(0=none, 1=DivisiveMaxSeparate)", 0, 
-    							              IntRange(0, 1));
-    IntOption num_clusters("Clustering", "c", "Number of agglomerated clusters", 1, IntRange(1,INT_MAX));
-    
-    IntOption rounding_strategy("Clustering", "rs", "Statistic used to select"
-	      " common weights in a cluster (0=Mean, 1=Median, 2=Min)", 0,
-	      IntRange(0,2));
+
+    IntOption cluster_algorithm("Clustering", "ca",
+                                "Clustering algorithm "
+                                "(0=none, 1=DivisiveMaxSeparate)",
+                                0, IntRange(0, 1));
+    IntOption num_clusters("Clustering", "c", "Number of agglomerated clusters",
+                           1, IntRange(1, INT_MAX));
+
+    IntOption rounding_strategy(
+        "Clustering", "rs",
+        "Statistic used to select"
+        " common weights in a cluster (0=Mean, 1=Median, 2=Min)",
+        0, IntRange(0, 2));
 
     parseOptions(argc, argv, true);
 
     if ((int)num_tests) {
       if ((int)test_join) {
-        for (int i=0; i<(int)num_tests; i++) {
+        for (int i = 0; i < (int)num_tests; i++) {
           test_encoding_join();
         }
       } else {
-        for (int i=0; i<(int)num_tests; i++) {
+        for (int i = 0; i < (int)num_tests; i++) {
           test_encoding();
         }
       }
-      
+
       return 0;
     }
 
     double initial_time = cpuTime();
     MaxSAT *S = NULL;
-    
-    Statistics rounding_statistic = static_cast<Statistics>((int)rounding_strategy);
+
+    Statistics rounding_statistic =
+        static_cast<Statistics>((int)rounding_strategy);
 
     switch ((int)algorithm) {
     case _ALGORITHM_WBO_:
@@ -215,10 +224,11 @@ int main(int argc, char **argv) {
       break;
 
     case _ALGORITHM_LINEAR_SU_:
-      if((int)(cluster_algorithm) == 1) {
-        S = new LinearSUMod(verbosity, bmo, cardinality, pb, ClusterAlg::_DIVISIVE_, rounding_statistic, (int)(num_clusters));
-      }
-      else {
+      if ((int)(cluster_algorithm) == 1) {
+        S = new LinearSUMod(verbosity, bmo, cardinality, pb,
+                            ClusterAlg::_DIVISIVE_, rounding_statistic,
+                            (int)(num_clusters));
+      } else {
         S = new LinearSU(verbosity, bmo, cardinality, pb);
       }
       break;
@@ -232,14 +242,16 @@ int main(int argc, char **argv) {
       break;
 
     case _ALGORITHM_LSU_CLUSTER_:
-      S = new LinearSUClustering(verbosity, bmo, cardinality, pb, ClusterAlg::_DIVISIVE_, rounding_statistic, (int)(num_clusters));
+      S = new LinearSUClustering(verbosity, bmo, cardinality, pb,
+                                 ClusterAlg::_DIVISIVE_, rounding_statistic,
+                                 (int)(num_clusters));
       break;
 
     case _ALGORITHM_OLL_:
-      if((int)(cluster_algorithm) == 1) {
-        S = new OLLMod(verbosity, cardinality, ClusterAlg::_DIVISIVE_, rounding_statistic, (int)(num_clusters));
-      }
-      else {
+      if ((int)(cluster_algorithm) == 1) {
+        S = new OLLMod(verbosity, cardinality, ClusterAlg::_DIVISIVE_,
+                       rounding_statistic, (int)(num_clusters));
+      } else {
         S = new OLL(verbosity, cardinality);
       }
       break;
@@ -282,9 +294,9 @@ int main(int argc, char **argv) {
 
     if ((int)test_rhs) {
       if ((int)test_rhs2) {
-        test_encoding(maxsat_formula, (uint64_t)test_rhs, (uint64_t)test_rhs2, (uint64_t)test_nsoft);
-      }
-      else {
+        test_encoding(maxsat_formula, (uint64_t)test_rhs, (uint64_t)test_rhs2,
+                      (uint64_t)test_nsoft);
+      } else {
         test_encoding(maxsat_formula, (uint64_t)test_rhs);
       }
       return 0;
@@ -362,19 +374,18 @@ int main(int argc, char **argv) {
 
     if (S->getMaxSATFormula() == NULL) {
       S->loadFormula(maxsat_formula);
-      if((int)(cluster_algorithm) == 1) {
+      if ((int)(cluster_algorithm) == 1) {
         switch ((int)algorithm) {
         case _ALGORITHM_LINEAR_SU_:
-          static_cast<LinearSUMod*>(S)->initializeCluster();
+          static_cast<LinearSUMod *>(S)->initializeCluster();
           break;
         case _ALGORITHM_OLL_:
-          static_cast<OLLMod*>(S)->initializeCluster();
+          static_cast<OLLMod *>(S)->initializeCluster();
           break;
         case _ALGORITHM_LSU_CLUSTER_:
-          static_cast<LinearSUClustering*>(S)->initializeCluster();
+          static_cast<LinearSUClustering *>(S)->initializeCluster();
           break;
         }
-        
       }
     }
     S->setPrintModel(printmodel);

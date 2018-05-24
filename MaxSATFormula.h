@@ -40,10 +40,10 @@
 #include <map>
 #include <string>
 
-using NSPACE::vec;
 using NSPACE::Lit;
 using NSPACE::lit_Undef;
 using NSPACE::mkLit;
+using NSPACE::vec;
 
 namespace openwbo {
 
@@ -61,20 +61,17 @@ public:
     assumption_var = assump_var;
     relax.copyTo(relaxation_vars);
   }
-  
-  void copy(const Soft& other) { // TODO CHANGE THIS!!! - Sukrut
+
+  void copy(const Soft &other) {
     other.clause.copyTo(this->clause);
-//    printf("THIS : %d OTHER : %d\n",this->weight,other.weight);
     this->weight = other.weight;
     this->assumption_var = other.assumption_var;
     other.relaxation_vars.copyTo(this->relaxation_vars);
   }
 
-  Soft(const Soft &other) {
-    copy(other);
-  }
+  Soft(const Soft &other) { copy(other); }
 
-  Soft& operator=(const Soft &other) {
+  Soft &operator=(const Soft &other) {
     copy(other);
     return *this;
   }
@@ -207,8 +204,9 @@ public:
 protected:
   // MaxSAT database
   //
-  
-  vec<Soft> soft_clauses; //<! Stores the soft clauses of the MaxSAT formula. // TODO ! Sukrut
+
+  vec<Soft> soft_clauses; //<! Stores the soft clauses of the MaxSAT formula.
+
   vec<Hard> hard_clauses; //<! Stores the hard clauses of the MaxSAT formula.
 
   // PB database

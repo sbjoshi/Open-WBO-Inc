@@ -37,10 +37,7 @@ struct less_than_wlitt {
 };
 
 Lit GTE::getNewLit(Solver *S) {
-//  static int count = 0;
   Lit p = mkLit(S->nVars(), false);
-//  count++;
-//  printf("Count is %d\n",count);
   newSATVariable(S);
   nb_variables++;
   return p;
@@ -62,8 +59,6 @@ bool GTE::encodeLeq(uint64_t k, Solver *S, const weightedlitst &iliterals,
     return false;
 
   if (iliterals.size() == 1) {
-  	
-//	printf("In 1, Inserting weight : %d\n", iliterals.front().weight);
     oliterals.insert(
         wlit_pairt(iliterals.front().weight, iliterals.front().lit));
     return true;
@@ -103,10 +98,8 @@ bool GTE::encodeLeq(uint64_t k, Solver *S, const weightedlitst &iliterals,
 
   {
     assert(!loutputs.empty());
-//	printf("START #################################################\n");
     for (wlit_mapt::iterator mit = loutputs.begin(); mit != loutputs.end();
          mit++) {
-	//  printf("MIT FIRST :%d\n",mit->first);
       if (mit->first > k) {
         addBinaryClause(S, ~mit->second, get_var(S, oliterals, k));
         nb_clauses++;
@@ -118,15 +111,12 @@ bool GTE::encodeLeq(uint64_t k, Solver *S, const weightedlitst &iliterals,
 
       // formula.push_back(std::move(clause));
     }
-//    printf("END ###########################################\n");
   }
 
   {
     assert(!routputs.empty());
-  //  printf("RIGHT START #################################################\n");
     for (wlit_mapt::iterator mit = routputs.begin(); mit != routputs.end();
          mit++) {
-    //  printf("RIGHT MIT FIRST :%d\n",mit->first);
       if (mit->first > k) {
         addBinaryClause(S, ~mit->second, get_var(S, oliterals, k));
         nb_clauses++;
@@ -139,7 +129,6 @@ bool GTE::encodeLeq(uint64_t k, Solver *S, const weightedlitst &iliterals,
 
       // formula.push_back(std::move(clause));
     }
-//    printf("RIGHT END ###########################################\n");
   }
 
   // if(!lformula.empty() && !rformula.empty())
@@ -176,9 +165,8 @@ void GTE::encode(Solver *S, vec<Lit> &lits, vec<uint64_t> &coeffs,
                  uint64_t rhs) {
   // FIXME: do not change coeffs in this method. Make coeffs const.
 
-  // If the rhs is larger than INT32_MAX is not feasible to encode this
+  // If the rhs is larger than INT64_MAX is not feasible to encode this
   // pseudo-Boolean constraint to CNF.
-  // CHANGED TO INT64_MAX for now - Sukrut
   if (rhs >= INT64_MAX) {
     printf("c Overflow in the Encoding\n");
     printf("s UNKNOWN\n");
@@ -202,7 +190,6 @@ void GTE::encode(Solver *S, vec<Lit> &lits, vec<uint64_t> &coeffs,
     if (simp_coeffs[i] == 0)
       continue;
 
-	// CHANGED TO INT64_MAX for now - Sukrut
     if (simp_coeffs[i] >= INT64_MAX) {
       printf("c Overflow in the Encoding\n");
       printf("s UNKNOWN\n");
@@ -233,11 +220,7 @@ void GTE::encode(Solver *S, vec<Lit> &lits, vec<uint64_t> &coeffs,
   }
   less_than_wlitt lt_wlit;
   std::sort(iliterals.begin(), iliterals.end(), lt_wlit);
-//  printf("ILITERALS ARE : \n");
-//  for(auto i = iliterals.begin(); i != iliterals.end(); i++) {
-//  	printf("%llu ",(*i).weight);
-//  }
-//  printf("\n");
+
   encodeLeq(rhs + 1, S, iliterals, pb_oliterals);
 
   for (wlit_mapt::reverse_iterator rit = pb_oliterals.rbegin();

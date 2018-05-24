@@ -36,16 +36,15 @@
 
 #include "../Encoder.h"
 #include "../MaxSAT.h"
+#include "../MaxTypes.h"
+#include "../clusterings/Cluster.h"
+#include "../clusterings/Cluster_DivisiveMaxSeparate.h"
 #include <map>
 #include <set>
 #include <vector>
-#include "../clusterings/Cluster.h"
-#include "../clusterings/Cluster_DivisiveMaxSeparate.h"
-#include "../MaxTypes.h"
 
-
-using NSPACE::vec;
 using NSPACE::Lit;
+using NSPACE::vec;
 
 namespace openwbo {
 
@@ -54,8 +53,9 @@ class LinearSUMod : public MaxSAT {
 
 public:
   LinearSUMod(int verb = _VERBOSITY_MINIMAL_, bool bmo = true,
-           int enc = _CARD_MTOTALIZER_, int pb = _PB_SWC_,
-           ClusterAlg ca = ClusterAlg::_DIVISIVE_, Statistics cs = Statistics::_MEAN_, uint64_t num_clusters = 1)
+              int enc = _CARD_MTOTALIZER_, int pb = _PB_SWC_,
+              ClusterAlg ca = ClusterAlg::_DIVISIVE_,
+              Statistics cs = Statistics::_MEAN_, uint64_t num_clusters = 1)
       : solver(NULL), is_bmo(false) {
     pb_encoding = pb;
     verbosity = verb;
@@ -126,7 +126,7 @@ protected:
                             uint64_t weight = UINT64_MAX);
 
   uint64_t computeOriginalCost(vec<lbool> &currentModel,
-                            uint64_t weight = UINT64_MAX);
+                               uint64_t weight = UINT64_MAX);
 
   Solver *solver;  // SAT Solver used as a black box.
   Encoder encoder; // Interface for the encoder of constraints to CNF.
@@ -144,7 +144,7 @@ protected:
                         // constraint that excludes models.
 
   bool is_bmo; // Stores if the formula is BMO or not.
-  
+
   uint64_t num_clusters;
   vec<lbool> best_model;
   uint64_t best_cost;

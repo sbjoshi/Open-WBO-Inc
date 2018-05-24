@@ -33,21 +33,21 @@
 using namespace openwbo;
 
 void OLLMod::initializeCluster() {
-  switch(cluster_algo) {
+  switch (cluster_algo) {
   case ClusterAlg::_DIVISIVE_:
     cluster = new Cluster_DivisiveMaxSeparate(
-      static_cast<MaxSATFormulaExtended*>(maxsat_formula), cluster_stat);
+        static_cast<MaxSATFormulaExtended *>(maxsat_formula), cluster_stat);
     break;
   }
 
   original_formula = maxsat_formula->copyMaxSATFormula();
 }
 
-uint64_t OLLMod::computeOriginalCost(vec<lbool> &currentModel, uint64_t weight) {
+uint64_t OLLMod::computeOriginalCost(vec<lbool> &currentModel,
+                                     uint64_t weight) {
 
   assert(currentModel.size() != 0);
   uint64_t currentCost = 0;
-//  printf("NSoft : %d\n",original_formula->nSoft());
   for (int i = 0; i < original_formula->nSoft(); i++) {
     bool unsatisfied = true;
     for (int j = 0; j < original_formula->getSoftClause(i).clause.size(); j++) {
@@ -72,8 +72,6 @@ uint64_t OLLMod::computeOriginalCost(vec<lbool> &currentModel, uint64_t weight) 
     }
 
     if (unsatisfied) {
-      // currentCost += maxsat_formula->getSoftClause(i).weight;
-//      printf("Index accessed: %d\n",i);
       currentCost += cluster->getOriginalWeight(i);
     }
   }
@@ -81,9 +79,8 @@ uint64_t OLLMod::computeOriginalCost(vec<lbool> &currentModel, uint64_t weight) 
   return currentCost;
 }
 
-
 uint64_t OLLMod::findNextWeight(uint64_t weight,
-                             std::set<Lit> &cardinality_assumptions) {
+                                std::set<Lit> &cardinality_assumptions) {
 
   uint64_t nextWeight = 1;
   for (int i = 0; i < maxsat_formula->nSoft(); i++) {
@@ -103,8 +100,9 @@ uint64_t OLLMod::findNextWeight(uint64_t weight,
   return nextWeight;
 }
 
-uint64_t OLLMod::findNextWeightDiversity(uint64_t weight,
-                                      std::set<Lit> &cardinality_assumptions) {
+uint64_t
+OLLMod::findNextWeightDiversity(uint64_t weight,
+                                std::set<Lit> &cardinality_assumptions) {
 
   assert(nbSatisfiable > 0); // Assumes that unsatSearch was done before.
 
@@ -151,7 +149,6 @@ uint64_t OLLMod::findNextWeightDiversity(uint64_t weight,
 }
 
 void OLLMod::unweighted() {
-  // printf("unweighted\n");
 
   // nbInitialVariables = nVars();
   lbool res = l_True;
@@ -179,24 +176,19 @@ void OLLMod::unweighted() {
       nbSatisfiable++;
       uint64_t newCost = computeCostModel(solver->model);
       uint64_t originalCost = computeOriginalCost(solver->model);
-      if(best_cost >= originalCost) {
-//        printf("c BC : %lld, OC : %lld\n", best_cost, originalCost);
-      	saveModel(solver->model);
-      	solver->model.copyTo(best_model);
-      	best_cost = originalCost;
-		    if (maxsat_formula->getFormat() == _FORMAT_PB_) {
-		      // optimization problem
-		      if (maxsat_formula->getObjFunction() != NULL) {
-		        // printf("o %" PRId64 "\n", newCost + off_set);
-		        printf("o %" PRId64 "\n", originalCost);
-//		        printf("cho %" PRId64 "\n", newCost + off_set);
-		      }
-		    } else {
-		      // printf("o %" PRId64 "\n", newCost + off_set);
-		      printf("o %" PRId64 "\n", originalCost);
-//		      printf("cho %" PRId64 "\n", newCost + off_set);
-		    }
-		  }  
+      if (best_cost >= originalCost) {
+        saveModel(solver->model);
+        solver->model.copyTo(best_model);
+        best_cost = originalCost;
+        if (maxsat_formula->getFormat() == _FORMAT_PB_) {
+          // optimization problem
+          if (maxsat_formula->getObjFunction() != NULL) {
+            printf("o %" PRId64 "\n", originalCost);
+          }
+        } else {
+          printf("o %" PRId64 "\n", originalCost);
+        }
+      }
 
       ubCost = newCost;
 
@@ -387,32 +379,26 @@ void OLLMod::weighted() {
   // printf("current weight %d\n",maxsat_formula->getMaximumWeight());
 
   for (;;) {
-    
+
     res = searchSATSolver(solver, assumptions);
     if (res == l_True) {
-//      printFormulaStats(solver);
       nbSatisfiable++;
       uint64_t newCost = computeCostModel(solver->model);
       if (newCost < ubCost || nbSatisfiable == 1) {
-      	uint64_t originalCost = computeOriginalCost(solver->model);
-      	if(best_cost >= originalCost) {
-//      		printf("c BC : %lld, OC : %lld\n", best_cost, originalCost);
-        	saveModel(solver->model);
-        	solver->model.copyTo(best_model);
-      		best_cost = originalCost;
-		      if (maxsat_formula->getFormat() == _FORMAT_PB_) {
-		        // optimization problem
-		        if (maxsat_formula->getObjFunction() != NULL) {
-		          //printf("o %" PRId64 "\n", newCost + off_set);
-		          printf("o %" PRId64 "\n", originalCost);
-//		          printf("cho %" PRId64 "\n", newCost + off_set);
-		        }
-		      } else {
-		        // printf("o %" PRId64 "\n", newCost + off_set);
-		        printf("o %" PRId64 "\n", originalCost);
-//		        printf("cho %" PRId64 "\n", newCost + off_set);
-		      }
-		    }
+        uint64_t originalCost = computeOriginalCost(solver->model);
+        if (best_cost >= originalCost) {
+          saveModel(solver->model);
+          solver->model.copyTo(best_model);
+          best_cost = originalCost;
+          if (maxsat_formula->getFormat() == _FORMAT_PB_) {
+            // optimization problem
+            if (maxsat_formula->getObjFunction() != NULL) {
+              printf("o %" PRId64 "\n", originalCost);
+            }
+          } else {
+            printf("o %" PRId64 "\n", originalCost);
+          }
+        }
         ubCost = newCost;
       }
 
@@ -843,13 +829,9 @@ void OLLMod::weighted() {
 
 void OLLMod::search() {
 
-  MaxSATFormulaExtended *maxsat_formula_extended = 
-    static_cast<MaxSATFormulaExtended*>(maxsat_formula);
-  cluster->clusterWeights(maxsat_formula_extended,num_clusters);
-//  printf("AFTER CLUSTER WEIGHTS : \n");
-//  for(int i = 0; i < maxsat_formula_extended->getSoftClauses().size(); i++) {
-//    printf("%llu ",maxsat_formula_extended->getSoftClauses()[i].weight);
-//  }
+  MaxSATFormulaExtended *maxsat_formula_extended =
+      static_cast<MaxSATFormulaExtended *>(maxsat_formula);
+  cluster->clusterWeights(maxsat_formula_extended, num_clusters);
 
   if (encoding != _CARD_TOTALIZER_) {
     printf("Error: Currently algorithm MSU3 with iterative encoding only "
