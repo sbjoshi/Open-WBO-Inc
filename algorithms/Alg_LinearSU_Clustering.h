@@ -133,8 +133,8 @@ protected:
   Encoder encoder; // Interface for the encoder of constraints to CNF.
   int encoding;    // Encoding for cardinality constraints.
   int pb_encoding;
-  ClusterAlg cluster_algo;
-  Statistics cluster_stat;
+  ClusterAlg cluster_algo; // Clustering Algorithm
+  Statistics cluster_stat; // Statistic used for clustering
 
   bool bmoMode;  // Enables BMO mode.
   bool allFalse; // Forces relaxation variables to be false.
@@ -146,9 +146,9 @@ protected:
 
   bool is_bmo; // Stores if the formula is BMO or not.
 
-  uint64_t num_clusters;
-  vec<lbool> best_model;
-  uint64_t best_cost;
+  uint64_t num_clusters; // Number of clusters
+  vec<lbool> best_model; // Best model as per original weights
+  uint64_t best_cost; // Best cost of the model as per originla weights
 
   std::set<uint64_t> unique_weights;
 };

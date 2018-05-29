@@ -125,6 +125,7 @@ protected:
   uint64_t computeCostModel(vec<lbool> &currentModel,
                             uint64_t weight = UINT64_MAX);
 
+  // Compute the cost of the model according to original weights
   uint64_t computeOriginalCost(vec<lbool> &currentModel,
                                uint64_t weight = UINT64_MAX);
 
@@ -132,8 +133,8 @@ protected:
   Encoder encoder; // Interface for the encoder of constraints to CNF.
   int encoding;    // Encoding for cardinality constraints.
   int pb_encoding;
-  ClusterAlg cluster_algo;
-  Statistics cluster_stat;
+  ClusterAlg cluster_algo; // Clustering algorithm
+  Statistics cluster_stat; // Statistic used for clustering
 
   bool bmoMode;  // Enables BMO mode.
   bool allFalse; // Forces relaxation variables to be false.
@@ -145,9 +146,9 @@ protected:
 
   bool is_bmo; // Stores if the formula is BMO or not.
 
-  uint64_t num_clusters;
-  vec<lbool> best_model;
-  uint64_t best_cost;
+  uint64_t num_clusters; // Number of clusters
+  vec<lbool> best_model; // Best model as per original weights
+  uint64_t best_cost; // Best cost as per original weights
 };
 } // namespace openwbo
 

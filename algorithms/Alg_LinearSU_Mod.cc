@@ -34,6 +34,22 @@
 
 using namespace openwbo;
 
+
+/*_________________________________________________________________________________________________
+  |
+  |  initializeCluster : [void] -> [void]
+  |
+  |  Description:
+  |
+  |    Initializes cluster according to the algorithm specified.
+  |
+  |  Pre-conditions:
+  |    * cluster_algo contains the clustering method
+  |
+  |  Post-conditions:
+  |    * cluster is initialized
+  |
+  |________________________________________________________________________________________________@*/
 void LinearSUMod::initializeCluster() {
   switch (cluster_algo) {
   case ClusterAlg::_DIVISIVE_:
@@ -96,6 +112,22 @@ uint64_t LinearSUMod::computeCostModel(vec<lbool> &currentModel,
   return currentCost;
 }
 
+/*_________________________________________________________________________________________________
+  |
+  |  computeOriginalCost : (currentModel : vec<lbool>&) (weight : uint64_t) ->
+  |                     [uint64_t]
+  |
+  |  Description:
+  |
+  |    Computes the cost of 'currentModel' as per the original weights.
+  |    The cost of a model is the sum of the weights of the unsatisfied soft clauses.
+  |    If a weight is specified, then it only considers the sum of the weights
+  |    of the unsatisfied soft clauses with the specified weight.
+  |
+  |  Pre-conditions:
+  |    * Assumes that 'currentModel' is not empty.
+  |
+  |________________________________________________________________________________________________@*/
 uint64_t LinearSUMod::computeOriginalCost(vec<lbool> &currentModel,
                                           uint64_t weight) {
 

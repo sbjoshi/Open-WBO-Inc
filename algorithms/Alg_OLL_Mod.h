@@ -112,8 +112,8 @@ protected:
   int incremental_strategy;
   // Controls the cardinality encoding used by MSU3 algorithms.
   int encoding;
-  ClusterAlg cluster_algo;
-  Statistics cluster_stat;
+  ClusterAlg cluster_algo; // Clustering algorithm
+  Statistics cluster_stat; // Statistic used for clustering
 
   // Literals to be used in the constraint that excludes models.
   vec<Lit> objFunction;
@@ -139,9 +139,9 @@ protected:
                           std::set<Lit> &cardinality_assumptions);
 
   uint64_t min_weight;
-  uint64_t num_clusters;
-  vec<lbool> best_model;
-  uint64_t best_cost;
+  uint64_t num_clusters; // Number of clusters
+  vec<lbool> best_model; // Best model found as per original weights
+  uint64_t best_cost; // Best cost as per original weights
 };
 } // namespace openwbo
 
