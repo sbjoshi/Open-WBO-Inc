@@ -13,14 +13,21 @@
 #define MAX_PER_CLUSTER 4
 #define MAX_WEIGHT 10
 
-/**
- * This functions tests GTE Incremental by creating two trees and joining them.
- * The clauses for both the trees are given in a file which is loaded by main
- * function into maxsat_formula. The first nsoft soft clauses of maxsat_formula
- * is used to create the first tree and remaining are used to create the second tree.
- * The first tree has <= rhs1 constraint and second tree has <= rhs2 constraint.
- * After joining, the RHS for AMK cnstraint is rhs2.
- */
+
+/*_________________________________________________________________________________________________
+  |
+  |  test_encodig : (maxsat_formula : MaxSATFormula*, rhs1 : uint64_t, rhs2 : uint64_t, nsoft1 : int)
+  |                 ->  [void]
+  |
+  |  Description:
+  |
+  |    This functions tests GTE Incremental by creating two trees and joining them.
+  |    The clauses for both the trees are given in a file which is loaded by main
+  |    function into maxsat_formula. The first nsoft soft clauses of maxsat_formula
+  |    is used to create the first tree and remaining are used to create the second tree.
+  |    The first tree has <= rhs1 constraint and second tree has <= rhs2 constraint.
+  |    After joining, the RHS for AMK cnstraint is rhs2.
+  |________________________________________________________________________________________________@*/
 void test_encoding(MaxSATFormula *maxsat_formula, uint64_t rhs1, uint64_t rhs2, int nsoft1) {
 	Solver *s = new Solver();
 
@@ -61,9 +68,14 @@ void test_encoding(MaxSATFormula *maxsat_formula, uint64_t rhs1, uint64_t rhs2, 
 	delete s;
 }
 
-/**
- * This function randomly creates two GTE trees and joins them
- */
+/*_________________________________________________________________________________________________
+  |
+  |  test_encodig_join : [void] ->  [void]
+  |
+  |  Description:
+  |
+  |    This function randomly creates two GTE trees and joins them.
+  |________________________________________________________________________________________________@*/
 void test_encoding_join()
 {
 	std::random_device rd;
@@ -210,10 +222,15 @@ void test_encoding_join()
 	delete s;
 }
 
-/**
- * Test for GTE Incremental encoding for the given test case in a file
- * which is loaded by main function in maxsat_formula.
- */
+/*_________________________________________________________________________________________________
+  |
+  |  test_encodig : [maxsat_formula: MaxSATFormula*, rhs: uint64_t] ->  [void]
+  |
+  |  Description:
+  |
+  |    Test for GTE Incremental encoding for the given test case in a file
+  |    which is loaded by main function in maxsat_formula.
+  |________________________________________________________________________________________________@*/
 void test_encoding(MaxSATFormula *maxsat_formula, uint64_t rhs) {
 	Solver *s = new Solver();
 
@@ -247,9 +264,14 @@ void test_encoding(MaxSATFormula *maxsat_formula, uint64_t rhs) {
 	delete s;
 }
 
-/**
- * Randomly create a AMK constraint, encode using GTE and check SAT/UNSAT
- */
+/*_________________________________________________________________________________________________
+  |
+  |  test_encodig : [void] ->  [void]
+  |
+  |  Description:
+  |
+  |    Randomly create a AMK constraint, encode using GTE and check SAT/UNSAT.
+  |________________________________________________________________________________________________@*/
 void test_encoding()
 {
 	std::random_device rd;
