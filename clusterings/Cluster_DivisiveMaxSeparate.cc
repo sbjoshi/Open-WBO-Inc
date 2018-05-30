@@ -102,7 +102,9 @@ void Cluster_DivisiveMaxSeparate::clusterWeights(MaxSATFormulaExtended *formula,
     // weights will be the same as the original weights. This assumes that all
     // statistics keep the weight intact if a singleton set of weights is
     // passed.
-    restoreWeights(formula); // TODO - check this!
+    
+    // FIXME: is this suppose to be here? was not here in the previous version!
+    // restoreWeights(formula); // TODO - check this!
     return;
   }
 

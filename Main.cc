@@ -96,9 +96,9 @@ int main(int argc, char **argv) {
   printf(
       "c\nc Open-WBO:\t a Modular MaxSAT Solver -- based on %s (%s version)\n",
       SATVER, VER);
-  printf("c Version:\t 2017 -- Release: 2.0\n");
-  printf("c Authors:\t Ruben Martins, Vasco Manquinho, Ines Lynce\n");
-  printf("c Contributors:\t Miguel Neves, Saurabh Joshi, Mikolas Janota\n");
+  printf("c Version:\t Inc -- MaxSAT Evaluation 2018\n");
+  printf("c Authors:\t Saurabh Joshi, Prateek Kumar, Ruben Martins, Sukrut Rao\n");
+  printf("c Contributors:\t Vasco Manquinho, Ines Lynce, Miguel Neves, Mikolas Janota\n");
   printf("c Contact:\t open-wbo@sat.inesc-id.pt -- "
          "http://sat.inesc-id.pt/open-wbo/\nc\n");
   try {
@@ -142,7 +142,7 @@ int main(int argc, char **argv) {
                         "(0=wbo,1=linear-su,2=msu3,3=part-msu3,4=oll,5=best,6="
                         "linear-su-cluster)."
                         "\n",
-                        5, IntRange(0, 6));
+                        6, IntRange(0, 6));
 
     IntOption partition_strategy("PartMSU3", "partition-strategy",
                                  "Partition strategy (0=sequential, "
@@ -186,9 +186,9 @@ int main(int argc, char **argv) {
     IntOption cluster_algorithm("Clustering", "ca",
                                 "Clustering algorithm "
                                 "(0=none, 1=DivisiveMaxSeparate)",
-                                0, IntRange(0, 1));
+                                1, IntRange(0, 1));
     IntOption num_clusters("Clustering", "c", "Number of agglomerated clusters",
-                           1, IntRange(1, INT_MAX));
+                           100000, IntRange(1, INT_MAX));
 
     IntOption rounding_strategy(
         "Clustering", "rs",

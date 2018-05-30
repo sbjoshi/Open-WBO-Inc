@@ -32,6 +32,8 @@
 #include <fstream>
 #include <iostream>
 
+#define MAX_CLAUSES 3000000
+
 using namespace openwbo;
 
 
@@ -167,7 +169,7 @@ uint64_t LinearSUClustering::computeOriginalCost(vec<lbool> &currentModel,
 
 /************************************************************************************************
  //
- // Linear Search Algorithm with Boolean Multilevel Optimization (BMO)
+ // Incremental Linear Search Algorithm with Boolean Multilevel Optimization (BMO)
  //
  ************************************************************************************************/
 
@@ -177,7 +179,8 @@ uint64_t LinearSUClustering::computeOriginalCost(vec<lbool> &currentModel,
   |
   |  Description:
   |
-  |    Linear search algorithm with lexicographical optimization.
+  |    Incremental Linear search algorithm with lexicographical optimization modified for 
+  |    incomplete weighted MaxSAT.
   |
   |  For further details see:
   |    * Joao Marques-Silva, Josep Argelich, Ana Graça, Ines Lynce: Boolean
@@ -191,235 +194,366 @@ uint64_t LinearSUClustering::computeOriginalCost(vec<lbool> &currentModel,
   |    * 'nbCores' is updated.
   |
   |________________________________________________________________________________________________@*/
-void LinearSUClustering::bmoSearch() {
+void LinearSUClustering::bmoSearch(){
+
   assert(orderWeights.size() > 0);
   lbool res = l_True;
 
   initRelaxation();
+  solver = rebuildSolver();
 
   uint64_t currentWeight = orderWeights[0];
   uint64_t minWeight = orderWeights[orderWeights.size() - 1];
   int posWeight = 0;
 
   vec<vec<Lit>> functions;
-  vec<int> weights;
+  vec<uint64_t> rhs;
+  vec<uint64_t> ub_rhs;
+  vec<uint64_t> best_rhs;
+  uint64_t repair_cost = UINT64_MAX;
+  std::vector<Encoder*> encoders;
+  vec<Lit> encodingAssumptions;
+  vec<Lit> current_assumptions;
+  vec<vec<Lit>> functions_to_assumptions;
+  vec<bool> encoder_created;
+  encoder_created.growTo(orderWeights.size(), false);
+  Encoder *pb = new Encoder();
+  pb->setPBEncoding(_PB_GTE_);
 
-  solver = rebuildBMO(functions, weights, currentWeight);
+  for (int j = 0; j < orderWeights.size(); j++){
+    functions.push();
+    new (&functions[j]) vec<Lit>();
+    functions_to_assumptions.push();
+    new (&functions_to_assumptions[j]) vec<Lit>();
 
-  uint64_t localCost = 0;
-  ubCost = 0;
-
-  for (;;) {
-
-    vec<Lit> dummy;
-    // Do not use preprocessing for linear search algorithm.
-    // NOTE: When preprocessing is enabled the SAT solver simplifies the
-    // relaxation variables which leads to incorrect results.
-    res = searchSATSolver(solver, dummy);
-
-    if (res == l_True) {
-      nbSatisfiable++;
-
-      uint64_t newCost = computeCostModel(solver->model, currentWeight);
-      if (currentWeight == minWeight) {
-        // If current weight is the same as the minimum weight, then we are in
-        // the last lexicographical function.
-        uint64_t originalCost = computeOriginalCost(solver->model);
-        if (best_cost > originalCost) {
-          saveModel(solver->model);
-          solver->model.copyTo(best_model);
-          best_cost = originalCost;
-          printf("o %" PRId64 " ", originalCost);
-        }
-        ubCost = newCost + lbCost;
-      } else {
-        if (verbosity > 0)
-          printf("c BMO-UB : %-12" PRIu64 "\t (Function %d/%d)\n", newCost,
-                 posWeight + 1, (int)orderWeights.size());
-        uint64_t originalCost = computeOriginalCost(solver->model);
-        if (best_cost > originalCost) {
-          saveModel(solver->model);
-          solver->model.copyTo(best_model);
-          best_cost = originalCost;
-          printf("o %" PRId64 " ", originalCost);
-        }
-      }
-
-      if (newCost == 0 && currentWeight == minWeight) {
-        // Optimum value has been found.
-        printFormulaStats(solver);
-        printAnswer(_OPTIMUM_);
-        exit(_OPTIMUM_);
-      } else {
-
-        if (newCost == 0) {
-
-          functions.push();
-          new (&functions[functions.size() - 1]) vec<Lit>();
-          objFunction.copyTo(functions[functions.size() - 1]);
-
-          localCost = newCost;
-          weights.push(localCost / currentWeight);
-
-          posWeight++;
-          currentWeight = orderWeights[posWeight];
-          localCost = 0;
-
-          delete solver;
-          solver = rebuildBMO(functions, weights, currentWeight);
-
-          if (verbosity > 0)
-            printf("c LB : %-12" PRIu64 "\n", lbCost);
-        } else {
-
-          // Optimization of the current lexicographical function.
-          if (localCost == 0)
-            encoder.encodeCardinality(solver, objFunction,
-                                      newCost / currentWeight - 1);
-          else
-            encoder.updateCardinality(solver, newCost / currentWeight - 1);
-
-          localCost = newCost;
-        }
-      }
-    } else {
-      nbCores++;
-
-      if (currentWeight == minWeight) {
-        // There are no more functions to be optimized.
-
-        if (model.size() == 0) {
-          assert(nbSatisfiable == 0);
-          // If no model was found then the MaxSAT formula is unsatisfiable
-          printFormulaStats(solver);
-          printAnswer(_UNSATISFIABLE_);
-          exit(_UNSATISFIABLE_);
-        } else {
-          printFormulaStats(solver);
-          printAnswer(_OPTIMUM_);
-          exit(_OPTIMUM_);
-        }
-      } else {
-
-        // The current lexicographical function has been optimize. Go to the
-        // next lexicographical function.
-        functions.push();
-        new (&functions[functions.size() - 1]) vec<Lit>();
-        objFunction.copyTo(functions[functions.size() - 1]);
-
-        weights.push(localCost / currentWeight);
-        lbCost += localCost;
-
-        posWeight++;
-        currentWeight = orderWeights[posWeight];
-        localCost = 0;
-
-        delete solver;
-        solver = rebuildBMO(functions, weights, currentWeight);
-
-        if (verbosity > 0)
-          printf("c LB : %-12" PRIu64 "\n", lbCost);
+    for (int i = 0; i < maxsat_formula->nSoft(); i++) {
+      if (maxsat_formula->getSoftClause(i).weight == orderWeights[j]) {
+        functions[j].push(maxsat_formula->getSoftClause(i).relaxation_vars[0]);
       }
     }
+    rhs.push(UINT64_MAX);
+    ub_rhs.push(UINT64_MAX);
+    best_rhs.push(UINT64_MAX);
+    Encoder* enc = new Encoder();
+    enc->setIncremental(_INCREMENTAL_ITERATIVE_);
+    enc->setCardEncoding(_CARD_TOTALIZER_);
+    encoders.push_back(enc);
   }
-}
 
-/*_________________________________________________________________________________________________
-  |
-  |  normalSearch : [void] ->  [void]
-  |
-  |  Description:
-  |
-  |    Linear search algorithm.
-  |
-  |  For further details see:
-  |    *  Daniel Le Berre, Anne Parrain: The Sat4j library, release 2.2. JSAT
-  |       7(2-3): 59-6 (2010)
-  |    *  Miyuki Koshimura, Tong Zhang, Hiroshi Fujita, Ryuzo Hasegawa: QMaxSAT:
-  |       A Partial Max-SAT Solver. JSAT 8(1/2): 95-100 (2012)
-  |
-  |  Post-conditions:
-  |    * 'ubCost' is updated.
-  |    * 'nbSatisfiable' is updated.
-  |    * 'nbCores' is updated.
-  |
-  |________________________________________________________________________________________________@*/
-void LinearSUClustering::normalSearch() {
+  int current_function_id = 0;
+  vec<Lit> assumptions;
+  //printf("c objective function %d out of %d\n",current_function_id,orderWeights.size());
 
-  lbool res = l_True;
+  bool repair = false;
+  int repair_lvl = 0;
 
-  initRelaxation();
-  solver = rebuildSolver();
-  while (res == l_True) {
-    // printFormulaStats(solver);
-    vec<Lit> dummy;
-    // Do not use preprocessing for linear search algorithm.
-    // NOTE: When preprocessing is enabled the SAT solver simplifies the
-    // relaxation variables which leads to incorrect results.
-    res = searchSATSolver(solver, dummy);
+  vec<Lit> pb_function;
+  vec<uint64_t> pb_coeffs;
 
+  for(;;){
+    sat:
+
+    res = searchSATSolver(solver, assumptions);
     if (res == l_True) {
-      nbSatisfiable++;
-      uint64_t newCost = computeCostModel(solver->model);
-      uint64_t originalCost = computeOriginalCost(solver->model);
-      if (best_cost >= originalCost) {
-        saveModel(solver->model);
-        solver->model.copyTo(best_model);
-        best_cost = originalCost;
+      if (!repair){
+        nbSatisfiable++;
 
-        if (maxsat_formula->getFormat() == _FORMAT_PB_) {
-          // optimization problem
-          if (maxsat_formula->getObjFunction() != NULL) {
-            printf("o %" PRId64 " ", originalCost);
-          }
-        } else {
-          printf("o %" PRId64 " ", originalCost);
+  //printf("c weight %llu with size %d\n",orderWeights[current_function_id],functions[current_function_id].size());
+        uint64_t newCost = computeCostModel(solver->model, orderWeights[current_function_id])/orderWeights[current_function_id];
+        uint64_t originalCost = computeOriginalCost(solver->model);
+  //printf("c objective function %d = o %" PRId64 " \n",current_function_id,newCost);
+        if(best_cost > originalCost) {
+          saveModel(solver->model);
+          solver->model.copyTo(best_model);
+          best_cost = originalCost;
+          printf("o %" PRId64 " \n", originalCost);
         }
+
+        if (newCost < rhs[current_function_id])
+          rhs[current_function_id] = newCost;
+
+        if (newCost == 0){
+    // no need for cardinality constraint
+          goto unsat;
+
+        } else {
+    // no cardinality constraint created
+          if (!encoder_created[current_function_id]){
+            if (newCost - 1 == 0){
+              encodingAssumptions.clear();
+              functions_to_assumptions[current_function_id].clear();
+              for (int i = 0; i < functions[current_function_id].size(); i++){
+                functions_to_assumptions[current_function_id].push(~functions[current_function_id][i]);
+                encodingAssumptions.push(~functions[current_function_id][i]);
+              }
+            } else {
+        //printf("c creating encoder with id = %d and value = %d\n",current_function_id,rhs[current_function_id]);
+              encoders[current_function_id]->buildCardinality(solver, functions[current_function_id], newCost-1);
+              if (encoders[current_function_id]->hasCardEncoding()){
+                encoder_created[current_function_id] = true;
+                encoders[current_function_id]->incUpdateCardinality(solver, functions[current_function_id], newCost-1, encodingAssumptions);
+                assert(encodingAssumptions.size() == 1);
+
+                functions_to_assumptions[current_function_id].clear();
+                functions_to_assumptions[current_function_id].push(encodingAssumptions[0]);
+              }
+            }
+          } else {
+      //  printf("c updating the cost to %llu\n",newCost-1);
+            encodingAssumptions.clear();
+            encoders[current_function_id]->incUpdateCardinality(solver, functions[current_function_id], newCost-1, encodingAssumptions);
+            assert(encodingAssumptions.size() == 1);
+
+            functions_to_assumptions[current_function_id].clear();
+            functions_to_assumptions[current_function_id].push(encodingAssumptions[0]);
+          }
+        }
+
+        
+        assumptions.clear();
+        for (int i = 0; i <= current_function_id; i++){
+          for (int j = 0; j < functions_to_assumptions[i].size(); j++){
+            assumptions.push(functions_to_assumptions[i][j]);
+      //printf("z = %d\n",var(functions_to_assumptions[i][j]));
+          }
+        }
+
+      } else {
+  // perform a linear search by decreasing the repair_cost
+        uint64_t newCost = computeCostModel(solver->model, orderWeights[current_function_id])/orderWeights[current_function_id];
+        uint64_t originalCost = computeOriginalCost(solver->model);
+  //printf("c o %" PRId64 " \n", originalCost);
+  //printf("repair_cost = %llu\n",repair_cost);
+        if(best_cost > originalCost) {
+          saveModel(solver->model);
+          solver->model.copyTo(best_model);
+          best_cost = originalCost;
+          repair_cost = best_cost - 1;
+          printf("o %" PRId64 " \n", originalCost);
+        } else {
+          repair_cost -= 1;
+        }
+
+        rescale:
+  // rescale
+        for (int i = 0; i < rhs.size(); i++){
+          uint64_t value = repair_cost/orderWeights[i];
+          if (value > functions[i].size())
+            value = functions[i].size();
+          if (value != ub_rhs[i]){
+            ub_rhs[i] = value;
+          }
+        }
+
+        if (!pb->hasPBEncoding()){
+          pb->encodePB(solver, pb_function, pb_coeffs, repair_cost);
+        }
+        else
+          pb->updatePB(solver, repair_cost);
+
+        if (all_weights){
+          for (int i = 0; i < functions_to_assumptions.size(); i++){
+            functions_to_assumptions[i].clear();
+            if (encoder_created[i]){
+              if (ub_rhs[i] == 0){
+                for (int i = 0; i < functions[i].size(); i++){
+                  functions_to_assumptions[i].push(~functions[i][i]);
+                }
+              } else if (functions[i].size() != ub_rhs[i]){
+    //printf("encoding %lu\n",ub_rhs[i]);
+                encoders[i]->incUpdateCardinality(solver, functions[i], ub_rhs[i], encodingAssumptions);
+    //printf("encodingAssumptions.size() = %d\n",encodingAssumptions.size());
+                assert(encodingAssumptions.size() == 1);
+                functions_to_assumptions[i].push(encodingAssumptions[0]);
+              } else {
+    //printf("size if the same!\n");
+              }
+            } else {
+        //printf("ERROR\n");
+              encoders[i]->buildCardinality(solver, functions[i], ub_rhs[i]);
+              if (encoders[i]->hasCardEncoding()){
+                encoder_created[i] = true;
+                encoders[i]->incUpdateCardinality(solver, functions[i], ub_rhs[i], encodingAssumptions);
+                assert(encodingAssumptions.size() == 1);
+                functions_to_assumptions[i].push(encodingAssumptions[0]);
+              }
+        //          assert(false);
+            }
+          }
+
+          assumptions.clear();
+          for (int i = 0; i < functions_to_assumptions.size(); i++){
+            for (int j = 0; j < functions_to_assumptions[i].size(); j++){
+              assumptions.push(functions_to_assumptions[i][j]);
+        //printf("function i =%d assumption= %d\n",i,var(functions_to_assumptions[i][j]));
+            }
+          }
+        } else
+        assumptions.clear();
+
       }
 
-      if (newCost == 0) {
-        // If there is a model with value 0 then it is an optimal model
-        ubCost = newCost;
+    } else {
+      unsat:
+      //printf("c UNSATISFIABLE\n");
+      if (current_function_id == orderWeights.size()-1){
+  // last function
 
-        if (maxsat_formula->getFormat() == _FORMAT_PB_ &&
-            maxsat_formula->getObjFunction() == NULL) {
-          printFormulaStats(solver);
-          printAnswer(_SATISFIABLE_);
-          exit(_SATISFIABLE_);
-        } else {
-          printFormulaStats(solver);
+        if (!complete){
+          printAnswer(_OPTIMUM_);
+          exit(_OPTIMUM_);
+        }
+  // ignore the complete part for now!
+        
+        if(repair){
           printAnswer(_OPTIMUM_);
           exit(_OPTIMUM_);
         }
 
-      } else {
-        if (maxsat_formula->getProblemType() == _WEIGHTED_) {
-          if (!encoder.hasPBEncoding())
-            encoder.encodePB(solver, objFunction, coeffs, newCost - 1);
-          else
-            encoder.updatePB(solver, newCost - 1);
-        } else {
-          // Unweighted.
-          if (!encoder.hasCardEncoding())
-            encoder.encodeCardinality(solver, objFunction, newCost - 1);
-          else
-            encoder.updateCardinality(solver, newCost - 1);
+        repair = true;
+
+  //printf ("c last function!\n");
+        printf("c changing to complete mode\n");
+
+        if (best_cost < repair_cost){
+          for (int i = 0; i < rhs.size(); i++){
+            ub_rhs[i] = best_cost/orderWeights[i];
+      //best_rhs[i] = rhs[i];
+          }
+          repair_cost = best_cost;
         }
 
-        ubCost = newCost;
-      }
-    } else {
-      nbCores++;
-      if (model.size() == 0) {
-        assert(nbSatisfiable == 0);
-        // If no model was found then the MaxSAT formula is unsatisfiable
-        printFormulaStats(solver);
-        printAnswer(_UNSATISFIABLE_);
-        exit(_UNSATISFIABLE_);
+        if (repair_cost == 0){
+          printAnswer(_OPTIMUM_);
+          exit(_OPTIMUM_);
+        }
+
+        if (all_weights){
+
+          for (int i = 0; i < functions.size(); i++){
+            for (int j =0; j < functions[i].size(); j++){
+              pb_function.push(functions[i][j]);
+              pb_coeffs.push(orderWeights[i]);
+            }
+          }
+
+    // rescale
+          for (int i = 0; i < rhs.size(); i++){
+            ub_rhs[i] = repair_cost/orderWeights[i];
+            if (ub_rhs[i] > functions[i].size())
+              ub_rhs[i] = functions[i].size();
+      //printf("i = %d rhs= %lu size= %d weigth=%llu\n",i,ub_rhs[i],functions[i].size(),orderWeights[i]);
+          }
+
+          for (int i = 0; i < functions_to_assumptions.size(); i++){
+            functions_to_assumptions[i].clear();
+      //printf("rhs = %lu\n",ub_rhs[i]);
+            if (encoder_created[i]){
+              if (ub_rhs[i] == 0){
+                for (int i = 0; i < functions[i].size(); i++){
+                  functions_to_assumptions[i].push(~functions[i][i]);
+                }
+              } else if (functions[i].size() != ub_rhs[i]){
+                encoders[i]->incUpdateCardinality(solver, functions[i], ub_rhs[i], encodingAssumptions);
+                assert(encodingAssumptions.size() == 1);
+                functions_to_assumptions[i].push(encodingAssumptions[0]);
+              }
+            } else {
+        //printf("ERROR\n");
+              encoders[i]->buildCardinality(solver, functions[i], ub_rhs[i]);
+              if (encoders[i]->hasCardEncoding()){
+                encoder_created[i] = true;
+                encoders[i]->incUpdateCardinality(solver, functions[i], ub_rhs[i], encodingAssumptions);
+                assert(encodingAssumptions.size() == 1);
+                functions_to_assumptions[i].push(encodingAssumptions[0]);
+              }
+            }
+          }
+
+          assumptions.clear();
+          for (int i = 0; i < functions_to_assumptions.size(); i++){
+            for (int j = 0; j < functions_to_assumptions[i].size(); j++){
+              assumptions.push(functions_to_assumptions[i][j]);
+            }
+          }
+
+          pb->setPBEncoding(_PB_GTE_);
+          int expected_clauses = pb->predictPB(solver, pb_function, pb_coeffs, repair_cost-1);
+          printf("c predicting #clauses = %d\n",expected_clauses);
+          if (expected_clauses >= MAX_CLAUSES) {
+            printf("c changing encoding to Adder\n");
+            pb->setPBEncoding(_PB_ADDER_);
+          }
+          pb->encodePB(solver, pb_function, pb_coeffs, repair_cost-1);
+
+        } else {
+
+    // reverting to complete mode with original weights
+          printf("c reverting to original weights\n");
+          assumptions.clear();
+          pb_function.clear();
+          pb_coeffs.clear();
+          
+          for (int i = 0; i < maxsat_formula->nSoft(); i++) {
+            pb_function.push(maxsat_formula->getSoftClause(i).relaxation_vars[0]);
+            pb_coeffs.push(cluster->getOriginalWeight(i));
+          }
+
+          pb->setPBEncoding(_PB_GTE_);
+          int expected_clauses = pb->predictPB(solver, pb_function, pb_coeffs, repair_cost-1);
+          printf("c predicting #clauses = %d\n",expected_clauses);
+          if (expected_clauses >= MAX_CLAUSES) {
+            printf("c changing encoding to Adder\n");
+            pb->setPBEncoding(_PB_ADDER_);
+          }
+          pb->encodePB(solver, pb_function, pb_coeffs, repair_cost-1);
+
+        }
+
+        goto sat;
+
       } else {
-        printFormulaStats(solver);
-        printAnswer(_OPTIMUM_);
-        exit(_OPTIMUM_);
+  // go to the next function
+  //rhs[current_function_id];
+        encodingAssumptions.clear();
+        functions_to_assumptions[current_function_id].clear();
+  //printf("c encoding created %d\n",encoder_created[current_function_id]);
+  //printf("c objective function %d = best o %llu\n",current_function_id,rhs[current_function_id]);
+        if (rhs[current_function_id] == 0){
+          for (int i = 0; i < functions[current_function_id].size(); i++){
+            functions_to_assumptions[current_function_id].push(~functions[current_function_id][i]);
+            encodingAssumptions.push(~functions[current_function_id][i]);
+          }
+        } else if (encoder_created[current_function_id]){
+    //printf("current function =%d\n",current_function_id);
+    //    printf("c updating the cardinality to %llu\n",rhs[current_function_id]);
+    //  printf("c size of function %d\n",functions[current_function_id].size());
+          if (functions[current_function_id].size() != rhs[current_function_id]){
+            encoders[current_function_id]->incUpdateCardinality(solver, functions[current_function_id], rhs[current_function_id], encodingAssumptions);
+            assert(encodingAssumptions.size() == 1);
+            functions_to_assumptions[current_function_id].push(encodingAssumptions[0]);
+          }
+        } else {
+    //  printf("c creating encoder with id = %d and value = %d\n",current_function_id,rhs[current_function_id]);
+          if (functions[current_function_id].size() != rhs[current_function_id]){
+            encoders[current_function_id]->buildCardinality(solver, functions[current_function_id], rhs[current_function_id]);
+            if (encoders[current_function_id]->hasCardEncoding()){
+              encoders[current_function_id]->incUpdateCardinality(solver, functions[current_function_id], rhs[current_function_id], encodingAssumptions);
+              assert(encodingAssumptions.size() == 1);
+              functions_to_assumptions[current_function_id].push(encodingAssumptions[0]);
+              encoder_created[current_function_id] = true;
+            }
+          }
+        }
+
+        assumptions.clear();
+        for (int i = 0; i <= current_function_id; i++){
+          for (int j = 0; j < functions_to_assumptions[i].size(); j++){
+            assumptions.push(functions_to_assumptions[i][j]);
+      //printf("z = %d\n",var(functions_to_assumptions[i][j]));
+          }
+        }
+        current_function_id++;
       }
     }
   }
@@ -433,7 +567,6 @@ void LinearSUClustering::search() {
   cluster->clusterWeights(maxsat_formula_extended, num_clusters);
 
   for (int i = 0; i < maxsat_formula_extended->getSoftClauses().size(); i++) {
-    // printf("%llu ", maxsat_formula_extended->getSoftClauses()[i].weight);
     unique_weights.insert(maxsat_formula_extended->getSoftClauses()[i].weight);
   }
 
@@ -447,16 +580,17 @@ void LinearSUClustering::search() {
   orderWeights.clear();
   for (std::set<uint64_t>::iterator it = unique_weights.begin();
        it != unique_weights.end(); ++it) {
-    // printf("weight= %llu\n", *it);
     orderWeights.push_back(*it);
   }
+  if (unique_weights.size() == originalWeights.size())
+    all_weights = true;
 
   std::sort(orderWeights.begin(), orderWeights.end(), greaterThan);
 
   printf("c #Diff Weights= %lu | #Modified Weights= %lu\n",
          originalWeights.size(), orderWeights.size());
 
-  // printConfiguration(is_bmo, maxsat_formula->getProblemType());
+  //printConfiguration(is_bmo, maxsat_formula->getProblemType());
   bmoSearch();
 }
 
@@ -541,42 +675,6 @@ Solver *LinearSUClustering::rebuildSolver(uint64_t min_weight) {
 
   return S;
 }
-
-/*_________________________________________________________________________________________________
-  |
-  |  rebuildBMO : (functions : int)  ->  [Solver *]
-  |
-  |  Description:
-  |
-  |    Rebuilds a SAT solver with the current MaxSAT formula.
-  |    Only considers soft clauses with the weight of the current
-  |    lexicographical optimization weight ('currentWeight')
-  |    For each function already computed in the BMO algorithm it encodes the
-  |    respective cardinality constraint.
-  |
-  |________________________________________________________________________________________________@*/
-Solver *LinearSUClustering::rebuildBMO(vec<vec<Lit>> &functions, vec<int> &rhs,
-                                       uint64_t currentWeight) {
-
-  assert(functions.size() == rhs.size());
-
-  Solver *S = rebuildSolver(currentWeight);
-
-  objFunction.clear();
-  coeffs.clear();
-  for (int i = 0; i < maxsat_formula->nSoft(); i++) {
-    if (maxsat_formula->getSoftClause(i).weight == currentWeight) {
-      objFunction.push(maxsat_formula->getSoftClause(i).relaxation_vars[0]);
-      coeffs.push(maxsat_formula->getSoftClause(i).weight);
-    }
-  }
-
-  for (int i = 0; i < functions.size(); i++)
-    encoder.encodeCardinality(S, functions[i], rhs[i]);
-
-  return S;
-}
-
 /************************************************************************************************
  //
  // Other protected methods

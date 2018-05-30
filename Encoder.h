@@ -46,6 +46,7 @@
 #include "encodings/Enc_MTotalizer.h"
 #include "encodings/Enc_SWC.h"
 #include "encodings/Enc_Totalizer.h"
+#include "encodings/Enc_Adder.h"
 
 using NSPACE::vec;
 using NSPACE::Lit;
@@ -114,6 +115,8 @@ public:
   // Update the rhs of an already existent pseudo-Boolean constraint.
   void updatePB(Solver *S, uint64_t rhs);
 
+  int predictPB(Solver *S, vec<Lit> &lits, vec<uint64_t> &coeffs, uint64_t rhs);
+
   // Incremental PB encodings:
   //
   // Incremental PB encoding.
@@ -181,6 +184,7 @@ protected:
   GTE gte;
   GTECluster gtecluster;
   GTEIncremental gteinc;
+  Adder adder;
 };
 } // namespace openwbo
 

@@ -68,6 +68,8 @@ public:
     cluster_stat = cs;
     this->num_clusters = num_clusters;
     best_cost = UINT64_MAX;
+    complete = true;
+    all_weights = false;
   }
 
   ~LinearSUClustering() {
@@ -138,6 +140,8 @@ protected:
 
   bool bmoMode;  // Enables BMO mode.
   bool allFalse; // Forces relaxation variables to be false.
+  bool complete;
+  bool all_weights;
 
   vec<Lit> objFunction; // Literals to be used in the constraint that excludes
                         // models.
