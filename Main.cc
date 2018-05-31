@@ -116,22 +116,22 @@ int main(int argc, char **argv) {
 
     BoolOption printmodel("Open-WBO", "print-model", "Print model.\n", true);
 
-    IntOption num_tests("Open-WBO", "num_tests", "Number of tests\n", 0,
+    IntOption num_tests("Test", "num_tests", "Number of tests\n", 0,
                         IntRange(0, 10000000));
 
-    IntOption test_rhs("Open-WBO", "test_rhs",
-                       "Rhs for a custom encoding test\n", 0,
+    IntOption test_rhs("Test", "test_rhs",
+                       "RHS for a custom encoding test\n", 0,
                        IntRange(0, 10000000));
 
-    IntOption test_rhs2("Open-WBO", "test_rhs2",
-                        "Rhs2 for a custom encoding test\n", 0,
+    IntOption test_rhs2("Test", "test_rhs2",
+                        "RHS for a custom encoding test for the second tree\n", 0,
                         IntRange(0, 10000000));
 
-    IntOption test_nsoft("Open-WBO", "test_nsoft",
+    IntOption test_nsoft("Test", "test_nsoft",
                          "Nsoft for a custom encoding test\n", 0,
                          IntRange(0, 10000000));
 
-    IntOption test_join("Open-WBO", "test_join",
+    IntOption test_join("Test", "test_join",
                         "Join for a custom encoding test\n", 0, IntRange(0, 1));
 
     IntOption verbosity("Open-WBO", "verbosity",
