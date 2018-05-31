@@ -61,6 +61,7 @@
 #include "algorithms/Alg_OLL_Mod.h"
 #include "algorithms/Alg_PartMSU3.h"
 #include "algorithms/Alg_WBO.h"
+#include "algorithms/Alg_LinearSU-OBV.h"
 
 #define VER1_(x) #x
 #define VER_(x) VER1_(x)
@@ -142,7 +143,7 @@ int main(int argc, char **argv) {
                         "(0=wbo,1=linear-su,2=msu3,3=part-msu3,4=oll,5=best,6="
                         "linear-su-cluster)."
                         "\n",
-                        6, IntRange(0, 6));
+                        6, IntRange(0, 7));
 
     IntOption partition_strategy("PartMSU3", "partition-strategy",
                                  "Partition strategy (0=sequential, "
@@ -245,6 +246,10 @@ int main(int argc, char **argv) {
       S = new LinearSUClustering(verbosity, bmo, cardinality, pb,
                                  ClusterAlg::_DIVISIVE_, rounding_statistic,
                                  (int)(num_clusters));
+      break;
+
+    case _ALGORITHM_LSU_MRSBEAVER_:
+      S = new LinearSU_OBV(verbosity, bmo, cardinality, pb); 
       break;
 
     case _ALGORITHM_OLL_:

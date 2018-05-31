@@ -165,6 +165,17 @@ public:
     totalizer.setIncremental(incremental);
   }
 
+  vec<Lit> & getOutputs(){
+    switch (cardinality_encoding) {
+      case _CARD_TOTALIZER_:
+        return totalizer.outputs();
+      default:
+        printf("Error: Invalid cardinality encoding.\n");
+        printf("s UNKNOWN\n");
+        exit(_ERROR_);
+      }
+  }
+
 protected:
   int incremental_strategy;
   int cardinality_encoding;
