@@ -111,8 +111,6 @@ void Cluster::restoreWeights(MaxSATFormulaExtended *formula) {
     return;
   }
   vec<Soft> &soft_clauses = formula->getSoftClauses();
-  printf("soft_clause = %d\n , original_weights = %d\n", soft_clauses.size(),
-         original_weights.size());
   assert(original_weights.size() == soft_clauses.size());
   for (int i = 0; i < soft_clauses.size(); i++) {
     soft_clauses[i].weight = original_weights[i];

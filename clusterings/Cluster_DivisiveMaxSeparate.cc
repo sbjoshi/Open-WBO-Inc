@@ -104,7 +104,7 @@ void Cluster_DivisiveMaxSeparate::clusterWeights(MaxSATFormulaExtended *formula,
     // passed.
 
     // FIXME: is this suppose to be here? was not here in the previous version!
-    // restoreWeights(formula); // TODO - check this!
+    restoreWeights(formula); // TODO - check this!
     return;
   }
 

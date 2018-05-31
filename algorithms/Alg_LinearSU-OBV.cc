@@ -103,18 +103,10 @@ uint64_t LinearSU_OBV::obv_bs(Solver * solver, std::vector<Lit>& outputs, uint64
   assert (model_all.size() != 0);
   model_all.copyTo(current_model);
   uint64_t last_ub = ub;
-  int limit = 100;
-  int current_limit = 0;
 
   for (int i =0; i < outputs.size(); i++){
-    // if (current_limit > limit)
-    //   break;
-    //printf("bit %d\n",i);
-    // printf("model size = %d\n",model_all.size());
-    // printf("v = %d\n",var(outputs[i]));
-    // printf("vars = %d\n",solver->nVars());
+
     if (current_model[var(outputs[i])] == l_False){
-      //printf("bit %d with value true! rhs = %d\n",i,outputs.size()-i);
       assumptions.push(~outputs[i]);
     } else {
       vec<Lit> current_assumptions;
@@ -124,17 +116,12 @@ uint64_t LinearSU_OBV::obv_bs(Solver * solver, std::vector<Lit>& outputs, uint64
       for (int i = 0; i < outputs.size(); i++){
         solver->setPolarity(var(outputs[i]),true);
       }
-      //printf("calling a SAT solver!\n");
       solver->setConfBudget(conflicts);
       lbool res = searchSATSolver(solver, current_assumptions);
 
       if (res == l_True){
-        current_limit = 0;
-        //printf("SAT!\n");
         assumptions.push(~outputs[i]);
-        // check if new model is better
         uint64_t newCost = computeCostModel(solver->model);
-        //printf("c o %" PRId64 "\n", newCost);
         if (newCost < last_ub){
           saveModel(solver->model);
           printf("o %" PRId64 "\n", newCost);
@@ -143,12 +130,6 @@ uint64_t LinearSU_OBV::obv_bs(Solver * solver, std::vector<Lit>& outputs, uint64
         current_model.clear();
         solver->model.copyTo(current_model);
       } else {
-        // if (res == l_False){
-        //   //printf("c unsat!\n");
-        // } else {
-        //   //printf("c unknown!\n");
-        // }
-        current_limit++;
         assumptions.push(outputs[i]);
       }
     }
@@ -163,8 +144,6 @@ uint64_t LinearSU_OBV::ums_obv_bs(Solver * solver, std::vector<Lit>& outputs, ui
   assert (model.size() != 0);
   model.copyTo(current_model);
   uint64_t last_ub = ub;
-  int limit = 100;
-  int current_limit = 0;
   
   std::vector<Lit> outputs_mod;
   for (int i = 0; i < outputs.size(); i++){
@@ -172,9 +151,6 @@ uint64_t LinearSU_OBV::ums_obv_bs(Solver * solver, std::vector<Lit>& outputs, ui
   }
 
   for (int i =0; i < outputs_mod.size(); i++){
-    // if (current_limit > limit)
-    //   break;
-    //printf("bit %d\n",i);
     if (current_model[var(outputs_mod[i])] == l_False){
       assumptions.push(~outputs_mod[i]);
     } else {
@@ -190,14 +166,10 @@ uint64_t LinearSU_OBV::ums_obv_bs(Solver * solver, std::vector<Lit>& outputs, ui
 
       // move bits
       if (res == l_True){
-        current_limit = 0;
-        //printf("model!\n");
         int k = i+1;
         for (int j = i+1; j < outputs_mod.size(); j++){
           if (solver->model[var(outputs_mod[j])] == l_False){
-            //printf("var is false!\n");
             if (k!=j){
-              //printf("swapping bit %d with bit%d\n",j,k);
               Lit a = outputs_mod[k];
               outputs_mod[k] = outputs_mod[j];
               outputs_mod[j] = a;
@@ -208,7 +180,6 @@ uint64_t LinearSU_OBV::ums_obv_bs(Solver * solver, std::vector<Lit>& outputs, ui
       }
       if (res == l_True){
         assumptions.push(~outputs_mod[i]);
-        // check if new model is better
         uint64_t newCost = computeCostModel(solver->model);
         if (newCost < last_ub){
           saveModel(solver->model);
@@ -218,7 +189,6 @@ uint64_t LinearSU_OBV::ums_obv_bs(Solver * solver, std::vector<Lit>& outputs, ui
         current_model.clear();
         solver->model.copyTo(current_model);
       } else {
-        current_limit++;
         assumptions.push(outputs_mod[i]);
       }
     }
