@@ -3,7 +3,7 @@
  *
  * @section LICENSE
  *
- * Open-WBO, Copyright (c) 2013-2017, Ruben Martins, Vasco Manquinho, Ines Lynce
+ * Open-WBO, Copyright (c) 2018  Saurabh Joshi, Prateek Kumar, Sukrut Rao
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -111,8 +111,9 @@ void Cluster::restoreWeights(MaxSATFormulaExtended *formula) {
     return;
   }
   vec<Soft> &soft_clauses = formula->getSoftClauses();
-  printf("soft_clause = %d\n , original_weights = %d\n",soft_clauses.size(),original_weights.size());
-  assert(original_weights.size() != soft_clauses.size());
+  printf("soft_clause = %d\n , original_weights = %d\n", soft_clauses.size(),
+         original_weights.size());
+  assert(original_weights.size() == soft_clauses.size());
   for (int i = 0; i < soft_clauses.size(); i++) {
     soft_clauses[i].weight = original_weights[i];
   }
