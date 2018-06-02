@@ -3,7 +3,7 @@
  *
  * @section LICENSE
  *
- * Open-WBO, Copyright (c) 2013-2017, Ruben Martins, Vasco Manquinho, Ines Lynce
+ * Open-WBO, Copyright (c) 2018  Saurabh Joshi, Prateek Kumar, Sukrut Rao
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -102,6 +102,8 @@ void Cluster_DivisiveMaxSeparate::clusterWeights(MaxSATFormulaExtended *formula,
     // weights will be the same as the original weights. This assumes that all
     // statistics keep the weight intact if a singleton set of weights is
     // passed.
+
+    // FIXME: is this suppose to be here? was not here in the previous version!
     restoreWeights(formula); // TODO - check this!
     return;
   }

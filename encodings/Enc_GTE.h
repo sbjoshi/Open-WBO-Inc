@@ -40,6 +40,8 @@
 #include <utility>
 #include <vector>
 
+#define MAX_CLAUSES 3000000
+
 namespace openwbo {
 struct wlitt {
   Lit lit;
@@ -73,6 +75,9 @@ public:
     current_pb_rhs = 0;
     nb_clauses = 0;
     nb_variables = 0;
+
+    nb_clauses_expected = 0;
+    nb_current_variables = 0;
   }
   ~GTE() {}
 
@@ -85,6 +90,9 @@ public:
   // Returns true if the encoding was built, otherwise returns false;
   bool hasCreatedEncoding() { return hasEncoding; }
 
+  int predict(Solver *S, vec<Lit> &lits, vec<uint64_t> &coeffs, uint64_t rhs);
+
+
 protected:
   void printLit(Lit l) { printf("%s%d\n", sign(l) ? "-" : "", var(l) + 1); }
 
@@ -92,6 +100,11 @@ protected:
                  wlit_mapt &oliterals);
   Lit getNewLit(Solver *S);
   Lit get_var(Solver *S, wlit_mapt &oliterals, uint64_t weight);
+
+  bool predictEncodeLeq(uint64_t k, Solver *S, const weightedlitst &iliterals,
+                        wlit_mapt &oliterals);
+  Lit get_var_predict(Solver *S, wlit_mapt &oliterals, uint64_t weight);
+
   vec<Lit> pb_outlits; // Stores the outputs of the pseudo-Boolean constraint
                        // encoding for incremental solving.
   uint64_t current_pb_rhs; // Stores the current value of the rhs of the
@@ -105,6 +118,9 @@ protected:
   // Number of variables and clauses for statistics.
   int nb_variables;
   int nb_clauses;
+
+  int nb_clauses_expected;
+  int nb_current_variables;
 };
 
 } // namespace openwbo

@@ -25,8 +25,8 @@
  *
  */
 
-#ifndef Alg_LinearSU_Clustering_h
-#define Alg_LinearSU_Clustering_h
+#ifndef Alg_LinearSU_OBV_h
+#define Alg_LinearSU_OBV_h
 
 #ifdef SIMP
 #include "simp/SimpSolver.h"
@@ -36,51 +36,37 @@
 
 #include "../Encoder.h"
 #include "../MaxSAT.h"
-#include "../MaxTypes.h"
-#include "../clusterings/Cluster.h"
-#include "../clusterings/Cluster_DivisiveMaxSeparate.h"
 #include <map>
 #include <set>
 #include <vector>
 
-using NSPACE::Lit;
 using NSPACE::vec;
+using NSPACE::Lit;
 
 namespace openwbo {
 
 //=================================================================================================
-class LinearSUClustering : public MaxSAT {
+class LinearSU_OBV : public MaxSAT {
 
 public:
-  LinearSUClustering(int verb = _VERBOSITY_MINIMAL_, bool bmo = true,
-                     int enc = _CARD_MTOTALIZER_, int pb = _PB_SWC_,
-                     ClusterAlg ca = ClusterAlg::_DIVISIVE_,
-                     Statistics cs = Statistics::_MEAN_,
-                     uint64_t num_clusters = 1)
+  LinearSU_OBV(int verb = _VERBOSITY_MINIMAL_, bool bmo = true,
+           int enc = _CARD_MTOTALIZER_, int pb = _PB_SWC_)
       : solver(NULL), is_bmo(false) {
     pb_encoding = pb;
     verbosity = verb;
     bmoMode = bmo;
     encoding = enc;
-    encoder.setCardEncoding(encoding);
+    encoder.setCardEncoding(_CARD_MTOTALIZER_);
     encoder.setPBEncoding(pb);
-    cluster_algo = ca;
-    cluster_stat = cs;
-    this->num_clusters = num_clusters;
-    best_cost = UINT64_MAX;
-    complete = true;
-    all_weights = false;
   }
 
-  ~LinearSUClustering() {
+  ~LinearSU_OBV() {
     if (solver != NULL)
       delete solver;
 
     objFunction.clear();
     coeffs.clear();
   }
-
-  void initializeCluster();
 
   void search(); // Linear search.
 
@@ -99,8 +85,6 @@ public:
     printf("c |                                                                "
            "                                       |\n");
   }
-
-  Cluster *cluster;
 
 protected:
   // Rebuild MaxSAT solver
@@ -124,24 +108,21 @@ protected:
   // Print LinearSU configuration.
   void print_LinearSU_configuration();
 
-  // Compute the cost of a model.
-  uint64_t computeCostModel(vec<lbool> &currentModel,
-                            uint64_t weight = UINT64_MAX);
+  void MrsBeaver();
 
-  uint64_t computeOriginalCost(vec<lbool> &currentModel,
-                               uint64_t weight = UINT64_MAX);
+  uint64_t MrsBeaver(Solver * solver, int iterations, int conflicts, uint64_t ub);
+  uint64_t obv_bs(Solver * solver, std::vector<Lit>& outputs, uint64_t ub, int conflicts);
+  uint64_t ums_obv_bs(Solver * solver, std::vector<Lit>& outputs, uint64_t ub, int conflicts);
 
   Solver *solver;  // SAT Solver used as a black box.
   Encoder encoder; // Interface for the encoder of constraints to CNF.
   int encoding;    // Encoding for cardinality constraints.
   int pb_encoding;
-  ClusterAlg cluster_algo; // Clustering Algorithm
-  Statistics cluster_stat; // Statistic used for clustering
+
+  vec<lbool> model_all;
 
   bool bmoMode;  // Enables BMO mode.
   bool allFalse; // Forces relaxation variables to be false.
-  bool complete;
-  bool all_weights;
 
   vec<Lit> objFunction; // Literals to be used in the constraint that excludes
                         // models.
@@ -149,12 +130,6 @@ protected:
                         // constraint that excludes models.
 
   bool is_bmo; // Stores if the formula is BMO or not.
-
-  uint64_t num_clusters; // Number of clusters
-  vec<lbool> best_model; // Best model as per original weights
-  uint64_t best_cost; // Best cost of the model as per originla weights
-
-  std::set<uint64_t> unique_weights;
 };
 } // namespace openwbo
 

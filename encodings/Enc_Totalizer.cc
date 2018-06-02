@@ -226,8 +226,9 @@ void Totalizer::update(Solver *S, int64_t rhs, vec<Lit> &lits,
   case _INCREMENTAL_ITERATIVE_:
     incremental(S, rhs);
     assumptions.clear();
-    for (int i = rhs; i < cardinality_outlits.size(); i++)
-      assumptions.push(~cardinality_outlits[i]);
+    //for (int i = rhs; i < cardinality_outlits.size(); i++)
+      //assumptions.push(~cardinality_outlits[i]);
+    assumptions.push(~cardinality_outlits[rhs]);
     break;
 
   default:

@@ -61,6 +61,7 @@
 #include "algorithms/Alg_OLL_Mod.h"
 #include "algorithms/Alg_PartMSU3.h"
 #include "algorithms/Alg_WBO.h"
+#include "algorithms/Alg_LinearSU-OBV.h"
 
 #define VER1_(x) #x
 #define VER_(x) VER1_(x)
@@ -96,9 +97,9 @@ int main(int argc, char **argv) {
   printf(
       "c\nc Open-WBO:\t a Modular MaxSAT Solver -- based on %s (%s version)\n",
       SATVER, VER);
-  printf("c Version:\t 2017 -- Release: 2.0\n");
-  printf("c Authors:\t Ruben Martins, Vasco Manquinho, Ines Lynce\n");
-  printf("c Contributors:\t Miguel Neves, Saurabh Joshi, Mikolas Janota\n");
+  printf("c Version:\t Inc -- MaxSAT Evaluation 2018\n");
+  printf("c Authors:\t Saurabh Joshi, Prateek Kumar, Ruben Martins, Sukrut Rao\n");
+  printf("c Contributors:\t Vasco Manquinho, Ines Lynce, Miguel Neves, Mikolas Janota\n");
   printf("c Contact:\t open-wbo@sat.inesc-id.pt -- "
          "http://sat.inesc-id.pt/open-wbo/\nc\n");
   try {
@@ -115,22 +116,22 @@ int main(int argc, char **argv) {
 
     BoolOption printmodel("Open-WBO", "print-model", "Print model.\n", true);
 
-    IntOption num_tests("Open-WBO", "num_tests", "Number of tests\n", 0,
+    IntOption num_tests("Test", "num_tests", "Number of tests\n", 0,
                         IntRange(0, 10000000));
 
-    IntOption test_rhs("Open-WBO", "test_rhs",
-                       "Rhs for a custom encoding test\n", 0,
+    IntOption test_rhs("Test", "test_rhs",
+                       "RHS for a custom encoding test\n", 0,
                        IntRange(0, 10000000));
 
-    IntOption test_rhs2("Open-WBO", "test_rhs2",
-                        "Rhs2 for a custom encoding test\n", 0,
+    IntOption test_rhs2("Test", "test_rhs2",
+                        "RHS for a custom encoding test for the second tree\n", 0,
                         IntRange(0, 10000000));
 
-    IntOption test_nsoft("Open-WBO", "test_nsoft",
+    IntOption test_nsoft("Test", "test_nsoft",
                          "Nsoft for a custom encoding test\n", 0,
                          IntRange(0, 10000000));
 
-    IntOption test_join("Open-WBO", "test_join",
+    IntOption test_join("Test", "test_join",
                         "Join for a custom encoding test\n", 0, IntRange(0, 1));
 
     IntOption verbosity("Open-WBO", "verbosity",
@@ -142,7 +143,7 @@ int main(int argc, char **argv) {
                         "(0=wbo,1=linear-su,2=msu3,3=part-msu3,4=oll,5=best,6="
                         "linear-su-cluster)."
                         "\n",
-                        5, IntRange(0, 6));
+                        6, IntRange(0, 7));
 
     IntOption partition_strategy("PartMSU3", "partition-strategy",
                                  "Partition strategy (0=sequential, "
@@ -186,9 +187,9 @@ int main(int argc, char **argv) {
     IntOption cluster_algorithm("Clustering", "ca",
                                 "Clustering algorithm "
                                 "(0=none, 1=DivisiveMaxSeparate)",
-                                0, IntRange(0, 1));
+                                1, IntRange(0, 1));
     IntOption num_clusters("Clustering", "c", "Number of agglomerated clusters",
-                           1, IntRange(1, INT_MAX));
+                           100000, IntRange(1, INT_MAX));
 
     IntOption rounding_strategy(
         "Clustering", "rs",
@@ -245,6 +246,10 @@ int main(int argc, char **argv) {
       S = new LinearSUClustering(verbosity, bmo, cardinality, pb,
                                  ClusterAlg::_DIVISIVE_, rounding_statistic,
                                  (int)(num_clusters));
+      break;
+
+    case _ALGORITHM_LSU_MRSBEAVER_:
+      S = new LinearSU_OBV(verbosity, bmo, cardinality, pb); 
       break;
 
     case _ALGORITHM_OLL_:
