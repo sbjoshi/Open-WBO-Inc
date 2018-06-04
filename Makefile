@@ -12,7 +12,7 @@
 #
 VERSION    = core
 SOLVERNAME = "Glucose4.1"
-SOLVERDIR  = Glucose4.1
+SOLVERDIR  = glucose4.1
 NSPACE     = Glucose
 # THE REMAINING OF THE MAKEFILE SHOULD BE LEFT UNCHANGED
 EXEC       = open-wbo
