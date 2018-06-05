@@ -25,8 +25,8 @@
  *
  */
 
-#ifndef Alg_LinearSU_OBV_h
-#define Alg_LinearSU_OBV_h
+#ifndef Alg_OBV_h
+#define Alg_OBV_h
 
 #ifdef SIMP
 #include "simp/SimpSolver.h"
@@ -46,21 +46,21 @@ using NSPACE::Lit;
 namespace openwbo {
 
 //=================================================================================================
-class LinearSU_OBV : public MaxSAT {
+class OBV : public MaxSAT {
 
 public:
-  LinearSU_OBV(int verb = _VERBOSITY_MINIMAL_, bool bmo = true,
-           int enc = _CARD_MTOTALIZER_, int pb = _PB_SWC_)
-      : solver(NULL), is_bmo(false) {
-    pb_encoding = pb;
+  OBV(int verb = _VERBOSITY_MINIMAL_, int enc = _CARD_MTOTALIZER_, int limit = 10000, int iterations = 1000, bool local = false)
+      : solver(NULL) {
     verbosity = verb;
-    bmoMode = bmo;
     encoding = enc;
-    encoder.setCardEncoding(_CARD_MTOTALIZER_);
-    encoder.setPBEncoding(pb);
+    encoder.setCardEncoding(enc);
+    _limit = limit;
+    _iterations = iterations;
+    _local = local;
+    _budget = true;
   }
 
-  ~LinearSU_OBV() {
+  ~OBV() {
     if (solver != NULL)
       delete solver;
 
@@ -71,17 +71,26 @@ public:
   void search(); // Linear search.
 
   // Print solver configuration.
-  void printConfiguration(bool bmo, int ptype) {
+  void printConfiguration() {
 
     printf("c ==========================================[ Solver Settings "
            "]============================================\n");
     printf("c |                                                                "
            "                                       |\n");
-    print_LinearSU_configuration();
-    if (bmo || ptype == _UNWEIGHTED_)
-      print_Card_configuration(encoder.getCardEncoding());
+    printf("c |  Algorithm: %23s                                             "
+           "                      |\n",
+           "OBV");
+    print_Card_configuration(encoding);
+    printf("c |  Limit number conflicts: %10d                                 "
+           "                                  |\n", _limit);
+    printf("c |  Limit number iterations: %9d                                 "
+      "                                  |\n", _iterations);
+    if (_local)
+      printf("c |  Global limit number conflicts:   F                          "
+        "                                         |\n");
     else
-      print_PB_configuration(encoder.getPBEncoding());
+      printf("c |  Global limit number conflicts:   T                          "
+        "                                         |\n");
     printf("c |                                                                "
            "                                       |\n");
   }
@@ -99,14 +108,8 @@ protected:
   void normalSearch(); // Classic linear search algorithm.
   void bmoSearch();    // Linear search algorithm with lexicographical order.
 
-  // Greater than comparator.
-  bool static greaterThan(int i, int j) { return (i > j); }
-
   // Other
   void initRelaxation(); // Relaxes soft clauses.
-
-  // Print LinearSU configuration.
-  void print_LinearSU_configuration();
 
   void MrsBeaver();
 
@@ -117,7 +120,11 @@ protected:
   Solver *solver;  // SAT Solver used as a black box.
   Encoder encoder; // Interface for the encoder of constraints to CNF.
   int encoding;    // Encoding for cardinality constraints.
-  int pb_encoding;
+
+  int _limit;
+  int _iterations;
+  bool _local;
+  bool _budget;
 
   vec<lbool> model_all;
 

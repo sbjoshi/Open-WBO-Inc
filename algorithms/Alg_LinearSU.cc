@@ -27,6 +27,8 @@
 
 #include "Alg_LinearSU.h"
 
+#define MAX_CLAUSES 3000000
+
 using namespace openwbo;
 
 /************************************************************************************************
@@ -235,8 +237,17 @@ void LinearSU::normalSearch() {
 
       } else {
         if (maxsat_formula->getProblemType() == _WEIGHTED_) {
-          if (!encoder.hasPBEncoding())
+          if (!encoder.hasPBEncoding()){
+            // check if we can encode with GTE
+            encoder.setPBEncoding(_PB_GTE_);
+            int expected_clauses = encoder.predictPB(solver, objFunction, coeffs, newCost-1);
+            printf("c GTE auxiliary #clauses = %d\n",expected_clauses);
+            if (expected_clauses >= MAX_CLAUSES) {
+              printf("c Warn: changing to Adder encoding.\n");
+              encoder.setPBEncoding(_PB_ADDER_);
+            }
             encoder.encodePB(solver, objFunction, coeffs, newCost - 1);
+          }
           else
             encoder.updatePB(solver, newCost - 1);
         } else {

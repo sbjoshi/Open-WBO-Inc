@@ -100,6 +100,10 @@ bool BLS::satisfiedSoft(int i) {
 // Call to the SAT solver...
 lbool BLS::solve() {
   nbSatCalls++;  
+  
+  if (local_limit)
+    solver->setConfBudget(conflict_limit);
+
 #ifdef SIMP
   return ((SimpSolver*)solver)->solveLimited(assumptions);
 #else
@@ -185,11 +189,14 @@ void BLS::LSU() {
 // Always consider all clauses by adding assumption var to each soft clause.
 
 void BLS::basicSearch(int maxMCS = 30) {
+  printConfiguration();
+
   // Init Structures
   init();
   
   //Build solver
   solver = buildSolver();
+  solver->setConfBudget(conflict_limit);
   
   while (maxMCS) {
     if (!findNextMCS()) break;
@@ -209,12 +216,10 @@ bool BLS::findNextMCS() {
   vec<int> unsatClauses;
   uint64_t costModel = _maxWeight;
   lbool res = l_True;
-  int conflict_limit = 100000;
+  //int conflict_limit = 100000;
   
   initUndefClauses(undefClauses);
   assumptions.clear();
-  
-  solver->setConfBudget(conflict_limit);
   
   // make first call.
   res = solve();
@@ -262,7 +267,7 @@ bool BLS::findNextMCS() {
       
       if (costModel < _smallestMCS) {
 	       saveSmallestModel(solver->model);
-	       printf("o %ld\n", costModel);
+	       printf("o %" PRId64 "\n", costModel);
       }
     }
     
@@ -274,9 +279,8 @@ bool BLS::findNextMCS() {
     undefClauses.pop();
     satClauses.push(i);
     assumptions.push(~(maxsat_formula->getSoftClause(i).assumption_var));
-
-    res = solve();
     
+    res = solve();
     
     if (res == l_False) {
       unsatClauses.push(satClauses.last());
@@ -286,7 +290,8 @@ bool BLS::findNextMCS() {
     else if (res == l_True) {
       saveModel(solver->model);
       costModel -= maxsat_formula->getSoftClause(satClauses.last()).weight;
-      if (undefClauses.size() == 0 && costModel < _smallestMCS) printf("o %ld\n", costModel);
+      if (undefClauses.size() == 0 && costModel < _smallestMCS) 
+        printf("o %" PRId64 "\n", costModel);
     }
     else {
       printf("c Warn: SAT Solver exit due to conflict budget.\n");
@@ -303,7 +308,7 @@ bool BLS::findNextMCS() {
     //Last saved model is smallest MCS...
   }
   nbMCS++;
-  printf("c MCS #%d Weight: %ld\n", nbMCS, costModel);
+  printf("c MCS #%d Weight: %" PRId64 "\n", nbMCS, costModel);
   
   addMCSClause(unsatClauses);
   return true;
@@ -317,6 +322,7 @@ void BLS::search() {
 
   // Make sure the conflict budget is turned off.
   solver->budgetOff();  
+  local_limit = false;
 
   LSU();
 }
@@ -403,7 +409,30 @@ Solver *BLS::buildSolver() {
   return S;
 }
 
+// Prints search statistics.
+void BLS::printConfiguration(){
 
+    printf("c ==========================================[ Solver Settings "
+           "]============================================\n");
+    printf("c |                                                                "
+           "                                       |\n");
+    printf("c |  Algorithm: %23s                                             "
+           "                      |\n",
+           "MCS");
+    print_Card_configuration(encoding);
+    printf("c |  Limit number conflicts: %10d                                 "
+           "                                  |\n", conflict_limit);
+    printf("c |  Limit number iterations: %9d                                 "
+      "                                  |\n", _maxMCS);
+    if (local_limit)
+      printf("c |  Global limit number conflicts:   F                          "
+        "                                         |\n");
+    else
+      printf("c |  Global limit number conflicts:   T                          "
+        "                                         |\n");
+    printf("c |                                                                "
+           "                                       |\n");
+}
 
 void BLS::init() {
   _maxWeight = 0;
@@ -414,5 +443,5 @@ void BLS::init() {
     objFunction.push(l);
     _maxWeight += maxsat_formula->getSoftClause(i).weight;
   }
-  printf("c Max. Weight: %ld\n", _maxWeight);
+  printf("c Max. Weight: %" PRId64 "\n", _maxWeight);
 }

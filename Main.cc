@@ -61,7 +61,7 @@
 #include "algorithms/Alg_OLL_Mod.h"
 #include "algorithms/Alg_PartMSU3.h"
 #include "algorithms/Alg_WBO.h"
-#include "algorithms/Alg_LinearSU_OBV.h"
+#include "algorithms/Alg_OBV.h"
 #include "algorithms/Alg_BLS.h"
 
 #define VER1_(x) #x
@@ -142,7 +142,7 @@ int main(int argc, char **argv) {
     IntOption algorithm("Open-WBO", "algorithm",
                         "Search algorithm "
                         "(0=wbo,1=linear-su,2=msu3,3=part-msu3,4=oll,5=best,6="
-                        "apx,7=obv,8=mcs)\n",
+                        "bmo,7=obv,8=mcs)\n",
                         6, IntRange(0, 8));
 
     IntOption partition_strategy("PartMSU3", "partition-strategy",
@@ -197,6 +197,16 @@ int main(int argc, char **argv) {
         " common weights in a cluster (0=Mean, 1=Median, 2=Min)",
         0, IntRange(0, 2));
 
+    IntOption num_conflicts(
+      "Incomplete","conflicts","Limit on the number of conflicts.\n", 10000,
+      IntRange(0, INT32_MAX));
+
+    IntOption num_iterations(
+      "Incomplete","iterations","Limit on the number of iterations.\n", 100000,
+      IntRange(0, INT32_MAX));
+
+    BoolOption local("Incomplete", "local", "Local limit on the number of conflicts.\n", false);
+
     parseOptions(argc, argv, true);
 
     if ((int)num_tests) {
@@ -249,11 +259,11 @@ int main(int argc, char **argv) {
       break;
 
     case _ALGORITHM_LSU_MRSBEAVER_:
-      S = new LinearSU_OBV(verbosity, bmo, cardinality, pb); 
+      S = new OBV(verbosity, cardinality, num_conflicts, num_iterations, local); 
       break;
 
     case _ALGORITHM_LSU_MCS_:
-      S = new BLS(verbosity, weight);
+      S = new BLS(verbosity, cardinality, num_conflicts, num_iterations, local);
       break;
 
     case _ALGORITHM_OLL_:

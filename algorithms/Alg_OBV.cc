@@ -25,7 +25,7 @@
  *
  */
 
-#include "Alg_LinearSU_OBV.h"
+#include "Alg_OBV.h"
 #include <cstdlib>
 #include <ctime>     
 #include <vector>
@@ -33,7 +33,7 @@
 
 using namespace openwbo;
 
-uint64_t LinearSU_OBV::MrsBeaver(Solver * solver, int iterations, int conflicts, uint64_t ub){
+uint64_t OBV::MrsBeaver(Solver * solver, int iterations, int conflicts, uint64_t ub){
 
   std::srand ( 1971603567 );
   std::vector<Lit> outputs;
@@ -52,16 +52,16 @@ uint64_t LinearSU_OBV::MrsBeaver(Solver * solver, int iterations, int conflicts,
   
   vec<lbool> original_model;
   solver->model.copyTo(original_model);
+  solver->setConfBudget(conflicts);
 
   for (int t = 0; t < iterations; t++){
-    //printf("iteration = %d\n",t);
+    if (!_budget) {
+      printf("c Warn: SAT Solver exit due to conflict budget.\n");
+      break;
+    }
+    printf ("c Iteration #%d\n",t+1);
     model_all.clear();
     original_model.copyTo(model_all);
-    //std::reverse(outputs.begin(),outputs.end());
-    //std::random_shuffle ( outputs.begin(), outputs.end() );
-
-    //current_ub = obv_bs(solver, outputs, current_ub, conflicts);
-    //current_ub = ums_obv_bs(solver, outputs, current_ub, conflicts);
 
     if (t % 4 == 0 || t % 4 == 1){
       current_ub = ums_obv_bs(solver, outputs, current_ub, conflicts);
@@ -76,19 +76,19 @@ uint64_t LinearSU_OBV::MrsBeaver(Solver * solver, int iterations, int conflicts,
     }
 
   }
+  solver->budgetOff();
 
   return current_ub;
 
 }
 
-uint64_t LinearSU_OBV::obv_bs(Solver * solver, std::vector<Lit>& outputs, uint64_t ub, int conflicts){
+uint64_t OBV::obv_bs(Solver * solver, std::vector<Lit>& outputs, uint64_t ub, int conflicts){
 
   vec<Lit> assumptions;
   vec<lbool> current_model;
   assert (model_all.size() != 0);
   model_all.copyTo(current_model);
   uint64_t last_ub = ub;
-  solver->setConfBudget(conflicts);
 
   for (int i =0; i < outputs.size(); i++){
 
@@ -103,7 +103,13 @@ uint64_t LinearSU_OBV::obv_bs(Solver * solver, std::vector<Lit>& outputs, uint64
         solver->setPolarity(var(outputs[i]),true);
       }
       
+      if (_local)
+        solver->setConfBudget(conflicts);
       lbool res = searchSATSolver(solver, current_assumptions);
+      if (!_local && res != l_True && res != l_False){
+        _budget = false;
+        return last_ub;
+      }
 
       if (res == l_True){
         assumptions.push(~outputs[i]);
@@ -120,17 +126,16 @@ uint64_t LinearSU_OBV::obv_bs(Solver * solver, std::vector<Lit>& outputs, uint64
       }
     }
   }
-  solver->budgetOff();
+  //solver->budgetOff();
   return last_ub;
 }
 
-uint64_t LinearSU_OBV::ums_obv_bs(Solver * solver, std::vector<Lit>& outputs, uint64_t ub, int conflicts){
+uint64_t OBV::ums_obv_bs(Solver * solver, std::vector<Lit>& outputs, uint64_t ub, int conflicts){
   vec<Lit> assumptions;
   vec<lbool> current_model;
   assert (model.size() != 0);
   model.copyTo(current_model);
   uint64_t last_ub = ub;
-  solver->setConfBudget(conflicts);
   
   std::vector<Lit> outputs_mod;
   for (int i = 0; i < outputs.size(); i++){
@@ -148,14 +153,14 @@ uint64_t LinearSU_OBV::ums_obv_bs(Solver * solver, std::vector<Lit>& outputs, ui
       for (int i = 0; i < outputs.size(); i++){
         solver->setPolarity(var(outputs[i]),true);
       }
-      //printf("before conflicts = %d\n",solver->conflicts);
+
+      if (_local)
+        solver->setConfBudget(conflicts);
       lbool res = searchSATSolver(solver, current_assumptions);
-      // if (res == l_True){
-      //   printf("SATISFIABLE\n");
-      // } else if (res == l_False){
-      //   printf("UNSATISFIABLE\n");
-      // } else printf("UNKNOWN\n");
-      // printf("after conflicts = %d\n",solver->conflicts);
+      if (!_local && res != l_True && res != l_False){
+        _budget = false;
+        return last_ub;
+      }
 
       // move bits
       if (res == l_True){
@@ -186,7 +191,7 @@ uint64_t LinearSU_OBV::ums_obv_bs(Solver * solver, std::vector<Lit>& outputs, ui
       }
     }
   }
-  solver->budgetOff();
+  //solver->budgetOff();
   return last_ub;
 }
 
@@ -210,7 +215,7 @@ uint64_t LinearSU_OBV::ums_obv_bs(Solver * solver, std::vector<Lit>& outputs, ui
   |    * 'nbCores' is updated.
   |
   |________________________________________________________________________________________________@*/
-void LinearSU_OBV::normalSearch() {
+void OBV::normalSearch() {
 
   lbool res = l_True;
 
@@ -222,17 +227,12 @@ void LinearSU_OBV::normalSearch() {
   while (res == l_True) {
 
     vec<Lit> dummy;
-    // Do not use preprocessing for linear search algorithm.
-    // NOTE: When preprocessing is enabled the SAT solver simplifies the
-    // relaxation variables which leads to incorrect results.
-    //res = searchSATSolver(solver, dummy);
-
     // invoke Mrs. Beaver
     if (mrsb) {
-          printf("c using Mrs. Beaver preprocessor\n");
-          newCost = MrsBeaver(solver, 100000, 10000, 0);
-          printf("c after Mrs. Beaver ub %" PRId64 "\n", newCost); 
-          //ubCost = newCost;
+          printf("c Mrs. Beaver incomplete stage\n");
+          newCost = MrsBeaver(solver, _iterations, _limit, 0);
+          printf("c Mrs. Beaver ub %" PRId64 "\n", newCost);
+          printf("c Warn: changing to LSU algorithm.\n"); 
     } else {
       res = searchSATSolver(solver, dummy);
     }
@@ -250,43 +250,25 @@ void LinearSU_OBV::normalSearch() {
       } else {
         mrsb = false;
       }
-      if (maxsat_formula->getFormat() == _FORMAT_PB_) {
-        // optimization problem
-        if (maxsat_formula->getObjFunction() != NULL) {
-          printf("o %" PRId64 "\n", newCost + off_set);
-        }
-      } else
-        printf("o %" PRId64 "\n", newCost + off_set); 
+      printf("o %" PRId64 "\n", newCost + off_set); 
 
       if (newCost == 0) {
         // If there is a model with value 0 then it is an optimal model
         ubCost = newCost;
 
-        if (maxsat_formula->getFormat() == _FORMAT_PB_ &&
-            maxsat_formula->getObjFunction() == NULL) {
-          printAnswer(_SATISFIABLE_);
-          exit(_SATISFIABLE_);
-        } else {
-          printAnswer(_OPTIMUM_);
-          exit(_OPTIMUM_);
-        }
+        printAnswer(_OPTIMUM_);
+        exit(_OPTIMUM_);
 
       } else {
-        if (maxsat_formula->getProblemType() == _WEIGHTED_) {
-          if (!encoder.hasPBEncoding())
-            encoder.encodePB(solver, objFunction, coeffs, newCost - 1);
-          else
-            encoder.updatePB(solver, newCost - 1);
-        } else {
           // Unweighted.
           if (!encoder.hasCardEncoding())
             encoder.encodeCardinality(solver, objFunction, newCost - 1);
           else
             encoder.updateCardinality(solver, newCost - 1);
-        }
 
         ubCost = newCost;
-        }
+      }
+
     } else {
       nbCores++;
       if (model.size() == 0) {
@@ -303,11 +285,11 @@ void LinearSU_OBV::normalSearch() {
 }
 
 // Public search method
-void LinearSU_OBV::search() {
+void OBV::search() {
 
   assert (maxsat_formula->getProblemType() == _UNWEIGHTED_);
 
-  printConfiguration(is_bmo, maxsat_formula->getProblemType());
+  printConfiguration();
   normalSearch();
 }
 
@@ -329,7 +311,7 @@ void LinearSU_OBV::search() {
   |    NOTE: a weight is specified in the 'bmo' approach.
   |
   |________________________________________________________________________________________________@*/
-Solver *LinearSU_OBV::rebuildSolver(uint64_t min_weight) {
+Solver *OBV::rebuildSolver(uint64_t min_weight) {
 
   vec<bool> seen;
   seen.growTo(maxsat_formula->nVars(), false);
@@ -406,7 +388,7 @@ Solver *LinearSU_OBV::rebuildSolver(uint64_t min_weight) {
   |    respective cardinality constraint.
   |
   |________________________________________________________________________________________________@*/
-Solver *LinearSU_OBV::rebuildBMO(vec<vec<Lit>> &functions, vec<int> &rhs,
+Solver *OBV::rebuildBMO(vec<vec<Lit>> &functions, vec<int> &rhs,
                              uint64_t currentWeight) {
 
   assert(functions.size() == rhs.size());
@@ -449,40 +431,11 @@ Solver *LinearSU_OBV::rebuildBMO(vec<vec<Lit>> &functions, vec<int> &rhs,
   |    * 'coeffs' contains the weights of all soft clauses.
   |
   |________________________________________________________________________________________________@*/
-void LinearSU_OBV::initRelaxation() {
+void OBV::initRelaxation() {
   for (int i = 0; i < maxsat_formula->nSoft(); i++) {
     Lit l = maxsat_formula->newLiteral();
     maxsat_formula->getSoftClause(i).relaxation_vars.push(l);
     objFunction.push(l);
     coeffs.push(maxsat_formula->getSoftClause(i).weight);
-  }
-}
-
-// Print LinearSU configuration.
-void LinearSU_OBV::print_LinearSU_configuration() {
-  printf("c |  Algorithm: %23s                                             "
-         "                      |\n",
-         "LinearSU");
-
-  if (maxsat_formula->getProblemType() == _WEIGHTED_) {
-    if (bmoMode)
-      printf("c |  BMO strategy: %20s                      "
-             "                                             |\n",
-             "On");
-    else
-      printf("c |  BMO strategy: %20s                      "
-             "                                             |\n",
-             "Off");
-
-    if (bmoMode) {
-      if (is_bmo)
-        printf("c |  BMO search: %22s                      "
-               "                                             |\n",
-               "Yes");
-      else
-        printf("c |  BMO search: %22s                      "
-               "                                             |\n",
-               "No");
-    }
   }
 }

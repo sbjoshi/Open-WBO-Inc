@@ -46,19 +46,22 @@ namespace openwbo {
   class BLS : public MaxSAT {
     
   public:
-    BLS(int verb = _VERBOSITY_MINIMAL_, int weight = _WEIGHT_NONE_, int strategy = _WEIGHT_NONE_, int limit = INT32_MAX){
+    BLS(int verb = _VERBOSITY_MINIMAL_, int card = _CARD_MTOTALIZER_, int limit = 100000, int mcs = 50, bool local = false){
       solver = NULL;
       verbosity = verb;
+      local_limit = local;
       
       nbCores = 0;
       nbSatisfiable = 0;
       nbSatCalls = 0;
       sumSizeCores = 0;
+      conflict_limit = limit;
       
       nbMCS = 0;
       _smallestMCS = UINT64_MAX;
-      _maxMCS = 50;
-      encoder.setCardEncoding(_CARD_MTOTALIZER_);
+      _maxMCS = mcs;
+      encoding = card;
+      encoder.setCardEncoding(card);
     }
     
     ~BLS(){
@@ -110,6 +113,8 @@ namespace openwbo {
     
     // Other utils
     bool satisfiedSoft(int i);
+
+    void printConfiguration();
     
   protected:
     //Data Structures
@@ -121,6 +126,9 @@ namespace openwbo {
     
     // Options
     int _maxMCS;
+    int conflict_limit;
+    bool local_limit;
+    int encoding;
     
     // Core extraction 
     //

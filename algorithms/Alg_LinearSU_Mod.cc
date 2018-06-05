@@ -32,8 +32,9 @@
 #include <fstream>
 #include <iostream>
 
-using namespace openwbo;
+#define MAX_CLAUSES 3000000
 
+using namespace openwbo;
 
 /*_________________________________________________________________________________________________
   |
@@ -267,10 +268,10 @@ void LinearSUMod::bmoSearch() {
 
           // Optimization of the current lexicographical function.
           if (localCost == 0)
-            encoder.encodeCardinality(solver, objFunction,
+            encoder->encodeCardinality(solver, objFunction,
                                       newCost / currentWeight - 1);
           else
-            encoder.updateCardinality(solver, newCost / currentWeight - 1);
+            encoder->updateCardinality(solver, newCost / currentWeight - 1);
 
           localCost = newCost;
         }
@@ -355,6 +356,7 @@ void LinearSUMod::normalSearch() {
       nbSatisfiable++;
       uint64_t newCost = computeCostModel(solver->model);
       uint64_t originalCost = computeOriginalCost(solver->model);
+      if (complete) newCost = originalCost;
       if (best_cost >= originalCost) {
         saveModel(solver->model);
         solver->model.copyTo(best_model);
@@ -387,16 +389,17 @@ void LinearSUMod::normalSearch() {
 
       } else {
         if (maxsat_formula->getProblemType() == _WEIGHTED_) {
-          if (!encoder.hasPBEncoding())
-            encoder.encodePB(solver, objFunction, coeffs, newCost - 1);
-          else
-            encoder.updatePB(solver, newCost - 1);
+          if (!encoder->hasPBEncoding())
+            encoder->encodePB(solver, objFunction, coeffs, newCost - 1);
+          else{
+            encoder->updatePB(solver, newCost - 1);
+          }
         } else {
           // Unweighted.
-          if (!encoder.hasCardEncoding())
-            encoder.encodeCardinality(solver, objFunction, newCost - 1);
+          if (!encoder->hasCardEncoding())
+            encoder->encodeCardinality(solver, objFunction, newCost - 1);
           else
-            encoder.updateCardinality(solver, newCost - 1);
+            encoder->updateCardinality(solver, newCost - 1);
         }
 
         ubCost = newCost;
@@ -410,9 +413,33 @@ void LinearSUMod::normalSearch() {
         printAnswer(_UNSATISFIABLE_);
         exit(_UNSATISFIABLE_);
       } else {
-        printFormulaStats(solver);
-        printAnswer(_OPTIMUM_);
-        exit(_OPTIMUM_);
+        // printFormulaStats(solver);
+        if (!complete){
+          delete solver; // possible memory leak?
+          solver = rebuildSolver();
+          complete = true;
+          coeffs.clear();
+          for (int i = 0; i < maxsat_formula->nSoft(); i++){
+            coeffs.push(cluster->getOriginalWeight(i));
+          }
+          printf("c Warn: changing to LSU algorithm.\n");
+          delete encoder;
+          encoder = new Encoder(_INCREMENTAL_NONE_, _CARD_MTOTALIZER_,_AMO_LADDER_, _PB_GTE_);
+          int expected_clauses = encoder->predictPB(solver, objFunction, coeffs, best_cost-1);
+          printf("c GTE auxiliary #clauses = %d\n",expected_clauses);
+          if (expected_clauses >= MAX_CLAUSES) {
+            printf("c Warn: changing to Adder encoding.\n");
+            encoder->setPBEncoding(_PB_ADDER_);
+          }
+          if (!encoder->hasPBEncoding())
+            encoder->encodePB(solver, objFunction, coeffs, best_cost - 1);
+          else
+            encoder->updatePB(solver, ubCost - 1);
+          res = l_True;
+        } else {
+          printAnswer(_OPTIMUM_);
+          exit(_OPTIMUM_);          
+        }
       }
     }
   }
@@ -430,13 +457,14 @@ void LinearSUMod::search() {
 
   printConfiguration(is_bmo, maxsat_formula->getProblemType());
 
-  if (maxsat_formula->getProblemType() == _WEIGHTED_) {
-    if (bmoMode && is_bmo)
-      bmoSearch();
-    else
-      normalSearch();
-  } else
-    normalSearch();
+  // if (maxsat_formula->getProblemType() == _WEIGHTED_) {
+  //   if (bmoMode && is_bmo)
+  //     bmoSearch();
+  //   else
+  //     normalSearch();
+  // } else
+  //   normalSearch();
+  normalSearch();
 }
 
 /************************************************************************************************
@@ -551,7 +579,7 @@ Solver *LinearSUMod::rebuildBMO(vec<vec<Lit>> &functions, vec<int> &rhs,
   }
 
   for (int i = 0; i < functions.size(); i++)
-    encoder.encodeCardinality(S, functions[i], rhs[i]);
+    encoder->encodeCardinality(S, functions[i], rhs[i]);
 
   return S;
 }
@@ -590,27 +618,30 @@ void LinearSUMod::initRelaxation() {
 void LinearSUMod::print_LinearSU_configuration() {
   printf("c |  Algorithm: %23s                                             "
          "                      |\n",
-         "LinearSU");
+         "Cluster");
 
-  if (maxsat_formula->getProblemType() == _WEIGHTED_) {
-    if (bmoMode)
-      printf("c |  BMO strategy: %20s                      "
-             "                                             |\n",
-             "On");
-    else
-      printf("c |  BMO strategy: %20s                      "
-             "                                             |\n",
-             "Off");
+  printf("c |  Number of clusters:   %12" PRId64 "                                 "
+           "                                  |\n", num_clusters);
 
-    if (bmoMode) {
-      if (is_bmo)
-        printf("c |  BMO search: %22s                      "
-               "                                             |\n",
-               "Yes");
-      else
-        printf("c |  BMO search: %22s                      "
-               "                                             |\n",
-               "No");
-    }
-  }
+  // if (maxsat_formula->getProblemType() == _WEIGHTED_) {
+  //   if (bmoMode)
+  //     printf("c |  BMO strategy: %20s                      "
+  //            "                                             |\n",
+  //            "On");
+  //   else
+  //     printf("c |  BMO strategy: %20s                      "
+  //            "                                             |\n",
+  //            "Off");
+
+  //   if (bmoMode) {
+  //     if (is_bmo)
+  //       printf("c |  BMO search: %22s                      "
+  //              "                                             |\n",
+  //              "Yes");
+  //     else
+  //       printf("c |  BMO search: %22s                      "
+  //              "                                             |\n",
+  //              "No");
+  //   }
+  // }
 }

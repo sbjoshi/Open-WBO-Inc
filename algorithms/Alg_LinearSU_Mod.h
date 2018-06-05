@@ -61,12 +61,14 @@ public:
     verbosity = verb;
     bmoMode = bmo;
     encoding = enc;
-    encoder.setCardEncoding(encoding);
-    encoder.setPBEncoding(pb);
+    encoder = new Encoder(_INCREMENTAL_NONE_, _CARD_MTOTALIZER_,_AMO_LADDER_, _PB_GTE_);
+    encoder->setCardEncoding(encoding);
+    encoder->setPBEncoding(pb);
     cluster_algo = ca;
     cluster_stat = cs;
     this->num_clusters = num_clusters;
     best_cost = UINT64_MAX;
+    complete = false;
   }
 
   ~LinearSUMod() {
@@ -90,9 +92,9 @@ public:
            "                                       |\n");
     print_LinearSU_configuration();
     if (bmo || ptype == _UNWEIGHTED_)
-      print_Card_configuration(encoder.getCardEncoding());
+      print_Card_configuration(encoder->getCardEncoding());
     else
-      print_PB_configuration(encoder.getPBEncoding());
+      print_PB_configuration(encoder->getPBEncoding());
     printf("c |                                                                "
            "                                       |\n");
   }
@@ -130,11 +132,13 @@ protected:
                                uint64_t weight = UINT64_MAX);
 
   Solver *solver;  // SAT Solver used as a black box.
-  Encoder encoder; // Interface for the encoder of constraints to CNF.
+  Encoder *encoder; // Interface for the encoder of constraints to CNF.
   int encoding;    // Encoding for cardinality constraints.
   int pb_encoding;
   ClusterAlg cluster_algo; // Clustering algorithm
   Statistics cluster_stat; // Statistic used for clustering
+
+  bool complete;
 
   bool bmoMode;  // Enables BMO mode.
   bool allFalse; // Forces relaxation variables to be false.

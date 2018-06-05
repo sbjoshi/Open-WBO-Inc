@@ -403,8 +403,7 @@ void LinearSUClustering::bmoSearch(){
           printAnswer(_OPTIMUM_);
           exit(_OPTIMUM_);
         }
-  // ignore the complete part for now!
-        
+        // ignore the complete part for now!
         if(repair){
           printAnswer(_OPTIMUM_);
           exit(_OPTIMUM_);
@@ -412,13 +411,12 @@ void LinearSUClustering::bmoSearch(){
 
         repair = true;
 
-  //printf ("c last function!\n");
-        printf("c changing to complete mode\n");
+        printf("c Warn: changing to LSU algorithm.\n"); 
 
         if (best_cost < repair_cost){
           for (int i = 0; i < rhs.size(); i++){
             ub_rhs[i] = best_cost/orderWeights[i];
-      //best_rhs[i] = rhs[i];
+            //best_rhs[i] = rhs[i];
           }
           repair_cost = best_cost;
         }
@@ -479,9 +477,9 @@ void LinearSUClustering::bmoSearch(){
 
           pb->setPBEncoding(_PB_GTE_);
           int expected_clauses = pb->predictPB(solver, pb_function, pb_coeffs, repair_cost-1);
-          printf("c predicting #clauses = %d\n",expected_clauses);
+          printf("c GTE auxiliary #clauses = %d\n",expected_clauses);
           if (expected_clauses >= MAX_CLAUSES) {
-            printf("c changing encoding to Adder\n");
+            printf("c Warn: changing to Adder encoding.\n");
             pb->setPBEncoding(_PB_ADDER_);
           }
           pb->encodePB(solver, pb_function, pb_coeffs, repair_cost-1);
@@ -489,7 +487,7 @@ void LinearSUClustering::bmoSearch(){
         } else {
 
     // reverting to complete mode with original weights
-          printf("c reverting to original weights\n");
+          //printf("c reverting to original weights\n");
           assumptions.clear();
           pb_function.clear();
           pb_coeffs.clear();
@@ -501,9 +499,9 @@ void LinearSUClustering::bmoSearch(){
 
           pb->setPBEncoding(_PB_GTE_);
           int expected_clauses = pb->predictPB(solver, pb_function, pb_coeffs, repair_cost-1);
-          printf("c predicting #clauses = %d\n",expected_clauses);
+          printf("c GTE auxiliary #clauses = %d\n",expected_clauses);
           if (expected_clauses >= MAX_CLAUSES) {
-            printf("c changing encoding to Adder\n");
+            printf("c Warn: changing to Adder encoding\n");
             pb->setPBEncoding(_PB_ADDER_);
           }
           pb->encodePB(solver, pb_function, pb_coeffs, repair_cost-1);
