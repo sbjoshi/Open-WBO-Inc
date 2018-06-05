@@ -56,12 +56,18 @@
 \usepackage{hyperref}
 \usepackage{xspace}
 \usepackage{xcolor}
+\usepackage{balance}
 \colorlet{sjcolor}{blue}
 \colorlet{rmcolor}{green}
 %\input{refs}
 \newcommand{\sjcomment}[1]{\textcolor{sjcolor}{SJ:#1}}
 \newcommand{\rmcomment}[1]{\textcolor{rmcolor}{RM:#1}}
-\newcommand{\toolname}{Open-WBO-Inc\xspace}
+\newcommand{\toolname}{\textsf{Open-WBO-Inc}\xspace}
+\newcommand{\mcs}{\textsf{Open-WBO-Inc-MCS}\xspace}
+\newcommand{\obv}{\textsf{Open-WBO-Inc-OBV}\xspace}
+\newcommand{\weight}{\textsf{Open-WBO-Inc-Weight}\xspace}
+\newcommand{\ml}{\textsf{Open-WBO-Inc-ML}\xspace}
+
 % Some Computer Society conferences also require the compsoc mode option,
 % but others use the standard conference format.
 %
@@ -336,8 +342,11 @@
 % author names and affiliations
 % use a multiple column layout for up to three different
 % affiliations
-\author{\IEEEauthorblockN{Saurabh Joshi$^\ddagger$, Prateek Kumar$^\ddagger$,Ruben Martins$^\dagger$, Sukrut Rao$^\ddagger$}
-\IEEEauthorblockA{$^\ddagger$Indian Institute of Technology Hyderabad, India \\ $^\dagger$University of Texas at Austin / Carnegie Mellon University, USA }}
+\author{\IEEEauthorblockN{Saurabh Joshi$^\ddagger$, Prateek Kumar$^\ddagger$, Alexander Nadel$^\star$, Vasco Manquinho$^\ast$, Ruben Martins$^\dagger$, Sukrut Rao$^\ddagger$}
+\IEEEauthorblockA{$^\ddagger$Indian Institute of Technology Hyderabad, India \\ 
+$^\star$Inter Corporation, Israel\\
+$^\ast$INESC-ID / Instituto Superior T\'ecnico, Universidade de Lisboa, Portugal\\
+$^\dagger$Carnegie Mellon University, USA }}
 
 % conference papers do not typically use \thanks and this command
 % is locked out in conference mode. If really needed, such as for
@@ -398,7 +407,7 @@
 
 \section{Introduction}
 
-\toolname is developed on toop of Open-WBO\sjcomment{CITE},
+\toolname is developed on top of Open-WBO~\cite{martins-sat14,martins-cp14,neves-sat15},
 which is one of the best solvers in the MaxSAT Evaluations
 of 2014, 2015, 2016 and 2017.
 For many applications, finding a  solution to an
@@ -409,37 +418,52 @@ suboptimal but is not far from the optimal solution.} in a small amount of time 
 at the cost of completeness. \toolname, therefore, is not guaranteed to converge to an
 optimal solution.
 Since \toolname is based on Open-WBO, it  can use any MiniSAT-like
-solver~\cite{minisat-sat03}. However, for the purpose of this evaluation we are currently
-using Glucose 4.1~\cite{audemard-ijcai09}. The key novelties of \toolname are: (i) a
-strategy based on approxmating weights of the original
-formula,\sjcomment{shall we describe this at all?} and  (ii) a strategy based
-on solving a series of optimizations on subproblems \sjcomment{CITE?}. 
- The remainder of this document describes the algorithms and encodings used in each version.
+solver~\cite{minisat-sat03}. For this evaluation we used Glucose 4.1~\cite{audemard-ijcai09} as our back-end SAT solver.  
 
 
+%The key novelties of \toolname are: (i) a
+%strategy based on approxmating weights of the original
+%formula,\sjcomment{shall we describe this at all?} and  (ii) a strategy based
+%on solving a series of optimizations on subproblems \sjcomment{CITE?}. 
+% The remainder of this document describes the algorithms and encodings used in each version.
 
-\section{\toolname 2018: Incomplete Version}
+\section{Unweighted Incomplete MaxSAT}
+For unweighted incomplete MaxSAT, we submitted two versions: \mcs and \obv. The first version is based on Minimal Correction Subset (MCS) enumeration. A MCS of an unsatisfiable set of constraints is a minimal subset that, if removed, makes the constraint set satisfiable. We use a simple linear search algorithm~\cite{bls} to enumerate MCSes. We impose a limit of 100,000 conflicts or a maximum of 50 MCSes when enumerating MCSes. Once this limit is reached or all MCSes are found, the solver will continue its search using a linear search algorithm SAT-UNSAT~\cite{berre-jsat10} for MaxSAT starting from the best upper bound value found by MCS enumeration. 
+
+\obv is based on bit-vector optimization and follows the incomplete approach used in \textsf{Mrs. Beaver}~\cite{beaver}. This approach operates over a vector $\mathcal T$ that represents the relaxation variables introduced in each soft clause. We run 100,000 iterations of the following loop:
+\begin{itemize}
+\item Run the \textsf{UMS-OBV-BS} algorithm;
+\item Reverse $\mathcal T$. Run another iteration of the \textsf{UMS-OBV-BS} algorithm;
+\item Reverse $\mathcal T$. Run the \textsf{OBV-BS} algorithm;
+\item Reverse $\mathcal T$. Run another iteration of the \textsf{OBV-BS} algorithm.
+\end{itemize}
+
+At the end of each loop we randomly shuffle the vector $\mathcal T$. We also impose a limit of 10,000 conflicts when calling the \textsf{UMS-OBV-BS} and \textsf{OBV-BS} algorithms. For a detailed description of these algorithms we refer the reader to \textsf{Mrs. Beaver} paper~\cite{beaver}. If this algorithm terminates the incomplete stage, we continue the search by using a linear search algorithm SAT-UNSAT~\cite{berre-jsat10} for MaxSAT starting from the best upper bound value found by the bit-vector optimization stage.
+
+To restrict the upper bound at each iteration for the linear search algorithm SAT-UNSAT, we need to encode cardinality constraints into CNF. Both \mcs and \obv versions use the Modulo Totalizer encoding~\cite{totalizer-ictai13} for cardinality constraints.
+
+
+\section{Weighted Incomplete MaxSAT}
+
+For weighted incomplete MaxSAT, we submitted two versions: \weight and \ml. \rmcomment{Briefly describe the weight and ml variants.}
 
 \toolname version is based on bounded multilevel optimization \sjcomment{CITE} using a variant of linear search algorithm SAT-UNSAT~\cite{berre-jsat10} with weight based approximation for weighted problems\sjcomment{CITE?}. This algorithm works by partitioning clauses in clusters and assigning a representative weights to each cluster. Then it performs optimization on each cluster in the descending order of its representative weight. This is done by performing a sequence of calls to a SAT solver and refining an upper bound $\mu$ on the number of unsatisfied soft clauses. To restrict $\mu$ at each iteration, we need to encode  cardinality constraints into CNF. The incomplete version versions uses the incremental Totalizer encoding~\cite{martins-cp14} for cardinality constraints.
  
 
 \section{Availability}
 
-We submit the source of \toolname as part of our submissions
-in MaxSAT Evaluations 2018. 
-The second release of Open-WBO, on which \toolname is built
-upon, is available under a MIT license in Github at \emph{\url{https://github.com/sat-group/open-wbo}}. This version includes the partitioning techniques that made Open-WBO one of the best solvers for partial MaxSAT in the MaxSAT Evaluations of 2015 and 2016. To contact the authors please send an email to: \texttt{open-wbo@sat.inesc-id.pt}.
+We submit the source of \toolname as part of our submissions to the MaxSAT Evaluations 2018. The code will be later integrated into the main release of \textsf{Open-WBO} available under a MIT license in GitHub at \emph{\url{https://github.com/sat-group/open-wbo}}.
 
 \section*{Acknowledgments}
 
 We would like to thank Laurent Simon and Gilles Audemard for
 allowing us to use Glucose in the MaxSAT Evaluation. We
-would also like to thank Mikol{\'a}{\v{s}} Janota,  In\^es Lynce, Vasco
-Manquinho and Miguel
+would also like to thank Mikol{\'a}{\v{s}} Janota,  In\^es Lynce and Miguel
 Terra-Neves for their authorship and contributions to
-Open-WBO on which \toolname is based.
+\textsf{Open-WBO} on which \toolname is based.
 
 %We would also like to thank Niklas E{\'e}n and Niklas S{\"o}rensson for the development of MiniSAT and we hope that this version of Open-WBO can help solver developers to easily extend and modify a MaxSAT solver.
+\balance
 \bibliography{bibtex}
 \bibliographystyle{IEEEtran.bst}
 

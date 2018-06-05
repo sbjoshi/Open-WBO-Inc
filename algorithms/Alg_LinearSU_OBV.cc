@@ -25,7 +25,7 @@
  *
  */
 
-#include "Alg_LinearSU-OBV.h"
+#include "Alg_LinearSU_OBV.h"
 #include <cstdlib>
 #include <ctime>     
 #include <vector>
@@ -53,42 +53,27 @@ uint64_t LinearSU_OBV::MrsBeaver(Solver * solver, int iterations, int conflicts,
   vec<lbool> original_model;
   solver->model.copyTo(original_model);
 
-  // encoder.setCardEncoding(_CARD_TOTALIZER_);
-  // if (!encoder.hasCardEncoding())
-  //     encoder.encodeCardinality(solver, objFunction, current_ub - 1);
-
-  //   for (int i = 0; i < encoder.getOutputs().size(); i++)
-  //     outputs.push_back(encoder.getOutputs()[i]);
-  // while (outputs.size() > ub){
-  //   outputs.pop_back();
-  // }
-  // std::reverse(outputs.begin(),outputs.end());
-
-  
   for (int t = 0; t < iterations; t++){
-    printf("iteration = %d\n",t);
+    //printf("iteration = %d\n",t);
     model_all.clear();
     original_model.copyTo(model_all);
     //std::reverse(outputs.begin(),outputs.end());
     //std::random_shuffle ( outputs.begin(), outputs.end() );
 
     //current_ub = obv_bs(solver, outputs, current_ub, conflicts);
-    current_ub = ums_obv_bs(solver, outputs, current_ub, conflicts);
+    //current_ub = ums_obv_bs(solver, outputs, current_ub, conflicts);
 
-    // if (t % 2 == 0){
-    //   current_ub = ums_obv_bs(solver, outputs, current_ub, conflicts);
-    // } else {
-    //   current_ub = obv_bs(solver, outputs, current_ub, conflicts);
-    // }
+    if (t % 4 == 0 || t % 4 == 1){
+      current_ub = ums_obv_bs(solver, outputs, current_ub, conflicts);
+      std::reverse(outputs.begin(),outputs.end());
+    } else {
+      current_ub = obv_bs(solver, outputs, current_ub, conflicts);
+      std::reverse(outputs.begin(),outputs.end());
+    }
 
-    // if (t % 4 == 0){
-    //   // suffle
-    //   std::random_shuffle ( outputs.begin(), outputs.end() );
-    // } else {
-    //   // reverse
-    //     std::reverse(outputs.begin(),outputs.end());
-    // }
-    
+    if (t % 4 == 0 && t > 0){
+      std::random_shuffle ( outputs.begin(), outputs.end() );
+    }
 
   }
 
@@ -103,6 +88,7 @@ uint64_t LinearSU_OBV::obv_bs(Solver * solver, std::vector<Lit>& outputs, uint64
   assert (model_all.size() != 0);
   model_all.copyTo(current_model);
   uint64_t last_ub = ub;
+  solver->setConfBudget(conflicts);
 
   for (int i =0; i < outputs.size(); i++){
 
@@ -116,7 +102,7 @@ uint64_t LinearSU_OBV::obv_bs(Solver * solver, std::vector<Lit>& outputs, uint64
       for (int i = 0; i < outputs.size(); i++){
         solver->setPolarity(var(outputs[i]),true);
       }
-      solver->setConfBudget(conflicts);
+      
       lbool res = searchSATSolver(solver, current_assumptions);
 
       if (res == l_True){
@@ -144,6 +130,7 @@ uint64_t LinearSU_OBV::ums_obv_bs(Solver * solver, std::vector<Lit>& outputs, ui
   assert (model.size() != 0);
   model.copyTo(current_model);
   uint64_t last_ub = ub;
+  solver->setConfBudget(conflicts);
   
   std::vector<Lit> outputs_mod;
   for (int i = 0; i < outputs.size(); i++){
@@ -161,8 +148,14 @@ uint64_t LinearSU_OBV::ums_obv_bs(Solver * solver, std::vector<Lit>& outputs, ui
       for (int i = 0; i < outputs.size(); i++){
         solver->setPolarity(var(outputs[i]),true);
       }
-      solver->setConfBudget(conflicts);
+      //printf("before conflicts = %d\n",solver->conflicts);
       lbool res = searchSATSolver(solver, current_assumptions);
+      // if (res == l_True){
+      //   printf("SATISFIABLE\n");
+      // } else if (res == l_False){
+      //   printf("UNSATISFIABLE\n");
+      // } else printf("UNKNOWN\n");
+      // printf("after conflicts = %d\n",solver->conflicts);
 
       // move bits
       if (res == l_True){
@@ -237,7 +230,7 @@ void LinearSU_OBV::normalSearch() {
     // invoke Mrs. Beaver
     if (mrsb) {
           printf("c using Mrs. Beaver preprocessor\n");
-          newCost = MrsBeaver(solver, 1, 1000, 0);
+          newCost = MrsBeaver(solver, 100000, 10000, 0);
           printf("c after Mrs. Beaver ub %" PRId64 "\n", newCost); 
           //ubCost = newCost;
     } else {

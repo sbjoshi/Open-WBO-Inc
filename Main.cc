@@ -61,7 +61,8 @@
 #include "algorithms/Alg_OLL_Mod.h"
 #include "algorithms/Alg_PartMSU3.h"
 #include "algorithms/Alg_WBO.h"
-#include "algorithms/Alg_LinearSU-OBV.h"
+#include "algorithms/Alg_LinearSU_OBV.h"
+#include "algorithms/Alg_BLS.h"
 
 #define VER1_(x) #x
 #define VER_(x) VER1_(x)
@@ -97,9 +98,9 @@ int main(int argc, char **argv) {
   printf(
       "c\nc Open-WBO:\t a Modular MaxSAT Solver -- based on %s (%s version)\n",
       SATVER, VER);
-  printf("c Version:\t Inc -- MaxSAT Evaluation 2018\n");
+  printf("c Version:\t Apx -- MaxSAT Evaluation 2018\n");
   printf("c Authors:\t Saurabh Joshi, Prateek Kumar, Ruben Martins, Sukrut Rao\n");
-  printf("c Contributors:\t Vasco Manquinho, Ines Lynce, Miguel Neves, Mikolas Janota\n");
+  printf("c Contributors:\t Alexander Nadel, Vasco Manquinho\n");
   printf("c Contact:\t open-wbo@sat.inesc-id.pt -- "
          "http://sat.inesc-id.pt/open-wbo/\nc\n");
   try {
@@ -141,9 +142,8 @@ int main(int argc, char **argv) {
     IntOption algorithm("Open-WBO", "algorithm",
                         "Search algorithm "
                         "(0=wbo,1=linear-su,2=msu3,3=part-msu3,4=oll,5=best,6="
-                        "linear-su-cluster)."
-                        "\n",
-                        6, IntRange(0, 7));
+                        "apx,7=obv,8=mcs)\n",
+                        6, IntRange(0, 8));
 
     IntOption partition_strategy("PartMSU3", "partition-strategy",
                                  "Partition strategy (0=sequential, "
@@ -250,6 +250,10 @@ int main(int argc, char **argv) {
 
     case _ALGORITHM_LSU_MRSBEAVER_:
       S = new LinearSU_OBV(verbosity, bmo, cardinality, pb); 
+      break;
+
+    case _ALGORITHM_LSU_MCS_:
+      S = new BLS(verbosity, weight);
       break;
 
     case _ALGORITHM_OLL_:
