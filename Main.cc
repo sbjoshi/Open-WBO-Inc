@@ -98,7 +98,7 @@ int main(int argc, char **argv) {
   printf(
       "c\nc Open-WBO:\t a Modular MaxSAT Solver -- based on %s (%s version)\n",
       SATVER, VER);
-  printf("c Version:\t Apx -- MaxSAT Evaluation 2018\n");
+  printf("c Version:\t Inc -- MaxSAT Evaluation 2018\n");
   printf("c Authors:\t Saurabh Joshi, Prateek Kumar, Ruben Martins, Sukrut Rao\n");
   printf("c Contributors:\t Alexander Nadel, Vasco Manquinho\n");
   printf("c Contact:\t open-wbo@sat.inesc-id.pt -- "

@@ -5,7 +5,7 @@
 PDF_VIEWER?=open -a Preview 
 
 # Main filename
-FILE= open-wbo-mse18
+FILE= open-wbo-inc-mse18
 
 # ---------------------------------------------------------
 

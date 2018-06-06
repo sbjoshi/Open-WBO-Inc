@@ -1,0 +1,10 @@
+#!/bin/bash
+
+# Incomplete Unweighted MaxSAT -- BMO version 
+delay=5
+wl=$(($STAREXEC_WALLCLOCK_LIMIT-$delay))
+
+gunzip -c $1 > maxsat.wcnf
+timeout -s 15 $wl ./open-wbo-inc -ca=1 -c=100000 -algorithm=6 maxsat.wcnf > output.txt
+rm -f maxsat.wcnf
+rm -f output.txt
