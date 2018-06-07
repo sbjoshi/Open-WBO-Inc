@@ -455,20 +455,19 @@ For weighted incomplete MaxSAT, we submitted two versions: \weight and \ml.
 %
 \weight uses a technique described in~\cite{cp18} 
 where it partitions the clauses in clusters and
-all the clauses in a cluster are assigned to the representative
+all the clauses in a cluster are given a weight equal to the representative
 weight of the cluster, which is a function of original
 weights of the clauses in the cluster. For the purpose of
 MaxSAT Evaluation 2018,
 we use arithmetic mean of the weights of clauses as representative weight of the
-cluster. The number of clusters is set to $2$ for the purpose of MaxSAT
-Evaluation 2018 as it is reported to strike a good balance
+cluster. The number of clusters is set to $2$ for the purpose of this evaluation,  as it is reported to strike a good balance
 between formula size and precision~\cite{cp18}.
 %
 \weight uses LSU algorithm~\cite{berre-jsat10} with the modified weights after clustering. 
 It uses the Generalized Totalizer Encoding
 (GTE)~\cite{joshi-cp15} to encode Pseudo-Boolean constraints that
 are generated to restrict weighted sum of the unsatisfied soft 
-clauses. If a optimal solution is found for the modified MaxSAT instance, this will be an upper bound of the original MaxSAT instance. When this occurs, we revert the weights to the original 
+clauses. If an optimal solution is found for the modified MaxSAT instance, this will be an upper bound of the original MaxSAT instance. When this occurs, we revert the weights to the original 
 weights and resume the search using the LSU algorithm starting from the best known solution.
 
 \ml version is based on bounded multilevel optimization~\cite{marques-silva-amai11} 
@@ -489,7 +488,7 @@ the purpose of MaxSAT Evaluation 2018, we set the number of
 clusters to the total number of different weights of
 the clauses of the input formula. Therefore, the
 representative weight and the original weight remains the
-same in this case. Similarly to before, if an optimal solution is found 
+same in this case. As in \weight, if an optimal solution is found 
 using this algorithm, then it is not necessarily an optimal solution of the 
 input formula. When this occurs, we keep the best known solution and resume the search 
 using the LSU algorithm which can potentially find better solutions and prove optimality.
