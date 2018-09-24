@@ -102,7 +102,8 @@ class GTE : public Encodings {
     Lit get_var(Solver *S, wlit_mapt &oliterals, uint64_t weight);
 
     bool predictEncodeLeq(uint64_t k, Solver *S, const weightedlitst &iliterals,
-                          wlit_mapt &oliterals);
+                          wlit_mapt &oliterals, uint64_t iliterals_start,
+                          uint64_t iliterals_end);
     Lit get_var_predict(Solver *S, wlit_mapt &oliterals, uint64_t weight);
 
     vec<Lit> pb_outlits; // Stores the outputs of the pseudo-Boolean constraint

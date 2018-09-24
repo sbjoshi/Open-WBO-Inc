@@ -296,46 +296,49 @@ Lit GTE::get_var_predict(Solver *S, wlit_mapt &oliterals, uint64_t weight) {
 }
 
 bool GTE::predictEncodeLeq(uint64_t k, Solver *S,
-                           const weightedlitst &iliterals,
-                           wlit_mapt &oliterals) {
+                           const weightedlitst &iliterals, wlit_mapt &oliterals,
+                           uint64_t iliterals_start, uint64_t iliterals_end) {
 
     if (nb_clauses_expected >= MAX_CLAUSES)
         return false;
 
-    if (iliterals.size() == 0 || k == 0)
+    uint64_t iliterals_size = iliterals_end - iliterals_start;
+    if (iliterals_size == 0 || k == 0)
         return false;
 
-    if (iliterals.size() == 1) {
+    if (iliterals_size == 1) {
 
-        oliterals.insert(
-            wlit_pairt(iliterals.front().weight, iliterals.front().lit));
+        oliterals.insert(wlit_pairt(iliterals[iliterals_start].weight,
+                                    iliterals[iliterals_start].lit));
         return true;
     }
 
-    unsigned int size = iliterals.size();
+    // unsigned int size = iliterals.size();
 
-    weightedlitst linputs, rinputs;
+    // weightedlitst linputs, rinputs;
     wlit_mapt loutputs, routputs;
 
-    unsigned int lsize = size >> 1;
-    weightedlitst::const_iterator myit = iliterals.begin();
+    unsigned int lsize = iliterals_size >> 1;
+    weightedlitst::const_iterator myit = iliterals.begin() + iliterals_start;
     weightedlitst::const_iterator myit1 = myit + lsize;
-    weightedlitst::const_iterator myit2 = iliterals.end();
+    weightedlitst::const_iterator myit2 = iliterals.begin() + iliterals_end;
 
-    linputs.insert(linputs.begin(), myit, myit1);
-    rinputs.insert(rinputs.begin(), myit1, myit2);
+    // linputs.insert(linputs.begin(), myit, myit1);
+    // rinputs.insert(rinputs.begin(), myit1, myit2);
 
     wlit_sumt wlit_sum;
-    uint64_t lk = std::accumulate(linputs.begin(), linputs.end(), 0, wlit_sum);
-    uint64_t rk = std::accumulate(rinputs.begin(), rinputs.end(), 0, wlit_sum);
+    uint64_t lk = std::accumulate(myit, myit1, uint64_t(0), wlit_sum);
+    uint64_t rk = std::accumulate(myit1, myit2, uint64_t(0), wlit_sum);
 
     lk = k >= lk ? lk : k;
     rk = k >= rk ? rk : k;
 
-    bool result = predictEncodeLeq(lk, S, linputs, loutputs);
+    bool result = predictEncodeLeq(lk, S, iliterals, loutputs, iliterals_start,
+                                   iliterals_start + lsize);
     if (!result)
         return result;
-    result = result && predictEncodeLeq(rk, S, rinputs, routputs);
+    result = result && predictEncodeLeq(rk, S, iliterals, routputs,
+                                        iliterals_start + lsize, iliterals_end);
     if (!result)
         return result;
 
@@ -439,6 +442,6 @@ int GTE::predict(Solver *S, vec<Lit> &lits, vec<uint64_t> &coeffs,
     less_than_wlitt lt_wlit;
     std::sort(iliterals.begin(), iliterals.end(), lt_wlit);
     wlit_mapt oliterals;
-    predictEncodeLeq(rhs + 1, S, iliterals, oliterals);
+    predictEncodeLeq(rhs + 1, S, iliterals, oliterals, 0, iliterals.size());
     return nb_clauses_expected;
 }
