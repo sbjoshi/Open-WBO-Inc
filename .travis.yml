@@ -1,0 +1,8 @@
+language: cpp
+dist: xenial
+compiler:
+    - g++
+matrix:
+    - script: make
+    - script: make rs
+    - script: make libr
