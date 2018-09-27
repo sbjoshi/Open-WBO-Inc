@@ -25,7 +25,7 @@
  *
  */
 
-#include "Alg_LinearSU_Clustering.h"
+#include "Alg_LinearSU_IncBMO.h"
 #include "../MaxTypes.h"
 
 #include <algorithm>
@@ -52,7 +52,7 @@ using namespace openwbo;
   |    * cluster is initialized
   |
   |________________________________________________________________________________________________@*/
-void LinearSUClustering::initializeCluster() {
+void LinearSUIncBMO::initializeCluster() {
   switch (cluster_algo) {
   case ClusterAlg::_DIVISIVE_:
     cluster = new Cluster_DivisiveMaxSeparate(maxsat_formula, cluster_stat);
@@ -76,7 +76,7 @@ void LinearSUClustering::initializeCluster() {
   |    * Assumes that 'currentModel' is not empty.
   |
   |________________________________________________________________________________________________@*/
-uint64_t LinearSUClustering::computeCostModel(vec<lbool> &currentModel,
+uint64_t LinearSUIncBMO::computeCostModel(vec<lbool> &currentModel,
                                               uint64_t weight) {
 
   assert(currentModel.size() != 0);
@@ -129,7 +129,7 @@ uint64_t LinearSUClustering::computeCostModel(vec<lbool> &currentModel,
   |    * Assumes that 'currentModel' is not empty.
   |
   |________________________________________________________________________________________________@*/
-uint64_t LinearSUClustering::computeOriginalCost(vec<lbool> &currentModel,
+uint64_t LinearSUIncBMO::computeOriginalCost(vec<lbool> &currentModel,
                                                  uint64_t weight) {
 
   assert(currentModel.size() != 0);
@@ -193,7 +193,7 @@ uint64_t LinearSUClustering::computeOriginalCost(vec<lbool> &currentModel,
   |    * 'nbCores' is updated.
   |
   |________________________________________________________________________________________________@*/
-void LinearSUClustering::bmoSearch(){
+void LinearSUIncBMO::bmoSearch(){
 
   assert(orderWeights.size() > 0);
   lbool res = l_True;
@@ -557,7 +557,7 @@ void LinearSUClustering::bmoSearch(){
 }
 
 // Public search method
-void LinearSUClustering::search() {
+void LinearSUIncBMO::search() {
 
   cluster->clusterWeights(maxsat_formula, num_clusters);
 
@@ -607,7 +607,7 @@ void LinearSUClustering::search() {
   |    NOTE: a weight is specified in the 'bmo' approach.
   |
   |________________________________________________________________________________________________@*/
-Solver *LinearSUClustering::rebuildSolver(uint64_t min_weight) {
+Solver *LinearSUIncBMO::rebuildSolver(uint64_t min_weight) {
 
   vec<bool> seen;
   seen.growTo(maxsat_formula->nVars(), false);
@@ -691,7 +691,7 @@ Solver *LinearSUClustering::rebuildSolver(uint64_t min_weight) {
   |    * 'coeffs' contains the weights of all soft clauses.
   |
   |________________________________________________________________________________________________@*/
-void LinearSUClustering::initRelaxation() {
+void LinearSUIncBMO::initRelaxation() {
   for (int i = 0; i < maxsat_formula->nSoft(); i++) {
     Lit l = maxsat_formula->newLiteral();
     maxsat_formula->getSoftClause(i).relaxation_vars.push(l);
@@ -701,7 +701,7 @@ void LinearSUClustering::initRelaxation() {
 }
 
 // Print LinearSU configuration.
-void LinearSUClustering::print_LinearSU_configuration() {
+void LinearSUIncBMO::print_LinearSU_configuration() {
   printf("c |  Algorithm: %23s                                             "
          "                      |\n",
          "LinearSU");

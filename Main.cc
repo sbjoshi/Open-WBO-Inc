@@ -54,7 +54,7 @@
 
 // Algorithms
 #include "algorithms/Alg_LinearSU.h"
-#include "algorithms/Alg_LinearSU_Clustering.h"
+#include "algorithms/Alg_LinearSU_IncBMO.h"
 #include "algorithms/Alg_LinearSU_IncCluster.h"
 #include "algorithms/Alg_MSU3.h"
 #include "algorithms/Alg_OLL.h"
@@ -252,8 +252,8 @@ int main(int argc, char **argv) {
       S = new MSU3(verbosity);
       break;
 
-    case _ALGORITHM_LSU_CLUSTER_:
-      S = new LinearSUClustering(verbosity, bmo, cardinality, pb,
+    case _ALGORITHM_LSU_INCBMO_:
+      S = new LinearSUIncBMO(verbosity, bmo, cardinality, pb,
                                  ClusterAlg::_DIVISIVE_, rounding_statistic,
                                  (int)(num_clusters));
       break;
@@ -401,8 +401,8 @@ int main(int argc, char **argv) {
         case _ALGORITHM_OLL_:
           static_cast<OLLIncCluster *>(S)->initializeCluster();
           break;
-        case _ALGORITHM_LSU_CLUSTER_:
-          static_cast<LinearSUClustering *>(S)->initializeCluster();
+        case _ALGORITHM_LSU_INCBMO_:
+          static_cast<LinearSUIncBMO *>(S)->initializeCluster();
           break;
         }
       }
