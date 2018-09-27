@@ -30,7 +30,7 @@ To contact the authors, please send an email to:  [open-wbo@sat.inesc-id.pt](mai
 The license and copyright notice for this software and its dependencies can be found [here](LICENSE).
 
 # References
-1. Ruben Martins, Vasco Manquinho, and Inês Lynce. Open-WBO: A modular MaxSAT solver. In International Conference on Theory and Applications of Satisfiability Testing, pp. 438-445. Springer, Cham, 2014. [[Link](https://link.springer.com/chapter/10.1007/978-3-319-09284-3_33)]
+1. Ruben Martins, Vasco Manquinho, Inês Lynce. (2014) Open-WBO: A Modular MaxSAT Solver,. In: Sinz C., Egly U. (eds) Theory and Applications of Satisfiability Testing – SAT 2014. SAT 2014. Lecture Notes in Computer Science, vol 8561. Springer, Cham [[Link](https://link.springer.com/chapter/10.1007/978-3-319-09284-3_33)]
 2. Saurabh Joshi, Prateek Kumar, Ruben Martins, Sukrut Rao. (2018) Approximation Strategies for Incomplete MaxSAT. In: Hooker J. (eds) Principles and Practice of Constraint Programming. CP 2018. Lecture Notes in Computer Science, vol 11008. Springer, Cham [[Link](https://link.springer.com/chapter/10.1007%2F978-3-319-98334-9_15)]
 3. Saurabh Joshi, Prateek Kumar, Vasco Manquinho, Ruben Martins, Alexander Nadel and Sukrut Rao. Open-WBO-Inc in MaxSAT Evaluation 2018. MaxSAT Evaluation 2018, p.16. [[Link](https://helda.helsinki.fi/bitstream/handle/10138/237139/mse18_proceedings.pdf?sequence=1#page=17)]
 4. Alexander Nadel. (2018) Solving MaxSAT with Bit-Vector Optimization. In: Beyersdorff O., Wintersteiger C. (eds) Theory and Applications of Satisfiability Testing – SAT 2018. SAT 2018. Lecture Notes in Computer Science, vol 10929. Springer, Cham [[Link](https://link.springer.com/chapter/10.1007/978-3-319-94144-8_4)]
