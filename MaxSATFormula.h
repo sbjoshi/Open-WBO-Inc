@@ -201,6 +201,9 @@ public:
 
   indexMap &getIndexToName() { return _indexToName; }
 
+  void sortSoftClauses(); // Sort soft clauses as per their corresponding weights
+  vec<Soft> &getSoftClauses(); // Return soft clauses
+
 protected:
   // MaxSAT database
   //

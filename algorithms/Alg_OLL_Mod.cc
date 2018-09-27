@@ -50,8 +50,7 @@ using namespace openwbo;
 void OLLMod::initializeCluster() {
   switch (cluster_algo) {
   case ClusterAlg::_DIVISIVE_:
-    cluster = new Cluster_DivisiveMaxSeparate(
-        static_cast<MaxSATFormulaExtended *>(maxsat_formula), cluster_stat);
+    cluster = new Cluster_DivisiveMaxSeparate(maxsat_formula, cluster_stat);
     break;
   }
 
@@ -860,9 +859,7 @@ void OLLMod::weighted() {
 
 void OLLMod::search() {
 
-  MaxSATFormulaExtended *maxsat_formula_extended =
-      static_cast<MaxSATFormulaExtended *>(maxsat_formula);
-  cluster->clusterWeights(maxsat_formula_extended, num_clusters);
+  cluster->clusterWeights(maxsat_formula, num_clusters);
 
   if (encoding != _CARD_TOTALIZER_) {
     printf("Error: Currently algorithm MSU3 with iterative encoding only "

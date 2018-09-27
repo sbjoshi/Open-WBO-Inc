@@ -26,6 +26,9 @@
  */
 
 #include <iostream>
+#include <algorithm>
+#include <iostream>
+#include <vector>
 
 #include "MaxSATFormula.h"
 
@@ -221,3 +224,13 @@ void MaxSATFormula::convertPBtoMaxSAT() {
   else
     setProblemType(_WEIGHTED_);
 }
+
+// Sorts soft clauses accordiing to weights of the soft clauses
+void MaxSATFormula::sortSoftClauses() {
+  uint64_t size = soft_clauses.size();
+  std::sort(soft_clauses + 0, soft_clauses + size,
+            [](const Soft &a, const Soft &b) { return a.weight < b.weight; });
+}
+
+// Returns soft clauses
+vec<Soft> &MaxSATFormula::getSoftClauses() { return soft_clauses; }

@@ -55,8 +55,7 @@ using namespace openwbo;
 void LinearSUClustering::initializeCluster() {
   switch (cluster_algo) {
   case ClusterAlg::_DIVISIVE_:
-    cluster = new Cluster_DivisiveMaxSeparate(
-        static_cast<MaxSATFormulaExtended *>(maxsat_formula), cluster_stat);
+    cluster = new Cluster_DivisiveMaxSeparate(maxsat_formula, cluster_stat);
     break;
   }
 }
@@ -560,12 +559,10 @@ void LinearSUClustering::bmoSearch(){
 // Public search method
 void LinearSUClustering::search() {
 
-  MaxSATFormulaExtended *maxsat_formula_extended =
-      static_cast<MaxSATFormulaExtended *>(maxsat_formula);
-  cluster->clusterWeights(maxsat_formula_extended, num_clusters);
+  cluster->clusterWeights(maxsat_formula, num_clusters);
 
-  for (int i = 0; i < maxsat_formula_extended->getSoftClauses().size(); i++) {
-    unique_weights.insert(maxsat_formula_extended->getSoftClauses()[i].weight);
+  for (int i = 0; i < maxsat_formula->getSoftClauses().size(); i++) {
+    unique_weights.insert(maxsat_formula->getSoftClauses()[i].weight);
   }
 
   std::set<uint64_t> originalWeights;

@@ -58,11 +58,11 @@ public:
   vec<uint64_t> distances; // differences between consecutive weights, when
                            // arranged in ascending order
 
-  Cluster_DivisiveMaxSeparate(MaxSATFormulaExtended *formula,
+  Cluster_DivisiveMaxSeparate(MaxSATFormula *formula,
                               Statistics cluster_stat);
 
   // performs clustering
-  void clusterWeights(MaxSATFormulaExtended *formula, uint64_t c);
+  void clusterWeights(MaxSATFormula *formula, uint64_t c);
 };
 
 } // namespace openwbo

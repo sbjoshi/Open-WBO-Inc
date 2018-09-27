@@ -31,7 +31,7 @@ using namespace openwbo;
 
 /*_________________________________________________________________________________________________
   |
-  |  Cluster_DivisiveMaxSeparate : (formula : MaxSATFormulaExtended *)
+  |  Cluster_DivisiveMaxSeparate : (formula : MaxSATFormula *)
   |                                (cluster_stat : Statisticss)
   |
   |  Description:
@@ -53,7 +53,7 @@ using namespace openwbo;
   |
   |________________________________________________________________________________________________@*/
 Cluster_DivisiveMaxSeparate::Cluster_DivisiveMaxSeparate(
-    MaxSATFormulaExtended *formula, Statistics cluster_statistic)
+    MaxSATFormula *formula, Statistics cluster_statistic)
     : Cluster(formula, cluster_statistic) {
   // by default, set 'max_c' to one cluster, and set 'cluster_indices'
   // appropriately. No extra information is need to create a single cluster
@@ -68,7 +68,7 @@ Cluster_DivisiveMaxSeparate::Cluster_DivisiveMaxSeparate(
 
 /*_________________________________________________________________________________________________
   |
-  |  clusterWeights : (formula : MaxSATFormulaExtended *) (c : uint64_t) ->
+  |  clusterWeights : (formula : MaxSATFormula *) (c : uint64_t) ->
   |                   [void]
   |
   |  Description:
@@ -92,7 +92,7 @@ Cluster_DivisiveMaxSeparate::Cluster_DivisiveMaxSeparate(
   |    * If 'c' is more than the number of weights,
   |
   |________________________________________________________________________________________________@*/
-void Cluster_DivisiveMaxSeparate::clusterWeights(MaxSATFormulaExtended *formula,
+void Cluster_DivisiveMaxSeparate::clusterWeights(MaxSATFormula *formula,
                                                  uint64_t c) {
   // if the number of clusters is more than the number of weights, truncate it
   // to the number of weights

@@ -34,7 +34,7 @@
 #include "core/Solver.h"
 #endif
 
-#include "../MaxSATFormulaExtended.h"
+#include "../MaxSATFormula.h"
 #include "SequenceStatistic.h"
 #include <vector>
 
@@ -69,22 +69,22 @@ public:
   // Handle finding the appropriate statistic
   SequenceStatistic statistic_finder;
 
-  Cluster(MaxSATFormulaExtended *formula, Statistics cluster_statistic);
+  Cluster(MaxSATFormula *formula, Statistics cluster_statistic);
 
   // Cluster the weights in the formula, given the number of clusters needed
   // Implemented in each clustering algorithm
-  virtual void clusterWeights(MaxSATFormulaExtended *formula, uint64_t c) = 0;
+  virtual void clusterWeights(MaxSATFormula *formula, uint64_t c) = 0;
 
   // Save original weights in the formula
-  void saveWeights(MaxSATFormulaExtended *formula);
+  void saveWeights(MaxSATFormula *formula);
 
   // Restore the original weights in the formula
-  void restoreWeights(MaxSATFormulaExtended *formula);
+  void restoreWeights(MaxSATFormula *formula);
 
   // Find weights for each cluster in the formula and replace weights, given the
   // cluster indices
-  void replaceWeights(MaxSATFormulaExtended *formula, vec<uint64_t> &clusters);
-  void replaceWeights(MaxSATFormulaExtended *formula,
+  void replaceWeights(MaxSATFormula *formula, vec<uint64_t> &clusters);
+  void replaceWeights(MaxSATFormula *formula,
                       vec<cluster_index> &clusters);
 
   // Get the original weight for a particular clause

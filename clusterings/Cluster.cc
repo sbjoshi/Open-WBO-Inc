@@ -33,7 +33,7 @@ using namespace openwbo;
 
 /*_________________________________________________________________________________________________
   |
-  |  Cluster : (formula : MaxSATFormulaExtended *) (cluster_stat : Statisticss)
+  |  Cluster : (formula : MaxSATFormula *) (cluster_stat : Statisticss)
   |
   |  Description:
   |
@@ -50,7 +50,7 @@ using namespace openwbo;
   |    * Statistic is set in 'statistic_finder'.
   |
   |________________________________________________________________________________________________@*/
-Cluster::Cluster(MaxSATFormulaExtended *formula, Statistics cluster_stat) {
+Cluster::Cluster(MaxSATFormula *formula, Statistics cluster_stat) {
   assert(formula != NULL);
   formula->sortSoftClauses();
   saveWeights(formula);
@@ -60,7 +60,7 @@ Cluster::Cluster(MaxSATFormulaExtended *formula, Statistics cluster_stat) {
 
 /*_________________________________________________________________________________________________
   |
-  |  saveWeights : (formula : MaxSATFormulaExtended *) ->  [void]
+  |  saveWeights : (formula : MaxSATFormula *) ->  [void]
   |
   |  Description:
   |
@@ -76,7 +76,7 @@ Cluster::Cluster(MaxSATFormulaExtended *formula, Statistics cluster_stat) {
   |      order, if 'formula' was not NULL.
   |
   |________________________________________________________________________________________________@*/
-void Cluster::saveWeights(MaxSATFormulaExtended *formula) {
+void Cluster::saveWeights(MaxSATFormula *formula) {
   if (formula == NULL) {
     return;
   }
@@ -89,7 +89,7 @@ void Cluster::saveWeights(MaxSATFormulaExtended *formula) {
 
 /*_________________________________________________________________________________________________
   |
-  |  restoreWeights : (formula : MaxSATFormulaExtended *) ->  [void]
+  |  restoreWeights : (formula : MaxSATFormula *) ->  [void]
   |
   |  Description:
   |
@@ -106,7 +106,7 @@ void Cluster::saveWeights(MaxSATFormulaExtended *formula) {
   |    * The previously saved weights of 'formula' are restored.
   |
   |________________________________________________________________________________________________@*/
-void Cluster::restoreWeights(MaxSATFormulaExtended *formula) {
+void Cluster::restoreWeights(MaxSATFormula *formula) {
   if (formula == NULL) {
     return;
   }
@@ -119,7 +119,7 @@ void Cluster::restoreWeights(MaxSATFormulaExtended *formula) {
 
 /*_________________________________________________________________________________________________
   |
-  |  replaceWeights : (formula : MaxSATFormulaExtended *) (clusters :
+  |  replaceWeights : (formula : MaxSATFormula *) (clusters :
   |                    vec<uint64_t> &) ->  [void]
   |
   |  Description:
@@ -143,7 +143,7 @@ void Cluster::restoreWeights(MaxSATFormulaExtended *formula) {
   |      on the statistic.
   |
   |________________________________________________________________________________________________@*/
-void Cluster::replaceWeights(MaxSATFormulaExtended *formula,
+void Cluster::replaceWeights(MaxSATFormula *formula,
                              vec<uint64_t> &clusters) {
   if (formula == NULL) {
     return;
@@ -168,7 +168,7 @@ void Cluster::replaceWeights(MaxSATFormulaExtended *formula,
 
 /*_________________________________________________________________________________________________
   |
-  |  replaceWeights : (formula : MaxSATFormulaExtended *) (clusters :
+  |  replaceWeights : (formula : MaxSATFormula *) (clusters :
   |                    vec<cluster_index> &) ->  [void]
   |
   |  Description:
@@ -195,7 +195,7 @@ void Cluster::replaceWeights(MaxSATFormulaExtended *formula,
   |      on the statistic.
   |
   |________________________________________________________________________________________________@*/
-void Cluster::replaceWeights(MaxSATFormulaExtended *formula,
+void Cluster::replaceWeights(MaxSATFormula *formula,
                              vec<cluster_index> &clusters) {
   if (formula == NULL) {
     return;

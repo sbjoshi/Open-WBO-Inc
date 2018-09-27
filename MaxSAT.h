@@ -44,7 +44,6 @@
 #include <set>
 #include <utility>
 #include <vector>
-#include "MaxSATFormulaExtended.h"
 
 using NSPACE::vec;
 using NSPACE::Lit;
