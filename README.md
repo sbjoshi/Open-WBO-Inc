@@ -7,7 +7,7 @@ Open-WBO-Inc helps in finding quick approximate solutions to MaxSAT problems by 
 Open-WBO-Inc contains all the features of Open-WBO 2.0, with extensions. Further details about the version submitted to the MaxSAT Evaluations 2018 can be found in [3].
 
 ## Installation
-The installation procedure is the same as Open-WBO, and can be found in [INSTALL.md](INSTALL.md).
+The installation procedure is the same as Open-WBO 2.0, and can be found in [INSTALL.md](INSTALL.md).
 
 ## Usage
 Open-WBO-Inc can be used in the same way as Open-WBO. A description of the new features added in Open-WBO-Inc for incomplete MaxSAT solving using the apx-weight and apx-subprob algorithms is provided below.
