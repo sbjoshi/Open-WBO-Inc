@@ -210,15 +210,15 @@ int main(int argc, char **argv) {
     parseOptions(argc, argv, true);
 
     if ((int)num_tests) {
-      if ((int)test_join) {
-        for (int i = 0; i < (int)num_tests; i++) {
-          test_encoding_join();
-        }
-      } else {
+      // if ((int)test_join) {
+      //   for (int i = 0; i < (int)num_tests; i++) {
+      //     test_encoding_join();
+      //   }
+      // } else {
         for (int i = 0; i < (int)num_tests; i++) {
           test_encoding();
         }
-      }
+      // }
 
       return 0;
     }
@@ -312,12 +312,12 @@ int main(int argc, char **argv) {
     gzclose(in);
 
     if ((int)test_rhs) {
-      if ((int)test_rhs2) {
-        test_encoding(maxsat_formula, (uint64_t)test_rhs, (uint64_t)test_rhs2,
-                      (uint64_t)test_nsoft);
-      } else {
+      // if ((int)test_rhs2) {
+      //   test_encoding(maxsat_formula, (uint64_t)test_rhs, (uint64_t)test_rhs2,
+      //                 (uint64_t)test_nsoft);
+      // } else {
         test_encoding(maxsat_formula, (uint64_t)test_rhs);
-      }
+      // }
       return 0;
     }
 

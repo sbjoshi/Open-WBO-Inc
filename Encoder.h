@@ -41,7 +41,6 @@
 #include "encodings/Enc_CNetworks.h"
 #include "encodings/Enc_GTE.h"
 #include "encodings/Enc_GTECluster.h"
-#include "encodings/Enc_GTEIncremental.h"
 #include "encodings/Enc_Ladder.h"
 #include "encodings/Enc_MTotalizer.h"
 #include "encodings/Enc_SWC.h"
@@ -194,7 +193,6 @@ protected:
   SWC swc;
   GTE gte;
   GTECluster gtecluster;
-  GTEIncremental gteinc;
   Adder adder;
 };
 } // namespace openwbo

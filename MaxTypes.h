@@ -58,7 +58,7 @@ enum {
 };
 enum { _CARD_CNETWORKS_ = 0, _CARD_TOTALIZER_, _CARD_MTOTALIZER_ };
 enum { _AMO_LADDER_ = 0 };
-enum { _PB_SWC_ = 0, _PB_GTE_, _PB_GTECLUSTER_, _PB_GTE_INC_, _PB_ADDER_ };
+enum { _PB_SWC_ = 0, _PB_GTE_, _PB_GTECLUSTER_, _PB_ADDER_ };
 enum { _PART_SEQUENTIAL_ = 0, _PART_SEQUENTIAL_SORTED_, _PART_BINARY_ };
 
 enum class Statistics {
