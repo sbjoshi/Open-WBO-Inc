@@ -25,7 +25,7 @@
  *
  */
 
-#include "Alg_OLL_Mod.h"
+#include "Alg_OLL_IncCluster.h"
 #include "../MaxTypes.h"
 
 #include <algorithm>
@@ -47,7 +47,7 @@ using namespace openwbo;
   |    * cluster is initialized
   |
   |________________________________________________________________________________________________@*/
-void OLLMod::initializeCluster() {
+void OLLIncCluster::initializeCluster() {
   switch (cluster_algo) {
   case ClusterAlg::_DIVISIVE_:
     cluster = new Cluster_DivisiveMaxSeparate(maxsat_formula, cluster_stat);
@@ -73,7 +73,7 @@ void OLLMod::initializeCluster() {
   |    * Assumes that 'currentModel' is not empty.
   |
   |________________________________________________________________________________________________@*/
-uint64_t OLLMod::computeOriginalCost(vec<lbool> &currentModel,
+uint64_t OLLIncCluster::computeOriginalCost(vec<lbool> &currentModel,
                                      uint64_t weight) {
 
   assert(currentModel.size() != 0);
@@ -109,7 +109,7 @@ uint64_t OLLMod::computeOriginalCost(vec<lbool> &currentModel,
   return currentCost;
 }
 
-uint64_t OLLMod::findNextWeight(uint64_t weight,
+uint64_t OLLIncCluster::findNextWeight(uint64_t weight,
                                 std::set<Lit> &cardinality_assumptions) {
 
   uint64_t nextWeight = 1;
@@ -131,7 +131,7 @@ uint64_t OLLMod::findNextWeight(uint64_t weight,
 }
 
 uint64_t
-OLLMod::findNextWeightDiversity(uint64_t weight,
+OLLIncCluster::findNextWeightDiversity(uint64_t weight,
                                 std::set<Lit> &cardinality_assumptions) {
 
   assert(nbSatisfiable > 0); // Assumes that unsatSearch was done before.
@@ -178,7 +178,7 @@ OLLMod::findNextWeightDiversity(uint64_t weight,
   return nextWeight;
 }
 
-void OLLMod::unweighted() {
+void OLLIncCluster::unweighted() {
 
   // nbInitialVariables = nVars();
   lbool res = l_True;
@@ -386,7 +386,7 @@ void OLLMod::unweighted() {
   }
 }
 
-void OLLMod::weighted() {
+void OLLIncCluster::weighted() {
   // nbInitialVariables = nVars();
   lbool res = l_True;
   initRelaxation();
@@ -857,7 +857,7 @@ void OLLMod::weighted() {
   }
 }
 
-void OLLMod::search() {
+void OLLIncCluster::search() {
 
   cluster->clusterWeights(maxsat_formula, num_clusters);
 
@@ -892,7 +892,7 @@ void OLLMod::search() {
   |    Rebuilds a SAT solver with the current MaxSAT formula.
   |
   |________________________________________________________________________________________________@*/
-Solver *OLLMod::rebuildSolver() {
+Solver *OLLIncCluster::rebuildSolver() {
 
   Solver *S = newSATSolver();
 
@@ -970,7 +970,7 @@ Solver *OLLMod::rebuildSolver() {
   |      clauses.
   |
   |________________________________________________________________________________________________@*/
-void OLLMod::initRelaxation() {
+void OLLIncCluster::initRelaxation() {
   for (int i = 0; i < maxsat_formula->nSoft(); i++) {
     Lit l = maxsat_formula->newLiteral();
     maxsat_formula->getSoftClause(i).relaxation_vars.push(l);

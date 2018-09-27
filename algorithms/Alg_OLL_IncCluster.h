@@ -25,8 +25,8 @@
  *
  */
 
-#ifndef Alg_OLL_Mod_h
-#define Alg_OLL_Mod_h
+#ifndef Alg_OLL_IncCluster_h
+#define Alg_OLL_IncCluster_h
 
 #ifdef SIMP
 #include "simp/SimpSolver.h"
@@ -46,10 +46,10 @@
 namespace openwbo {
 
 //=================================================================================================
-class OLLMod : public MaxSAT {
+class OLLIncCluster : public MaxSAT {
 
 public:
-  OLLMod(int verb = _VERBOSITY_MINIMAL_, int enc = _CARD_TOTALIZER_,
+  OLLIncCluster(int verb = _VERBOSITY_MINIMAL_, int enc = _CARD_TOTALIZER_,
          ClusterAlg ca = ClusterAlg::_DIVISIVE_,
          Statistics cs = Statistics::_MEAN_, uint64_t num_clusters = 1) {
     solver = NULL;
@@ -63,7 +63,7 @@ public:
     this->num_clusters = num_clusters;
     best_cost = UINT64_MAX;
   }
-  ~OLLMod() {
+  ~OLLIncCluster() {
     if (solver != NULL)
       delete solver;
   }
