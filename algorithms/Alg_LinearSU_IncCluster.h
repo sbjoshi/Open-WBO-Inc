@@ -25,8 +25,8 @@
  *
  */
 
-#ifndef Alg_LinearSU_Mod_h
-#define Alg_LinearSU_Mod_h
+#ifndef Alg_LinearSU_IncCluster_h
+#define Alg_LinearSU_IncCluster_h
 
 #ifdef SIMP
 #include "simp/SimpSolver.h"
@@ -49,10 +49,10 @@ using NSPACE::vec;
 namespace openwbo {
 
 //=================================================================================================
-class LinearSUMod : public MaxSAT {
+class LinearSUIncCluster : public MaxSAT {
 
 public:
-  LinearSUMod(int verb = _VERBOSITY_MINIMAL_, bool bmo = true,
+  LinearSUIncCluster(int verb = _VERBOSITY_MINIMAL_, bool bmo = true,
               int enc = _CARD_MTOTALIZER_, int pb = _PB_SWC_,
               ClusterAlg ca = ClusterAlg::_DIVISIVE_,
               Statistics cs = Statistics::_MEAN_, uint64_t num_clusters = 1)
@@ -71,7 +71,7 @@ public:
     complete = false;
   }
 
-  ~LinearSUMod() {
+  ~LinearSUIncCluster() {
     if (solver != NULL)
       delete solver;
 

@@ -25,7 +25,7 @@
  *
  */
 
-#include "Alg_LinearSU_Mod.h"
+#include "Alg_LinearSU_IncCluster.h"
 #include "../MaxTypes.h"
 
 #include <algorithm>
@@ -51,7 +51,7 @@ using namespace openwbo;
   |    * cluster is initialized
   |
   |________________________________________________________________________________________________@*/
-void LinearSUMod::initializeCluster() {
+void LinearSUIncCluster::initializeCluster() {
   switch (cluster_algo) {
   case ClusterAlg::_DIVISIVE_:
     cluster = new Cluster_DivisiveMaxSeparate(maxsat_formula, cluster_stat);
@@ -75,7 +75,7 @@ void LinearSUMod::initializeCluster() {
   |    * Assumes that 'currentModel' is not empty.
   |
   |________________________________________________________________________________________________@*/
-uint64_t LinearSUMod::computeCostModel(vec<lbool> &currentModel,
+uint64_t LinearSUIncCluster::computeCostModel(vec<lbool> &currentModel,
                                        uint64_t weight) {
 
   assert(currentModel.size() != 0);
@@ -128,7 +128,7 @@ uint64_t LinearSUMod::computeCostModel(vec<lbool> &currentModel,
   |    * Assumes that 'currentModel' is not empty.
   |
   |________________________________________________________________________________________________@*/
-uint64_t LinearSUMod::computeOriginalCost(vec<lbool> &currentModel,
+uint64_t LinearSUIncCluster::computeOriginalCost(vec<lbool> &currentModel,
                                           uint64_t weight) {
 
   assert(currentModel.size() != 0);
@@ -191,7 +191,7 @@ uint64_t LinearSUMod::computeOriginalCost(vec<lbool> &currentModel,
   |    * 'nbCores' is updated.
   |
   |________________________________________________________________________________________________@*/
-void LinearSUMod::bmoSearch() {
+void LinearSUIncCluster::bmoSearch() {
   assert(orderWeights.size() > 0);
   lbool res = l_True;
 
@@ -337,7 +337,7 @@ void LinearSUMod::bmoSearch() {
   |    * 'nbCores' is updated.
   |
   |________________________________________________________________________________________________@*/
-void LinearSUMod::normalSearch() {
+void LinearSUIncCluster::normalSearch() {
 
   lbool res = l_True;
 
@@ -445,7 +445,7 @@ void LinearSUMod::normalSearch() {
 }
 
 // Public search method
-void LinearSUMod::search() {
+void LinearSUIncCluster::search() {
 
   cluster->clusterWeights(maxsat_formula, num_clusters);
 
@@ -482,7 +482,7 @@ void LinearSUMod::search() {
   |    NOTE: a weight is specified in the 'bmo' approach.
   |
   |________________________________________________________________________________________________@*/
-Solver *LinearSUMod::rebuildSolver(uint64_t min_weight) {
+Solver *LinearSUIncCluster::rebuildSolver(uint64_t min_weight) {
 
   vec<bool> seen;
   seen.growTo(maxsat_formula->nVars(), false);
@@ -559,7 +559,7 @@ Solver *LinearSUMod::rebuildSolver(uint64_t min_weight) {
   |    respective cardinality constraint.
   |
   |________________________________________________________________________________________________@*/
-Solver *LinearSUMod::rebuildBMO(vec<vec<Lit>> &functions, vec<int> &rhs,
+Solver *LinearSUIncCluster::rebuildBMO(vec<vec<Lit>> &functions, vec<int> &rhs,
                                 uint64_t currentWeight) {
 
   assert(functions.size() == rhs.size());
@@ -602,7 +602,7 @@ Solver *LinearSUMod::rebuildBMO(vec<vec<Lit>> &functions, vec<int> &rhs,
   |    * 'coeffs' contains the weights of all soft clauses.
   |
   |________________________________________________________________________________________________@*/
-void LinearSUMod::initRelaxation() {
+void LinearSUIncCluster::initRelaxation() {
   for (int i = 0; i < maxsat_formula->nSoft(); i++) {
     Lit l = maxsat_formula->newLiteral();
     maxsat_formula->getSoftClause(i).relaxation_vars.push(l);
@@ -612,7 +612,7 @@ void LinearSUMod::initRelaxation() {
 }
 
 // Print LinearSU configuration.
-void LinearSUMod::print_LinearSU_configuration() {
+void LinearSUIncCluster::print_LinearSU_configuration() {
   printf("c |  Algorithm: %23s                                             "
          "                      |\n",
          "Cluster");
