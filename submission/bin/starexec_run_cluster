@@ -1,0 +1,10 @@
+#!/bin/bash
+
+# Incomplete Weighted MaxSAT -- Cluster version 
+delay=5
+wl=$(($STAREXEC_WALLCLOCK_LIMIT-$delay))
+
+gunzip -c $1 > maxsat.wcnf
+timeout -s 15 $wl ./open-wbo-inc -ca=1 -c=2 -cardinality=2 -pb=1 -algorithm=1 maxsat.wcnf > output.txt
+rm -f maxsat.wcnf
+rm -f output.txt

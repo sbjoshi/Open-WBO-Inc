@@ -4,6 +4,7 @@
  * @section LICENSE
  *
  * Open-WBO, Copyright (c) 2013-2017, Ruben Martins, Vasco Manquinho, Ines Lynce
+ *           Copyright (c) 2018  Prateek Kumar, Sukrut Rao
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -25,11 +26,145 @@
  *
  */
 
-#include "Alg_LinearSU.h"
+#include "Alg_LinearSU_IncCluster.h"
+#include "../MaxTypes.h"
+
+#include <algorithm>
+#include <fstream>
+#include <iostream>
 
 #define MAX_CLAUSES 3000000
 
 using namespace openwbo;
+
+/*_________________________________________________________________________________________________
+  |
+  |  initializeCluster : [void] -> [void]
+  |
+  |  Description:
+  |
+  |    Initializes cluster according to the algorithm specified.
+  |
+  |  Pre-conditions:
+  |    * cluster_algo contains the clustering method
+  |
+  |  Post-conditions:
+  |    * cluster is initialized
+  |
+  |________________________________________________________________________________________________@*/
+void LinearSUIncCluster::initializeCluster() {
+  switch (cluster_algo) {
+  case ClusterAlg::_DIVISIVE_:
+    cluster = new Cluster_DivisiveMaxSeparate(maxsat_formula, cluster_stat);
+    break;
+  }
+}
+
+/*_________________________________________________________________________________________________
+  |
+  |  computeCostModel : (currentModel : vec<lbool>&) (weight : int) ->
+  |                     [uint64_t]
+  |
+  |  Description:
+  |
+  |    Computes the cost of 'currentModel'. The cost of a model is the sum of
+  |    the weights of the unsatisfied soft clauses.
+  |    If a weight is specified, then it only considers the sum of the weights
+  |    of the unsatisfied soft clauses with the specified weight.
+  |
+  |  Pre-conditions:
+  |    * Assumes that 'currentModel' is not empty.
+  |
+  |________________________________________________________________________________________________@*/
+uint64_t LinearSUIncCluster::computeCostModel(vec<lbool> &currentModel,
+                                       uint64_t weight) {
+
+  assert(currentModel.size() != 0);
+  uint64_t currentCost = 0;
+
+  for (int i = 0; i < maxsat_formula->nSoft(); i++) {
+    bool unsatisfied = true;
+    for (int j = 0; j < maxsat_formula->getSoftClause(i).clause.size(); j++) {
+
+      if (weight != UINT64_MAX &&
+          maxsat_formula->getSoftClause(i).weight != weight) {
+        unsatisfied = false;
+        continue;
+      }
+
+      assert(var(maxsat_formula->getSoftClause(i).clause[j]) <
+             currentModel.size());
+      if ((sign(maxsat_formula->getSoftClause(i).clause[j]) &&
+           currentModel[var(maxsat_formula->getSoftClause(i).clause[j])] ==
+               l_False) ||
+          (!sign(maxsat_formula->getSoftClause(i).clause[j]) &&
+           currentModel[var(maxsat_formula->getSoftClause(i).clause[j])] ==
+               l_True)) {
+        unsatisfied = false;
+        break;
+      }
+    }
+
+    if (unsatisfied) {
+      currentCost += maxsat_formula->getSoftClause(i).weight;
+    }
+  }
+
+  return currentCost;
+}
+
+/*_________________________________________________________________________________________________
+  |
+  |  computeOriginalCost : (currentModel : vec<lbool>&) (weight : uint64_t) ->
+  |                     [uint64_t]
+  |
+  |  Description:
+  |
+  |    Computes the cost of 'currentModel' as per the original weights.
+  |    The cost of a model is the sum of the weights of the unsatisfied soft clauses.
+  |    If a weight is specified, then it only considers the sum of the weights
+  |    of the unsatisfied soft clauses with the specified weight.
+  |
+  |  Pre-conditions:
+  |    * Assumes that 'currentModel' is not empty.
+  |
+  |________________________________________________________________________________________________@*/
+uint64_t LinearSUIncCluster::computeOriginalCost(vec<lbool> &currentModel,
+                                          uint64_t weight) {
+
+  assert(currentModel.size() != 0);
+  uint64_t currentCost = 0;
+
+  for (int i = 0; i < maxsat_formula->nSoft(); i++) {
+    bool unsatisfied = true;
+    for (int j = 0; j < maxsat_formula->getSoftClause(i).clause.size(); j++) {
+
+      if (weight != UINT64_MAX &&
+          maxsat_formula->getSoftClause(i).weight != weight) {
+        unsatisfied = false;
+        continue;
+      }
+
+      assert(var(maxsat_formula->getSoftClause(i).clause[j]) <
+             currentModel.size());
+      if ((sign(maxsat_formula->getSoftClause(i).clause[j]) &&
+           currentModel[var(maxsat_formula->getSoftClause(i).clause[j])] ==
+               l_False) ||
+          (!sign(maxsat_formula->getSoftClause(i).clause[j]) &&
+           currentModel[var(maxsat_formula->getSoftClause(i).clause[j])] ==
+               l_True)) {
+        unsatisfied = false;
+        break;
+      }
+    }
+
+    if (unsatisfied) {
+      currentCost += cluster->getOriginalWeight(i);
+    }
+  }
+
+  return currentCost;
+}
 
 /************************************************************************************************
  //
@@ -57,7 +192,7 @@ using namespace openwbo;
   |    * 'nbCores' is updated.
   |
   |________________________________________________________________________________________________@*/
-void LinearSU::bmoSearch() {
+void LinearSUIncCluster::bmoSearch() {
   assert(orderWeights.size() > 0);
   lbool res = l_True;
 
@@ -90,8 +225,13 @@ void LinearSU::bmoSearch() {
       if (currentWeight == minWeight) {
         // If current weight is the same as the minimum weight, then we are in
         // the last lexicographical function.
-        saveModel(solver->model);
-        printf("o %" PRId64 "\n", newCost + lbCost + off_set);
+        uint64_t originalCost = computeOriginalCost(solver->model);
+        if (best_cost >= originalCost) {
+          saveModel(solver->model);
+          solver->model.copyTo(best_model);
+          best_cost = originalCost;
+          printf("o %" PRId64 "\n", originalCost);
+        }
         ubCost = newCost + lbCost;
       } else {
         if (verbosity > 0)
@@ -101,6 +241,7 @@ void LinearSU::bmoSearch() {
 
       if (newCost == 0 && currentWeight == minWeight) {
         // Optimum value has been found.
+        printFormulaStats(solver);
         printAnswer(_OPTIMUM_);
         exit(_OPTIMUM_);
       } else {
@@ -127,10 +268,10 @@ void LinearSU::bmoSearch() {
 
           // Optimization of the current lexicographical function.
           if (localCost == 0)
-            encoder.encodeCardinality(solver, objFunction,
+            encoder->encodeCardinality(solver, objFunction,
                                       newCost / currentWeight - 1);
           else
-            encoder.updateCardinality(solver, newCost / currentWeight - 1);
+            encoder->updateCardinality(solver, newCost / currentWeight - 1);
 
           localCost = newCost;
         }
@@ -144,9 +285,11 @@ void LinearSU::bmoSearch() {
         if (model.size() == 0) {
           assert(nbSatisfiable == 0);
           // If no model was found then the MaxSAT formula is unsatisfiable
+          printFormulaStats(solver);
           printAnswer(_UNSATISFIABLE_);
           exit(_UNSATISFIABLE_);
         } else {
+          printFormulaStats(solver);
           printAnswer(_OPTIMUM_);
           exit(_OPTIMUM_);
         }
@@ -195,15 +338,14 @@ void LinearSU::bmoSearch() {
   |    * 'nbCores' is updated.
   |
   |________________________________________________________________________________________________@*/
-void LinearSU::normalSearch() {
+void LinearSUIncCluster::normalSearch() {
 
   lbool res = l_True;
 
   initRelaxation();
   solver = rebuildSolver();
-
   while (res == l_True) {
-
+    //    printFormulaStats(solver);
     vec<Lit> dummy;
     // Do not use preprocessing for linear search algorithm.
     // NOTE: When preprocessing is enabled the SAT solver simplifies the
@@ -213,14 +355,22 @@ void LinearSU::normalSearch() {
     if (res == l_True) {
       nbSatisfiable++;
       uint64_t newCost = computeCostModel(solver->model);
-      saveModel(solver->model);
-      if (maxsat_formula->getFormat() == _FORMAT_PB_) {
-        // optimization problem
-        if (maxsat_formula->getObjFunction() != NULL) {
-          printf("o %" PRId64 "\n", newCost + off_set);
+      uint64_t originalCost = computeOriginalCost(solver->model);
+      if (complete) newCost = originalCost;
+      if (best_cost >= originalCost) {
+        saveModel(solver->model);
+        solver->model.copyTo(best_model);
+        best_cost = originalCost;
+
+        if (maxsat_formula->getFormat() == _FORMAT_PB_) {
+          // optimization problem
+          if (maxsat_formula->getObjFunction() != NULL) {
+            printf("o %" PRId64 "\n", originalCost);
+          }
+        } else {
+          printf("o %" PRId64 "\n", originalCost);
         }
-      } else
-        printf("o %" PRId64 "\n", newCost + off_set); 
+      }
 
       if (newCost == 0) {
         // If there is a model with value 0 then it is an optimal model
@@ -228,34 +378,28 @@ void LinearSU::normalSearch() {
 
         if (maxsat_formula->getFormat() == _FORMAT_PB_ &&
             maxsat_formula->getObjFunction() == NULL) {
+          printFormulaStats(solver);
           printAnswer(_SATISFIABLE_);
           exit(_SATISFIABLE_);
         } else {
+          printFormulaStats(solver);
           printAnswer(_OPTIMUM_);
           exit(_OPTIMUM_);
         }
 
       } else {
         if (maxsat_formula->getProblemType() == _WEIGHTED_) {
-          if (!encoder.hasPBEncoding()){
-            // check if we can encode with GTE
-            encoder.setPBEncoding(_PB_GTE_);
-            int expected_clauses = encoder.predictPB(solver, objFunction, coeffs, newCost-1);
-            printf("c GTE auxiliary #clauses = %d\n",expected_clauses);
-            if (expected_clauses >= MAX_CLAUSES) {
-              printf("c Warn: changing to Adder encoding.\n");
-              encoder.setPBEncoding(_PB_ADDER_);
-            }
-            encoder.encodePB(solver, objFunction, coeffs, newCost - 1);
+          if (!encoder->hasPBEncoding())
+            encoder->encodePB(solver, objFunction, coeffs, newCost - 1);
+          else{
+            encoder->updatePB(solver, newCost - 1);
           }
-          else
-            encoder.updatePB(solver, newCost - 1);
         } else {
           // Unweighted.
-          if (!encoder.hasCardEncoding())
-            encoder.encodeCardinality(solver, objFunction, newCost - 1);
+          if (!encoder->hasCardEncoding())
+            encoder->encodeCardinality(solver, objFunction, newCost - 1);
           else
-            encoder.updateCardinality(solver, newCost - 1);
+            encoder->updateCardinality(solver, newCost - 1);
         }
 
         ubCost = newCost;
@@ -265,31 +409,60 @@ void LinearSU::normalSearch() {
       if (model.size() == 0) {
         assert(nbSatisfiable == 0);
         // If no model was found then the MaxSAT formula is unsatisfiable
+        printFormulaStats(solver);
         printAnswer(_UNSATISFIABLE_);
         exit(_UNSATISFIABLE_);
       } else {
-        printAnswer(_OPTIMUM_);
-        exit(_OPTIMUM_);
+        // printFormulaStats(solver);
+        if (!complete){
+          delete solver; // possible memory leak?
+          solver = rebuildSolver();
+          complete = true;
+          coeffs.clear();
+          for (int i = 0; i < maxsat_formula->nSoft(); i++){
+            coeffs.push(cluster->getOriginalWeight(i));
+          }
+          printf("c Warn: changing to LSU algorithm.\n");
+          delete encoder;
+          encoder = new Encoder(_INCREMENTAL_NONE_, _CARD_MTOTALIZER_,_AMO_LADDER_, _PB_GTE_);
+          int expected_clauses = encoder->predictPB(solver, objFunction, coeffs, best_cost-1);
+          printf("c GTE auxiliary #clauses = %d\n",expected_clauses);
+          if (expected_clauses >= MAX_CLAUSES) {
+            printf("c Warn: changing to Adder encoding.\n");
+            encoder->setPBEncoding(_PB_ADDER_);
+          }
+          if (!encoder->hasPBEncoding())
+            encoder->encodePB(solver, objFunction, coeffs, best_cost - 1);
+          else
+            encoder->updatePB(solver, ubCost - 1);
+          res = l_True;
+        } else {
+          printAnswer(_OPTIMUM_);
+          exit(_OPTIMUM_);          
+        }
       }
     }
   }
 }
 
 // Public search method
-void LinearSU::search() {
+void LinearSUIncCluster::search() {
+
+  cluster->clusterWeights(maxsat_formula, num_clusters);
 
   if (maxsat_formula->getProblemType() == _WEIGHTED_)
     is_bmo = isBMO();
 
   printConfiguration(is_bmo, maxsat_formula->getProblemType());
 
-  if (maxsat_formula->getProblemType() == _WEIGHTED_) {
-    if (bmoMode && is_bmo)
-      bmoSearch();
-    else
-      normalSearch();
-  } else
-    normalSearch();
+  // if (maxsat_formula->getProblemType() == _WEIGHTED_) {
+  //   if (bmoMode && is_bmo)
+  //     bmoSearch();
+  //   else
+  //     normalSearch();
+  // } else
+  //   normalSearch();
+  normalSearch();
 }
 
 /************************************************************************************************
@@ -310,7 +483,7 @@ void LinearSU::search() {
   |    NOTE: a weight is specified in the 'bmo' approach.
   |
   |________________________________________________________________________________________________@*/
-Solver *LinearSU::rebuildSolver(uint64_t min_weight) {
+Solver *LinearSUIncCluster::rebuildSolver(uint64_t min_weight) {
 
   vec<bool> seen;
   seen.growTo(maxsat_formula->nVars(), false);
@@ -387,8 +560,8 @@ Solver *LinearSU::rebuildSolver(uint64_t min_weight) {
   |    respective cardinality constraint.
   |
   |________________________________________________________________________________________________@*/
-Solver *LinearSU::rebuildBMO(vec<vec<Lit>> &functions, vec<int> &rhs,
-                             uint64_t currentWeight) {
+Solver *LinearSUIncCluster::rebuildBMO(vec<vec<Lit>> &functions, vec<int> &rhs,
+                                uint64_t currentWeight) {
 
   assert(functions.size() == rhs.size());
 
@@ -404,7 +577,7 @@ Solver *LinearSU::rebuildBMO(vec<vec<Lit>> &functions, vec<int> &rhs,
   }
 
   for (int i = 0; i < functions.size(); i++)
-    encoder.encodeCardinality(S, functions[i], rhs[i]);
+    encoder->encodeCardinality(S, functions[i], rhs[i]);
 
   return S;
 }
@@ -430,7 +603,7 @@ Solver *LinearSU::rebuildBMO(vec<vec<Lit>> &functions, vec<int> &rhs,
   |    * 'coeffs' contains the weights of all soft clauses.
   |
   |________________________________________________________________________________________________@*/
-void LinearSU::initRelaxation() {
+void LinearSUIncCluster::initRelaxation() {
   for (int i = 0; i < maxsat_formula->nSoft(); i++) {
     Lit l = maxsat_formula->newLiteral();
     maxsat_formula->getSoftClause(i).relaxation_vars.push(l);
@@ -440,30 +613,33 @@ void LinearSU::initRelaxation() {
 }
 
 // Print LinearSU configuration.
-void LinearSU::print_LinearSU_configuration() {
+void LinearSUIncCluster::print_LinearSU_configuration() {
   printf("c |  Algorithm: %23s                                             "
          "                      |\n",
-         "LinearSU");
+         "Cluster");
 
-  if (maxsat_formula->getProblemType() == _WEIGHTED_) {
-    if (bmoMode)
-      printf("c |  BMO strategy: %20s                      "
-             "                                             |\n",
-             "On");
-    else
-      printf("c |  BMO strategy: %20s                      "
-             "                                             |\n",
-             "Off");
+  printf("c |  Number of clusters:   %12" PRId64 "                                 "
+           "                                  |\n", num_clusters);
 
-    if (bmoMode) {
-      if (is_bmo)
-        printf("c |  BMO search: %22s                      "
-               "                                             |\n",
-               "Yes");
-      else
-        printf("c |  BMO search: %22s                      "
-               "                                             |\n",
-               "No");
-    }
-  }
+  // if (maxsat_formula->getProblemType() == _WEIGHTED_) {
+  //   if (bmoMode)
+  //     printf("c |  BMO strategy: %20s                      "
+  //            "                                             |\n",
+  //            "On");
+  //   else
+  //     printf("c |  BMO strategy: %20s                      "
+  //            "                                             |\n",
+  //            "Off");
+
+  //   if (bmoMode) {
+  //     if (is_bmo)
+  //       printf("c |  BMO search: %22s                      "
+  //              "                                             |\n",
+  //              "Yes");
+  //     else
+  //       printf("c |  BMO search: %22s                      "
+  //              "                                             |\n",
+  //              "No");
+  //   }
+  // }
 }

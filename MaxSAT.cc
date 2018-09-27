@@ -64,10 +64,14 @@ Solver *MaxSAT::newSATSolver() {
 
 // Creates a new variable in the SAT solver.
 void MaxSAT::newSATVariable(Solver *S) {
+	
+  static int count = 0;
 
 #ifdef SIMP
   ((NSPACE::SimpSolver *)S)->newVar();
 #else
+  count++;
+//  printf("Created new variable, count is : %d\n",count);
   S->newVar();
 #endif
 }
@@ -272,6 +276,12 @@ void MaxSAT::print_PB_configuration(int encoding) {
            "GTE");
     break;
 
+  case _PB_GTECLUSTER_:
+    printf("c |  PB Encoding:         %13s                        "
+           "                                           |\n",
+           "GTECLUSTER");
+    break;
+
   default:
     printf("c Error: Invalid PB encoding.\n");
     printf("s UNKNOWN\n");
@@ -420,6 +430,11 @@ void MaxSAT::printAnswer(int type) {
   default:
     printf("c Error: Invalid answer type.\n");
   }
+}
+
+void MaxSAT::printFormulaStats(Solver *S) {
+	// printf("c nVars: %d\n", S->nVars());
+	// printf("c nClauses: %d\n", S->nClauses());
 }
 
 uint64_t MaxSAT::getUB() {

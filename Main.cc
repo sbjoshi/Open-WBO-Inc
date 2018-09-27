@@ -54,22 +54,27 @@
 
 // Algorithms
 #include "algorithms/Alg_LinearSU.h"
+#include "algorithms/Alg_LinearSU_IncBMO.h"
+#include "algorithms/Alg_LinearSU_IncCluster.h"
 #include "algorithms/Alg_MSU3.h"
 #include "algorithms/Alg_OLL.h"
+#include "algorithms/Alg_OLL_IncCluster.h"
 #include "algorithms/Alg_PartMSU3.h"
 #include "algorithms/Alg_WBO.h"
+#include "algorithms/Alg_OBV.h"
+#include "algorithms/Alg_BLS.h"
 
 #define VER1_(x) #x
 #define VER_(x) VER1_(x)
 #define SATVER VER_(SOLVERNAME)
 #define VER VER_(VERSION)
 
-using NSPACE::cpuTime;
-using NSPACE::OutOfMemoryException;
-using NSPACE::IntOption;
 using NSPACE::BoolOption;
-using NSPACE::StringOption;
+using NSPACE::IntOption;
 using NSPACE::IntRange;
+using NSPACE::OutOfMemoryException;
+using NSPACE::StringOption;
+using NSPACE::cpuTime;
 using NSPACE::parseOptions;
 using namespace openwbo;
 
@@ -82,6 +87,10 @@ static void SIGINT_exit(int signum) {
   exit(_UNKNOWN_);
 }
 
+#include "Test.h"
+
+// void test_encoding();
+
 //=================================================================================================
 // Main:
 
@@ -89,9 +98,9 @@ int main(int argc, char **argv) {
   printf(
       "c\nc Open-WBO:\t a Modular MaxSAT Solver -- based on %s (%s version)\n",
       SATVER, VER);
-  printf("c Version:\t 2017 -- Release: 2.0\n");
-  printf("c Authors:\t Ruben Martins, Vasco Manquinho, Ines Lynce\n");
-  printf("c Contributors:\t Miguel Neves, Saurabh Joshi, Mikolas Janota\n");
+  printf("c Version:\t Inc -- MaxSAT Evaluation 2018\n");
+  printf("c Authors:\t Saurabh Joshi, Prateek Kumar, Ruben Martins, Sukrut Rao\n");
+  printf("c Contributors:\t Alexander Nadel, Vasco Manquinho\n");
   printf("c Contact:\t open-wbo@sat.inesc-id.pt -- "
          "http://sat.inesc-id.pt/open-wbo/\nc\n");
   try {
@@ -108,15 +117,33 @@ int main(int argc, char **argv) {
 
     BoolOption printmodel("Open-WBO", "print-model", "Print model.\n", true);
 
+    IntOption num_tests("Test", "num_tests", "Number of tests\n", 0,
+                        IntRange(0, 10000000));
+
+    IntOption test_rhs("Test", "test_rhs",
+                       "RHS for a custom encoding test\n", 0,
+                       IntRange(0, 10000000));
+
+    IntOption test_rhs2("Test", "test_rhs2",
+                        "RHS for a custom encoding test for the second tree\n", 0,
+                        IntRange(0, 10000000));
+
+    IntOption test_nsoft("Test", "test_nsoft",
+                         "Nsoft for a custom encoding test\n", 0,
+                         IntRange(0, 10000000));
+
+    IntOption test_join("Test", "test_join",
+                        "Join for a custom encoding test\n", 0, IntRange(0, 1));
+
     IntOption verbosity("Open-WBO", "verbosity",
                         "Verbosity level (0=minimal, 1=more).\n", 0,
                         IntRange(0, 1));
 
     IntOption algorithm("Open-WBO", "algorithm",
                         "Search algorithm "
-                        "(0=wbo,1=linear-su,2=msu3,3=part-msu3,4=oll,5=best)."
-                        "\n",
-                        5, IntRange(0, 5));
+                        "(0=wbo,1=linear-su,2=msu3,3=part-msu3,4=oll,5=best,6="
+                        "bmo,7=obv,8=mcs)\n",
+                        6, IntRange(0, 8));
 
     IntOption partition_strategy("PartMSU3", "partition-strategy",
                                  "Partition strategy (0=sequential, "
@@ -139,8 +166,8 @@ int main(int argc, char **argv) {
     IntOption amo("Encodings", "amo", "AMO encoding (0=Ladder).\n", 0,
                   IntRange(0, 0));
 
-    IntOption pb("Encodings", "pb", "PB encoding (0=SWC,1=GTE).\n", 1,
-                 IntRange(0, 0));
+    IntOption pb("Encodings", "pb", "PB encoding (0=SWC,1=GTE,2=GTECluster).\n",
+                 1, IntRange(0, 2));
 
     IntOption formula("Open-WBO", "formula",
                       "Type of formula (0=WCNF, 1=OPB).\n", 0, IntRange(0, 1));
@@ -157,10 +184,50 @@ int main(int argc, char **argv) {
         "Limit on the number of symmetry breaking clauses.\n", 500000,
         IntRange(0, INT32_MAX));
 
+    IntOption cluster_algorithm("Clustering", "ca",
+                                "Clustering algorithm "
+                                "(0=none, 1=DivisiveMaxSeparate)",
+                                1, IntRange(0, 1));
+    IntOption num_clusters("Clustering", "c", "Number of agglomerated clusters",
+                           100000, IntRange(1, INT_MAX));
+
+    IntOption rounding_strategy(
+        "Clustering", "rs",
+        "Statistic used to select"
+        " common weights in a cluster (0=Mean, 1=Median, 2=Min)",
+        0, IntRange(0, 2));
+
+    IntOption num_conflicts(
+      "Incomplete","conflicts","Limit on the number of conflicts.\n", 10000,
+      IntRange(0, INT32_MAX));
+
+    IntOption num_iterations(
+      "Incomplete","iterations","Limit on the number of iterations.\n", 100000,
+      IntRange(0, INT32_MAX));
+
+    BoolOption local("Incomplete", "local", "Local limit on the number of conflicts.\n", false);
+
     parseOptions(argc, argv, true);
+
+    if ((int)num_tests) {
+      // if ((int)test_join) {
+      //   for (int i = 0; i < (int)num_tests; i++) {
+      //     test_encoding_join();
+      //   }
+      // } else {
+        for (int i = 0; i < (int)num_tests; i++) {
+          test_encoding();
+        }
+      // }
+
+      return 0;
+    }
 
     double initial_time = cpuTime();
     MaxSAT *S = NULL;
+
+    Statistics rounding_statistic =
+        static_cast<Statistics>((int)rounding_strategy);
 
     switch ((int)algorithm) {
     case _ALGORITHM_WBO_:
@@ -168,7 +235,13 @@ int main(int argc, char **argv) {
       break;
 
     case _ALGORITHM_LINEAR_SU_:
-      S = new LinearSU(verbosity, bmo, cardinality, pb);
+      if ((int)(cluster_algorithm) == 1) {
+        S = new LinearSUIncCluster(verbosity, bmo, cardinality, pb,
+                            ClusterAlg::_DIVISIVE_, rounding_statistic,
+                            (int)(num_clusters));
+      } else {
+        S = new LinearSU(verbosity, bmo, cardinality, pb);
+      }
       break;
 
     case _ALGORITHM_PART_MSU3_:
@@ -179,8 +252,27 @@ int main(int argc, char **argv) {
       S = new MSU3(verbosity);
       break;
 
+    case _ALGORITHM_LSU_INCBMO_:
+      S = new LinearSUIncBMO(verbosity, bmo, cardinality, pb,
+                                 ClusterAlg::_DIVISIVE_, rounding_statistic,
+                                 (int)(num_clusters));
+      break;
+
+    case _ALGORITHM_LSU_MRSBEAVER_:
+      S = new OBV(verbosity, cardinality, num_conflicts, num_iterations, local); 
+      break;
+
+    case _ALGORITHM_LSU_MCS_:
+      S = new BLS(verbosity, cardinality, num_conflicts, num_iterations, local);
+      break;
+
     case _ALGORITHM_OLL_:
-      S = new OLL(verbosity, cardinality);
+      if ((int)(cluster_algorithm) == 1) {
+        S = new OLLIncCluster(verbosity, cardinality, ClusterAlg::_DIVISIVE_,
+                       rounding_statistic, (int)(num_clusters));
+      } else {
+        S = new OLL(verbosity, cardinality);
+      }
       break;
 
     case _ALGORITHM_BEST_:
@@ -218,6 +310,16 @@ int main(int argc, char **argv) {
       maxsat_formula->setFormat(_FORMAT_PB_);
     }
     gzclose(in);
+
+    if ((int)test_rhs) {
+      // if ((int)test_rhs2) {
+      //   test_encoding(maxsat_formula, (uint64_t)test_rhs, (uint64_t)test_rhs2,
+      //                 (uint64_t)test_nsoft);
+      // } else {
+        test_encoding(maxsat_formula, (uint64_t)test_rhs);
+      // }
+      return 0;
+    }
 
     printf("c |                                                                "
            "                                       |\n");
@@ -289,8 +391,22 @@ int main(int argc, char **argv) {
       }
     }
 
-    if (S->getMaxSATFormula() == NULL)
+    if (S->getMaxSATFormula() == NULL) {
       S->loadFormula(maxsat_formula);
+      if ((int)(cluster_algorithm) == 1) {
+        switch ((int)algorithm) {
+        case _ALGORITHM_LINEAR_SU_:
+          static_cast<LinearSUIncCluster *>(S)->initializeCluster();
+          break;
+        case _ALGORITHM_OLL_:
+          static_cast<OLLIncCluster *>(S)->initializeCluster();
+          break;
+        case _ALGORITHM_LSU_INCBMO_:
+          static_cast<LinearSUIncBMO *>(S)->initializeCluster();
+          break;
+        }
+      }
+    }
     S->setPrintModel(printmodel);
     S->setInitialTime(initial_time);
     mxsolver = S;

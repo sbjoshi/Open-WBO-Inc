@@ -4,6 +4,7 @@
  * @section LICENSE
  *
  * Open-WBO, Copyright (c) 2013-2015, Ruben Martins, Vasco Manquinho, Ines Lynce
+ *           Copyright (c) 2018  Prateek Kumar, Sukrut Rao
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -40,10 +41,10 @@
 #include <map>
 #include <string>
 
-using NSPACE::vec;
 using NSPACE::Lit;
 using NSPACE::lit_Undef;
 using NSPACE::mkLit;
+using NSPACE::vec;
 
 namespace openwbo {
 
@@ -60,6 +61,20 @@ public:
     weight = soft_weight;
     assumption_var = assump_var;
     relax.copyTo(relaxation_vars);
+  }
+
+  void copy(const Soft &other) {
+    other.clause.copyTo(this->clause);
+    this->weight = other.weight;
+    this->assumption_var = other.assumption_var;
+    other.relaxation_vars.copyTo(this->relaxation_vars);
+  }
+
+  Soft(const Soft &other) { copy(other); }
+
+  Soft &operator=(const Soft &other) {
+    copy(other);
+    return *this;
   }
 
   Soft() {}
@@ -187,10 +202,15 @@ public:
 
   indexMap &getIndexToName() { return _indexToName; }
 
+  void sortSoftClauses(); // Sort soft clauses as per their corresponding weights
+  vec<Soft> &getSoftClauses(); // Return soft clauses
+
 protected:
   // MaxSAT database
   //
+
   vec<Soft> soft_clauses; //<! Stores the soft clauses of the MaxSAT formula.
+
   vec<Hard> hard_clauses; //<! Stores the hard clauses of the MaxSAT formula.
 
   // PB database

@@ -40,10 +40,12 @@
 // Encodings
 #include "encodings/Enc_CNetworks.h"
 #include "encodings/Enc_GTE.h"
+#include "encodings/Enc_GTECluster.h"
 #include "encodings/Enc_Ladder.h"
 #include "encodings/Enc_MTotalizer.h"
 #include "encodings/Enc_SWC.h"
 #include "encodings/Enc_Totalizer.h"
+#include "encodings/Enc_Adder.h"
 
 using NSPACE::vec;
 using NSPACE::Lit;
@@ -112,6 +114,8 @@ public:
   // Update the rhs of an already existent pseudo-Boolean constraint.
   void updatePB(Solver *S, uint64_t rhs);
 
+  int predictPB(Solver *S, vec<Lit> &lits, vec<uint64_t> &coeffs, uint64_t rhs);
+
   // Incremental PB encodings:
   //
   // Incremental PB encoding.
@@ -160,6 +164,17 @@ public:
     totalizer.setIncremental(incremental);
   }
 
+  vec<Lit> & getOutputs(){
+    switch (cardinality_encoding) {
+      case _CARD_TOTALIZER_:
+        return totalizer.outputs();
+      default:
+        printf("Error: Invalid cardinality encoding.\n");
+        printf("s UNKNOWN\n");
+        exit(_ERROR_);
+      }
+  }
+
 protected:
   int incremental_strategy;
   int cardinality_encoding;
@@ -177,6 +192,8 @@ protected:
   // PB encodings
   SWC swc;
   GTE gte;
+  GTECluster gtecluster;
+  Adder adder;
 };
 } // namespace openwbo
 

@@ -38,7 +38,10 @@ enum {
   _ALGORITHM_MSU3_,
   _ALGORITHM_PART_MSU3_,
   _ALGORITHM_OLL_,
-  _ALGORITHM_BEST_
+  _ALGORITHM_BEST_,
+  _ALGORITHM_LSU_INCBMO_,
+  _ALGORITHM_LSU_MRSBEAVER_,
+  _ALGORITHM_LSU_MCS_
 };
 enum {
   _SATISFIABLE_ = 10,
@@ -55,7 +58,18 @@ enum {
 };
 enum { _CARD_CNETWORKS_ = 0, _CARD_TOTALIZER_, _CARD_MTOTALIZER_ };
 enum { _AMO_LADDER_ = 0 };
-enum { _PB_SWC_ = 0, _PB_GTE_ };
+enum { _PB_SWC_ = 0, _PB_GTE_, _PB_GTECLUSTER_, _PB_ADDER_ };
 enum { _PART_SEQUENTIAL_ = 0, _PART_SEQUENTIAL_SORTED_, _PART_BINARY_ };
+
+enum class Statistics {
+	_MEAN_ = 0,
+	_MEDIAN_ = 1,
+	_MIN_ = 2,
+	_MAX_
+};
+
+enum class ClusterAlg {
+  _DIVISIVE_
+};
 
 #endif

@@ -29,6 +29,18 @@
 
 using namespace openwbo;
 
+void Encodings::implication(uint64_t lit1, uint64_t lit2) {
+#ifdef VERB
+  printf("c %d -> %d\n", lit1, lit2);
+#endif
+}
+
+void Encodings::implication(uint64_t lit1, uint64_t lit2, uint64_t lit3) {
+#ifdef VERB
+  printf("c %d ^ %d -> %d\n", lit1, lit2, lit3);
+#endif
+}
+
 // Creates an unit clause in the SAT solver
 void Encodings::addUnitClause(Solver *S, Lit a, Lit blocking) {
   assert(clause.size() == 0);
