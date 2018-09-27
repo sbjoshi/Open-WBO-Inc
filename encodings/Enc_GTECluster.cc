@@ -4,6 +4,7 @@
  * @section LICENSE
  *
  * Open-WBO, Copyright (c) 2013-2017, Ruben Martins, Vasco Manquinho, Ines Lynce
+ *           Copyright (c) 2015  Saurabh Joshi
  *           Copyright (c) 2018  Prateek Kumar
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy

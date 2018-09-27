@@ -203,7 +203,6 @@ void OLLIncCluster::unweighted() {
 
     res = searchSATSolver(solver, assumptions);
     if (res == l_True) {
-      printFormulaStats(solver);
       nbSatisfiable++;
       uint64_t newCost = computeCostModel(solver->model);
       uint64_t originalCost = computeOriginalCost(solver->model);
@@ -227,11 +226,9 @@ void OLLIncCluster::unweighted() {
         if (newCost == 0) {
           if (maxsat_formula->getFormat() == _FORMAT_PB_ &&
               maxsat_formula->getObjFunction() == NULL) {
-            printFormulaStats(solver);
             printAnswer(_SATISFIABLE_);
             exit(_SATISFIABLE_);
           } else {
-            printFormulaStats(solver);
             printAnswer(_OPTIMUM_);
             exit(_OPTIMUM_);
           }
@@ -241,7 +238,6 @@ void OLLIncCluster::unweighted() {
           assumptions.push(~maxsat_formula->getSoftClause(i).assumption_var);
       } else {
         assert(lbCost == newCost);
-        printFormulaStats(solver);
         printAnswer(_OPTIMUM_);
         exit(_OPTIMUM_);
       }
@@ -254,7 +250,6 @@ void OLLIncCluster::unweighted() {
         printf("c LB : %-12" PRIu64 "\n", lbCost);
 
       if (nbSatisfiable == 0) {
-        printFormulaStats(solver);
         printAnswer(_UNSATISFIABLE_);
         exit(_UNSATISFIABLE_);
       }
@@ -263,7 +258,6 @@ void OLLIncCluster::unweighted() {
         assert(nbSatisfiable > 0);
         if (verbosity > 0)
           printf("c LB = UB\n");
-        printFormulaStats(solver);
         printAnswer(_OPTIMUM_);
         exit(_OPTIMUM_);
       }
@@ -493,7 +487,6 @@ void OLLIncCluster::weighted() {
 
         } else {
           assert(lbCost == newCost);
-          printFormulaStats(solver);
           printAnswer(_OPTIMUM_);
           exit(_OPTIMUM_);
         }
@@ -531,7 +524,6 @@ void OLLIncCluster::weighted() {
         printf("c LB : %-12" PRIu64 "\n", lbCost);
 
       if (nbSatisfiable == 0) {
-        printFormulaStats(solver);
         printAnswer(_UNSATISFIABLE_);
         exit(_UNSATISFIABLE_);
       }
@@ -540,7 +532,6 @@ void OLLIncCluster::weighted() {
         assert(nbSatisfiable > 0);
         if (verbosity > 0)
           printf("c LB = UB\n");
-        printFormulaStats(solver);
         printAnswer(_OPTIMUM_);
         exit(_OPTIMUM_);
       }

@@ -81,7 +81,6 @@ template <class B, class MaxSATFormula>
 static void parseMaxSAT(B &in, MaxSATFormula *maxsat_formula) {
   vec<Lit> lits;
   uint64_t hard_weight = UINT64_MAX;
-  //int count = 0;
   for (;;) {
     skipWhitespace(in);
     if (*in == EOF)
@@ -112,7 +111,6 @@ static void parseMaxSAT(B &in, MaxSATFormula *maxsat_formula) {
         maxsat_formula->setMaximumWeight(weight);
         // Updates the sum of the weights of soft clauses.
         maxsat_formula->updateSumWeights(weight);
-//        printf("Adding soft clause : %d\n",++count);
         maxsat_formula->addSoftClause(weight, lits);
       } else
         maxsat_formula->addHardClause(lits);

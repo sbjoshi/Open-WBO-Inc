@@ -241,7 +241,6 @@ void LinearSUIncCluster::bmoSearch() {
 
       if (newCost == 0 && currentWeight == minWeight) {
         // Optimum value has been found.
-        printFormulaStats(solver);
         printAnswer(_OPTIMUM_);
         exit(_OPTIMUM_);
       } else {
@@ -285,11 +284,9 @@ void LinearSUIncCluster::bmoSearch() {
         if (model.size() == 0) {
           assert(nbSatisfiable == 0);
           // If no model was found then the MaxSAT formula is unsatisfiable
-          printFormulaStats(solver);
           printAnswer(_UNSATISFIABLE_);
           exit(_UNSATISFIABLE_);
         } else {
-          printFormulaStats(solver);
           printAnswer(_OPTIMUM_);
           exit(_OPTIMUM_);
         }
@@ -345,7 +342,7 @@ void LinearSUIncCluster::normalSearch() {
   initRelaxation();
   solver = rebuildSolver();
   while (res == l_True) {
-    //    printFormulaStats(solver);
+
     vec<Lit> dummy;
     // Do not use preprocessing for linear search algorithm.
     // NOTE: When preprocessing is enabled the SAT solver simplifies the
@@ -378,11 +375,9 @@ void LinearSUIncCluster::normalSearch() {
 
         if (maxsat_formula->getFormat() == _FORMAT_PB_ &&
             maxsat_formula->getObjFunction() == NULL) {
-          printFormulaStats(solver);
           printAnswer(_SATISFIABLE_);
           exit(_SATISFIABLE_);
         } else {
-          printFormulaStats(solver);
           printAnswer(_OPTIMUM_);
           exit(_OPTIMUM_);
         }
@@ -409,11 +404,9 @@ void LinearSUIncCluster::normalSearch() {
       if (model.size() == 0) {
         assert(nbSatisfiable == 0);
         // If no model was found then the MaxSAT formula is unsatisfiable
-        printFormulaStats(solver);
         printAnswer(_UNSATISFIABLE_);
         exit(_UNSATISFIABLE_);
       } else {
-        // printFormulaStats(solver);
         if (!complete){
           delete solver; // possible memory leak?
           solver = rebuildSolver();

@@ -6,6 +6,7 @@
  * MiniSat,  Copyright (c) 2003-2006, Niklas Een, Niklas Sorensson
  *           Copyright (c) 2007-2010, Niklas Sorensson
  * Open-WBO, Copyright (c) 2013-2017, Ruben Martins, Vasco Manquinho, Ines Lynce
+ *           Copyright (c) 2018  Prateek Kumar, Sukrut Rao
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -87,10 +88,6 @@ static void SIGINT_exit(int signum) {
   exit(_UNKNOWN_);
 }
 
-#include "Test.h"
-
-// void test_encoding();
-
 //=================================================================================================
 // Main:
 
@@ -116,24 +113,6 @@ int main(int argc, char **argv) {
 #endif
 
     BoolOption printmodel("Open-WBO", "print-model", "Print model.\n", true);
-
-    IntOption num_tests("Test", "num_tests", "Number of tests\n", 0,
-                        IntRange(0, 10000000));
-
-    IntOption test_rhs("Test", "test_rhs",
-                       "RHS for a custom encoding test\n", 0,
-                       IntRange(0, 10000000));
-
-    IntOption test_rhs2("Test", "test_rhs2",
-                        "RHS for a custom encoding test for the second tree\n", 0,
-                        IntRange(0, 10000000));
-
-    IntOption test_nsoft("Test", "test_nsoft",
-                         "Nsoft for a custom encoding test\n", 0,
-                         IntRange(0, 10000000));
-
-    IntOption test_join("Test", "test_join",
-                        "Join for a custom encoding test\n", 0, IntRange(0, 1));
 
     IntOption verbosity("Open-WBO", "verbosity",
                         "Verbosity level (0=minimal, 1=more).\n", 0,
@@ -208,20 +187,6 @@ int main(int argc, char **argv) {
     BoolOption local("Incomplete", "local", "Local limit on the number of conflicts.\n", false);
 
     parseOptions(argc, argv, true);
-
-    if ((int)num_tests) {
-      // if ((int)test_join) {
-      //   for (int i = 0; i < (int)num_tests; i++) {
-      //     test_encoding_join();
-      //   }
-      // } else {
-        for (int i = 0; i < (int)num_tests; i++) {
-          test_encoding();
-        }
-      // }
-
-      return 0;
-    }
 
     double initial_time = cpuTime();
     MaxSAT *S = NULL;
@@ -310,16 +275,6 @@ int main(int argc, char **argv) {
       maxsat_formula->setFormat(_FORMAT_PB_);
     }
     gzclose(in);
-
-    if ((int)test_rhs) {
-      // if ((int)test_rhs2) {
-      //   test_encoding(maxsat_formula, (uint64_t)test_rhs, (uint64_t)test_rhs2,
-      //                 (uint64_t)test_nsoft);
-      // } else {
-        test_encoding(maxsat_formula, (uint64_t)test_rhs);
-      // }
-      return 0;
-    }
 
     printf("c |                                                                "
            "                                       |\n");
