@@ -8,12 +8,50 @@ Open-WBO-Inc helps in finding quick approximate solutions to MaxSAT problems by 
 Open-WBO-Inc contains all the features of Open-WBO 2.0, with extensions. Further details about the version submitted to the MaxSAT Evaluations 2018 can be found in [3].
 
 ## Installation
-The installation procedure is the same as Open-WBO 2.0, and can be found in [INSTALL.md](INSTALL.md).
+The installation procedure is the same as Open-WBO 2.0, and can be found [here](INSTALL.md).
 
 ## Usage
-Open-WBO-Inc can be used in the same way as Open-WBO. A description of the new features added in Open-WBO-Inc for incomplete MaxSAT solving is provided below.
+Open-WBO-Inc can be used in the same way as Open-WBO. Instructions on using the solver and a description of the options available from Open-WBO 2.0 and the new features added in Open-WBO-Inc for incomplete MaxSAT solving is provided in this section.
 
-TODO
+To run the solver on a MaxSAT problem, use
+```
+$ ./open-wbo [options] <input-file>
+```
+where `<input-file>` contains the MaxSAT formula.
+
+To obtain an overview of the options available, use
+```
+$ ./open-wbo --help
+```
+
+### Input Format
+The input must be provided in the [standard WCNF format](https://maxsat-evaluations.github.io/2018/rules.html#input), and must follow the restrictions on the weights specified.
+
+### Output Format
+The output is provided in [this format](https://maxsat-evaluations.github.io/2018/rules.html#output).
+
+The output consists of three types of lines, characterized by the first character on the line. They are:
+* Comments ("c" lines)
+  These lines are comments. The start with the character "c", followed by a space, and then followed by any text.
+* Solution cost ("o" lines)
+  The cost is the sum of weights of unsatisfied clauses in a given assignment. The goal of MaxSAT solving is to find an assignment that minimizes the cost. For incomplete MaxSAT solving, Open-WBO-Inc tries to find an assignment that approximates the actual minimum cost.
+
+  Open-WBO-Inc outputs a new cost line each time it finds a better assignment that improves upon the previous best cost. This consists of the character "o", followed by a space, and then followed by the cost found. At any point of time, the last solution cost line printed represents the best cost found so far by the solver.
+* Solution status ("s" line)
+  This line is displayed once at the end when the solver terminates, either because the best solution has been found or because it has received a SIGTERM signal. This indicates the nature of the solution found by the solver. It consists of the character "s", followed by a space, and then followed by the status, which can be of four types:
+  * OPTIMUM FOUND
+    This indicates that the solver has found exactly the least possible cost for the formula.
+  * SATISFIABLE
+    This indicates that the solver has found some assignment that satisfies the formula and its associated cost, but it is not known whether the assignment is optimal. This could be because of the presence of a time limit, exceeding which solver received a SIGTERM signal to terminate. The best solution obtained so far is provided.
+  * UNSATISFIABLE
+    This indicates that the hard clauses in the formula could not be satisfied by the solver.
+  * UNKNOWN
+    This indicates that the solver was unable to solve the problem, which could be due to various reasons. Examples include the case where the solver was unable to find any solution within the time and memory limits, or where the path of the input file provided was invalid.
+* Solution Values (Truth Assignment) ("v" lines)
+  This provides the assignment for the model found by the solver. It consists of the character "v", followed by a space, and then followed by the assignment. The assignment consists of contiguous space separated integers in increasing order, the absolute value of which corresponds to the variable it represents in the input. If the integer is displayed with a negative sign, the variable has been assigned false, and if not, the variable has been assigned true.
+
+### Options
+
 
 ## Authors and Contributors
 ### Authors
@@ -21,6 +59,7 @@ TODO
 * [Prateek Kumar](https://prateekkumar.in/)
 * [Ruben Martins](https://sat-group.github.io/ruben/)
 * [Sukrut Rao](https://github.com/GoodDeeds/)
+
 ### Contributors
 * [Alexander Nadel](http://www.cs.tau.ac.il/research/alexander.nadel/)
 * [Vasco Manquinho](http://sat.inesc-id.pt/~vmm/)
