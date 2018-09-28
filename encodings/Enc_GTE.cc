@@ -5,7 +5,7 @@
  *
  * Open-WBO, Copyright (c) 2013-2017, Ruben Martins, Vasco Manquinho, Ines Lynce
  *           Copyright (c) 2015  Saurabh Joshi
- *           Copyright (c) 2018  Sukrut Rao
+ *           Copyright (c) 2018  Prateek Kumar, Sukrut Rao
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -71,6 +71,31 @@ bool GTE::encodeLeq(uint64_t k, Solver *S, const weightedlitst &iliterals,
     wlit_mapt loutputs, routputs;
 
     unsigned int lsize = iliterals_size >> 1;
+
+    if (gte_alg == _GTE_CLUSTER_) {
+        int i = lsize - 1;
+        for (; i >= 0; i--) {
+            if (iliterals[i].weight != iliterals[lsize].weight) {
+                break;
+            }
+        }
+        if (i == -1) {
+            i = lsize;
+            for (; i < iliterals_size; i++) {
+                if (iliterals[i].weight != iliterals[lsize].weight) {
+                    break;
+                }
+            }
+            if (i != iliterals_size) {
+                lsize = i;
+            } else {
+                lsize = iliterals_size >> 1;
+            }
+        } else {
+            lsize = i + 1;
+        }
+    }
+
     weightedlitst::const_iterator myit = iliterals.begin() + iliterals_start;
     weightedlitst::const_iterator myit1 = myit + lsize;
     weightedlitst::const_iterator myit2 = iliterals.begin() + iliterals_end;

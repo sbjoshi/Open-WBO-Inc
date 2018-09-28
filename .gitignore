@@ -33,6 +33,8 @@
 *.app
 open-wbo
 open-wbo_static
+open-wbo-inc
+open-wbo-inc_static
 
 # Backup
 *~

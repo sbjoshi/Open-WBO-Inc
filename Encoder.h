@@ -40,7 +40,6 @@
 // Encodings
 #include "encodings/Enc_CNetworks.h"
 #include "encodings/Enc_GTE.h"
-#include "encodings/Enc_GTECluster.h"
 #include "encodings/Enc_Ladder.h"
 #include "encodings/Enc_MTotalizer.h"
 #include "encodings/Enc_SWC.h"
@@ -59,7 +58,7 @@ class Encoder {
 public:
   Encoder(int incremental = _INCREMENTAL_NONE_,
           int cardinality = _CARD_TOTALIZER_, int amo = _AMO_LADDER_,
-          int pb = _PB_SWC_) {
+          int pb = _PB_SWC_) : gtecluster(_GTE_CLUSTER_) {
     pb_encoding = pb;
     amo_encoding = amo;
     incremental_strategy = incremental;
@@ -192,7 +191,7 @@ protected:
   // PB encodings
   SWC swc;
   GTE gte;
-  GTECluster gtecluster;
+  GTE gtecluster;
   Adder adder;
 };
 } // namespace openwbo

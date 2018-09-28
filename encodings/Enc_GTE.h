@@ -5,7 +5,7 @@
  *
  * Open-WBO, Copyright (c) 2013-2017, Ruben Martins, Vasco Manquinho, Ines Lynce
  *           Copyright (c) 2015  Saurabh Joshi
- *           Copyright (c) 2018  Sukrut Rao
+ *           Copyright (c) 2018  Prateek Kumar, Sukrut Rao
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -66,8 +66,9 @@ typedef std::pair<uint64_t, Lit> wlit_pairt;
 class GTE : public Encodings {
 
   public:
-    GTE() {
+    GTE(int gte_algorithm = _GTE_) {
         // current_pb_rhs = -1; // -1 corresponds to an unitialized value
+        gte_alg = gte_algorithm;
         current_pb_rhs = 0;
         nb_clauses = 0;
         nb_variables = 0;
@@ -118,6 +119,8 @@ class GTE : public Encodings {
 
     int nb_clauses_expected;
     int nb_current_variables;
+
+    int gte_alg;
 };
 
 } // namespace openwbo
