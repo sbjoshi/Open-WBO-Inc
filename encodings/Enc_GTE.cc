@@ -68,31 +68,13 @@ bool GTE::encodeLeq(uint64_t k, Solver *S, const weightedlitst &iliterals,
         return true;
     }
 
-    // unsigned int size = iliterals_end - iliterals_start; // iliterals.size();
-
-    // formulat lformula,rformula;
-    // weightedlitst linputs, rinputs;
     wlit_mapt loutputs, routputs;
 
     unsigned int lsize = iliterals_size >> 1;
-    // unsigned int rsize=size-lsize;
     weightedlitst::const_iterator myit = iliterals.begin() + iliterals_start;
     weightedlitst::const_iterator myit1 = myit + lsize;
     weightedlitst::const_iterator myit2 = iliterals.begin() + iliterals_end;
 
-    // weightedlitst::const_iterator linputs_begin =
-    //     iliterals.begin() + iliterals_start;
-    // weightedlitst::const_iterator linputs_end =
-    //     iliterals.begin() + iliterals_end;
-    // weightedlitst::const_iterator rinputs_begin =
-    //     iliterals.begin() +
-
-    // linputs.insert(linputs.begin(), myit, myit1);
-    // rinputs.insert(rinputs.begin(), myit1, myit2);
-
-    /*wlitt init_wlit;
-    init_wlit.lit = lit_Undef;
-    init_wlit.weight=0;*/
     wlit_sumt wlit_sum;
     uint64_t lk = std::accumulate(myit, myit1, uint64_t(0), wlit_sum);
     uint64_t rk = std::accumulate(myit1, myit2, uint64_t(0), wlit_sum);
@@ -314,18 +296,12 @@ bool GTE::predictEncodeLeq(uint64_t k, Solver *S,
         return true;
     }
 
-    // unsigned int size = iliterals.size();
-
-    // weightedlitst linputs, rinputs;
     wlit_mapt loutputs, routputs;
 
     unsigned int lsize = iliterals_size >> 1;
     weightedlitst::const_iterator myit = iliterals.begin() + iliterals_start;
     weightedlitst::const_iterator myit1 = myit + lsize;
     weightedlitst::const_iterator myit2 = iliterals.begin() + iliterals_end;
-
-    // linputs.insert(linputs.begin(), myit, myit1);
-    // rinputs.insert(rinputs.begin(), myit1, myit2);
 
     wlit_sumt wlit_sum;
     uint64_t lk = std::accumulate(myit, myit1, uint64_t(0), wlit_sum);

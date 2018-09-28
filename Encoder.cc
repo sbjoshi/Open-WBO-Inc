@@ -284,8 +284,6 @@ void Encoder::updatePB(Solver *S, uint64_t rhs) {
 // Incremental methods for PB encodings:
 //
 // Manages the incremental encode of PB encodings.
-// Sukrut - encode, but assumptions come from outside 
-// why don't PB encodings store them inside like totalizer? TODO
 void Encoder::incEncodePB(Solver *S, vec<Lit> &lits, vec<uint64_t> &coeffs,
                           int64_t rhs, vec<Lit> &assumptions, int size) {
   assert(incremental_strategy == _INCREMENTAL_ITERATIVE_);
