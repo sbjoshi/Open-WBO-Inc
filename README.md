@@ -11,7 +11,7 @@ Open-WBO-Inc contains all the features of Open-WBO 2.0, with extensions. Further
 The installation procedure is the same as Open-WBO 2.0, and can be found [here](INSTALL.md).
 
 ## Usage
-Open-WBO-Inc can be used in the same way as Open-WBO. Instructions on using the solver, a description of the input and output formats, and instructions to run specific algorithms are described in this section.
+Open-WBO-Inc can be used in the same way as Open-WBO. Instructions on using the solver, specific algorithms, and a description of the input and output formats are provided in this section.
 
 To run the solver on a MaxSAT problem, use
 ```
@@ -64,11 +64,13 @@ This section provides instructions to run specific incomplete MaxSAT algorithms.
 #### Weighted
 
 * Open-WBO-Inc-BMO [3] \(apx-subprob [2]\)
+
   This uses linear search with clustering under the BMO assumption. Weights are divided into 100000 clusters. To run, use
   ```
   $ ./open-wbo-inc -ca=1 -c=100000 -algorithm=6 <input-file>
   ```
 * Open-WBO-Inc-Cluster [3] \(apx-weight [2]\)
+
   This uses linear search with clustering. Weights are divided into two clusters. To run, use
   ```
   $ ./open-wbo-inc -ca=1 -c=2 -cardinality=2 -pb=1 -algorithm=1 <input-file>
@@ -77,15 +79,16 @@ This section provides instructions to run specific incomplete MaxSAT algorithms.
 #### Unweighted
 
 * Open-WBO-Inc-MCS [3]
+
   To run, use
   ```
   $ ./open-wbo-inc -cardinality=2 -conflicts=100000 -iterations=30 -algorithm=8 <input-file>
   ```
-* Open-WBO-Inc-OBV [3]
+* Open-WBO-Inc-OBV \[3\]\[4\]
+
   To run, use
   ```
   $ ./open-wbo-inc -cardinality=2 -conflicts=10000 -iterations=100 -algorithm=7 <input-file>
-
   ```
 
 ## Authors and Contributors
