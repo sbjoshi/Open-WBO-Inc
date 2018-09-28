@@ -2,9 +2,10 @@ language: cpp
 dist: xenial
 compiler:
     - g++
+env:
+    matrix:
+      - TARGET=""
+      - TARGET="rs"
+      - TARGET="libr"
 script:
-    - make
-    - make clean
-    - make rs
-    - make clean
-    - make libr
+    - make $TARGET
