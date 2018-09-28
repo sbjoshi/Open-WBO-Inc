@@ -1,9 +1,7 @@
-MapleSAT --- Copyright (c) 2016, Jia Hui Liang, Vijay Ganesh
-MiniSat  --- Copyright (c) 2003-2006, Niklas Een, Niklas Sorensson
-             Copyright (c) 2007-2010  Niklas Sorensson
-Open-WBO --- Copyright (c) 2013-2017, Ruben Martins, Vasco Manquinho, Ines Lynce
-             Copyright (c) 2015  Saurabh Joshi
-Open-WBO-Inc Copyright (c) 2018  Saurabh Joshi, Prateek Kumar, Ruben Martins, Sukrut Rao
+MiniSat -- Copyright (c) 2003-2006, Niklas Een, Niklas Sorensson
+           Copyright (c) 2007-2010  Niklas Sorensson
+
+Chanseok Oh's MiniSat Patch Series -- Copyright (c) 2015, Chanseok Oh
 
 Permission is hereby granted, free of charge, to any person obtaining a
 copy of this software and associated documentation files (the
@@ -23,4 +21,3 @@ NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
 LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
 OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
