@@ -61,7 +61,7 @@ Cluster_DivisiveMaxSeparate::Cluster_DivisiveMaxSeparate(
   cluster_indices.push({0, false});
   distances.growTo(original_weights.size() - 1);
   // store distances between weights
-  for (uint64_t i = 0; i < original_weights.size() - 1; i++) {
+  for (auto i = 0; i < original_weights.size() - 1; i++) {
     distances[i] = original_weights[i + 1] - original_weights[i];
   }
 }
@@ -137,7 +137,7 @@ void Cluster_DivisiveMaxSeparate::clusterWeights(MaxSATFormula *formula,
       max_index = 0;
 
       // iterate over existing clusters to find the point of next split
-      for (uint64_t j = 0; j < cluster_indices.size(); j++) {
+      for (auto j = 0; j < cluster_indices.size(); j++) {
         // if all weights in a cluster are known to be identical, do not
         // iterate, as the max distance is known to be zero
         if (cluster_indices[j].all_equal_in_cluster) {
@@ -180,7 +180,7 @@ void Cluster_DivisiveMaxSeparate::clusterWeights(MaxSATFormula *formula,
 
       // add newly found index to 'cluster_indices'
       bool is_added = false;
-      for (uint64_t j = 0; j < cluster_indices.size(); j++) {
+      for (auto j = 0; j < cluster_indices.size(); j++) {
         if (cluster_indices[j].index > max_index && !is_added) {
           temp.push({max_index, false});
           is_added = true;

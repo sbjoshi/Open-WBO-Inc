@@ -82,7 +82,7 @@ void Cluster::saveWeights(MaxSATFormula *formula) {
   }
   vec<Soft> &soft_clauses = formula->getSoftClauses();
   original_weights.growTo(soft_clauses.size());
-  for (int i = 0; i < soft_clauses.size(); i++) {
+  for (auto i = 0; i < soft_clauses.size(); i++) {
     original_weights[i] = soft_clauses[i].weight;
   }
 }
@@ -112,7 +112,7 @@ void Cluster::restoreWeights(MaxSATFormula *formula) {
   }
   vec<Soft> &soft_clauses = formula->getSoftClauses();
   assert(original_weights.size() == soft_clauses.size());
-  for (int i = 0; i < soft_clauses.size(); i++) {
+  for (auto i = 0; i < soft_clauses.size(); i++) {
     soft_clauses[i].weight = original_weights[i];
   }
 }
@@ -150,7 +150,7 @@ void Cluster::replaceWeights(MaxSATFormula *formula,
   }
   vec<Soft> &soft_clauses = formula->getSoftClauses();
   uint64_t low_index, high_index, replacement_weight;
-  for (uint64_t i = 0; i < clusters.size(); i++) {
+  for (auto i = 0; i < clusters.size(); i++) {
     // find lower and upper bounds of the indices for the current cluster
     // for the last cluster, the upper bound is the last index
     low_index = clusters[i];
@@ -202,7 +202,7 @@ void Cluster::replaceWeights(MaxSATFormula *formula,
   }
   vec<Soft> &soft_clauses = formula->getSoftClauses();
   uint64_t low_index, high_index, replacement_weight;
-  for (uint64_t i = 0; i < clusters.size(); i++) {
+  for (auto i = 0; i < clusters.size(); i++) {
     // if all weights in the cluster to be formed are already equal, do not do
     // anything
     if (clusters[i].all_equal_in_cluster) {
