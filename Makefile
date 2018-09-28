@@ -15,7 +15,7 @@ SOLVERNAME = "Glucose4.1"
 SOLVERDIR  = glucose4.1
 NSPACE     = Glucose
 # THE REMAINING OF THE MAKEFILE SHOULD BE LEFT UNCHANGED
-EXEC       = open-wbo
+EXEC       = open-wbo-inc
 DEPDIR     = mtl utils core 
 DEPDIR     +=  ../../encodings ../../algorithms ../../graph ../../classifier ../../clusterings
 MROOT      = $(PWD)/solvers/$(SOLVERDIR)
