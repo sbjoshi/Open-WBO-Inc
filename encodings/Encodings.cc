@@ -4,6 +4,7 @@
  * @section LICENSE
  *
  * Open-WBO, Copyright (c) 2013-2017, Ruben Martins, Vasco Manquinho, Ines Lynce
+ *           Copyright (c) 2018  Sukrut Rao
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -28,6 +29,18 @@
 #include "Encodings.h"
 
 using namespace openwbo;
+
+void Encodings::implication(uint64_t lit1, uint64_t lit2) {
+#ifdef VERB
+  printf("c %d -> %d\n", lit1, lit2);
+#endif
+}
+
+void Encodings::implication(uint64_t lit1, uint64_t lit2, uint64_t lit3) {
+#ifdef VERB
+  printf("c %d ^ %d -> %d\n", lit1, lit2, lit3);
+#endif
+}
 
 // Creates an unit clause in the SAT solver
 void Encodings::addUnitClause(Solver *S, Lit a, Lit blocking) {

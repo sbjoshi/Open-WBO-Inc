@@ -207,6 +207,46 @@ void Encoder::encodePB(Solver *S, vec<Lit> &lits, vec<uint64_t> &coeffs,
     gte.encode(S, lits_copy, coeffs_copy, rhs);
     break;
 
+  case _PB_GTECLUSTER_:
+    gtecluster.encode(S, lits_copy, coeffs_copy, rhs);
+    break;
+
+  case _PB_ADDER_:
+    adder.encode(S, lits_copy, coeffs_copy, rhs);
+    break;
+
+  default:
+    printf("Error: Invalid PB encoding.\n");
+    printf("s UNKNOWN\n");
+    exit(_ERROR_);
+  }
+}
+
+int Encoder::predictPB(Solver *S, vec<Lit> &lits, vec<uint64_t> &coeffs,
+                       uint64_t rhs) {
+
+  vec<Lit> lits_copy;
+  lits.copyTo(lits_copy);
+  vec<uint64_t> coeffs_copy;
+  coeffs.copyTo(coeffs_copy);
+
+  switch (pb_encoding) {
+  case _PB_SWC_:
+    return -1;
+    break;
+
+  case _PB_GTE_:
+    return gte.predict(S, lits_copy, coeffs_copy, rhs);
+    break;
+
+  case _PB_GTECLUSTER_:
+    return -1;
+    break;
+
+  case _PB_ADDER_:
+    return -1;
+    break;
+
   default:
     printf("Error: Invalid PB encoding.\n");
     printf("s UNKNOWN\n");
@@ -224,6 +264,14 @@ void Encoder::updatePB(Solver *S, uint64_t rhs) {
 
   case _PB_GTE_:
     gte.update(S, rhs);
+    break;
+
+  case _PB_GTECLUSTER_:
+    gtecluster.update(S, rhs);
+    break;
+
+  case _PB_ADDER_:
+    adder.update(S, rhs);
     break;
 
   default:
@@ -247,9 +295,17 @@ void Encoder::incEncodePB(Solver *S, vec<Lit> &lits, vec<uint64_t> &coeffs,
   // Note: the assumption vector will be updated in this procedure
 
   switch (pb_encoding) {
+    // case _PB_GTE_:
+    //   gte.encodeInc(S, lits_copy, coeffs_copy, rhs, assumptions);
+    //   break;
+
   case _PB_SWC_:
     swc.encode(S, lits_copy, coeffs_copy, rhs, assumptions, size);
     break;
+
+  // case _PB_ADDER_:
+  //   adder.encodeInc(S, lits_copy, coeffs_copy, rhs, assumptions);
+  //   break;
 
   default:
     printf("Error: PB encoding does not support incrementality.\n");
@@ -270,10 +326,18 @@ void Encoder::incUpdatePB(Solver *S, vec<Lit> &lits, vec<uint64_t> &coeffs,
   // Note: the assumption vector will be updated in this procedure
 
   switch (pb_encoding) {
+  // case _PB_GTE_:
+  //   gte.updateInc(S, rhs, assumptions);
+  //   break;
+
   case _PB_SWC_:
     swc.update(S, rhs, assumptions);
     swc.join(S, lits_copy, coeffs_copy, assumptions);
     break;
+
+  // case _PB_ADDER_:
+  //   adder.updateInc(S, rhs, assumptions);
+  //   break;
 
   default:
     printf("Error: PB encoding does not support incrementality.\n");
@@ -337,6 +401,9 @@ bool Encoder::hasPBEncoding() {
     return swc.hasCreatedEncoding();
   else if (pb_encoding == _PB_GTE_)
     return gte.hasCreatedEncoding();
-
+  else if (pb_encoding == _PB_GTECLUSTER_)
+    return gtecluster.hasCreatedEncoding();
+  else if (pb_encoding == _PB_ADDER_)
+    return adder.hasCreatedEncoding(); 
   return false;
 }

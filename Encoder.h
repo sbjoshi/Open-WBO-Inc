@@ -44,6 +44,7 @@
 #include "encodings/Enc_MTotalizer.h"
 #include "encodings/Enc_SWC.h"
 #include "encodings/Enc_Totalizer.h"
+#include "encodings/Enc_Adder.h"
 
 using NSPACE::vec;
 using NSPACE::Lit;
@@ -57,7 +58,7 @@ class Encoder {
 public:
   Encoder(int incremental = _INCREMENTAL_NONE_,
           int cardinality = _CARD_TOTALIZER_, int amo = _AMO_LADDER_,
-          int pb = _PB_SWC_) {
+          int pb = _PB_SWC_) : gtecluster(_GTE_CLUSTER_) {
     pb_encoding = pb;
     amo_encoding = amo;
     incremental_strategy = incremental;
@@ -112,6 +113,8 @@ public:
   // Update the rhs of an already existent pseudo-Boolean constraint.
   void updatePB(Solver *S, uint64_t rhs);
 
+  int predictPB(Solver *S, vec<Lit> &lits, vec<uint64_t> &coeffs, uint64_t rhs);
+
   // Incremental PB encodings:
   //
   // Incremental PB encoding.
@@ -160,6 +163,17 @@ public:
     totalizer.setIncremental(incremental);
   }
 
+  vec<Lit> & getOutputs(){
+    switch (cardinality_encoding) {
+      case _CARD_TOTALIZER_:
+        return totalizer.outputs();
+      default:
+        printf("Error: Invalid cardinality encoding.\n");
+        printf("s UNKNOWN\n");
+        exit(_ERROR_);
+      }
+  }
+
 protected:
   int incremental_strategy;
   int cardinality_encoding;
@@ -177,6 +191,8 @@ protected:
   // PB encodings
   SWC swc;
   GTE gte;
+  GTE gtecluster;
+  Adder adder;
 };
 } // namespace openwbo
 
