@@ -550,3 +550,20 @@ std::pair<uint64_t, int> MaxSAT::getLB() {
 
   return std::make_pair(lb, nb_relaxed);
 }
+
+void MaxSAT::convertModelToSatlikeFormat(std::vector<int> &Satlike_model) {
+  // TODO - this happens if clauses hard
+  if(model.size() == 0) {
+    Satlike_model.clear();
+    return;
+  }
+  for(unsigned i = 0; i < model.size(); i++) {
+    if(model[i] == l_True) {
+      Satlike_model.push_back(1);
+    } else if (model[i] == l_False) {
+      Satlike_model.push_back(0);
+    } else {
+      assert(0 && "Undef variable found in model");
+    }
+  }
+}

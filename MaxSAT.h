@@ -207,6 +207,8 @@ protected:
 
   // Greater than comparator.
   bool static greaterThan(uint64_t i, uint64_t j) { return (i > j); }
+
+  void convertModelToSatlikeFormat(std::vector<int> &Satlike_model);
   
 };
 } // namespace openwbo
