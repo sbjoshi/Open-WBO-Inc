@@ -17,7 +17,7 @@ NSPACE     = Glucose
 # THE REMAINING OF THE MAKEFILE SHOULD BE LEFT UNCHANGED
 EXEC       = open-wbo-inc
 DEPDIR     = mtl utils core 
-DEPDIR     +=  ../../encodings ../../algorithms ../../graph ../../classifier ../../clusterings
+DEPDIR     +=  ../../encodings ../../algorithms ../../graph ../../classifier ../../clusterings ../../Satlike
 MROOT      = $(PWD)/solvers/$(SOLVERDIR)
 LFLAGS     += -lgmpxx -lgmp
 CFLAGS     = -O3 -Wall -Wno-parentheses -std=c++11 -DNSPACE=$(NSPACE) -DSOLVERNAME=$(SOLVERNAME) -DVERSION=$(VERSION)

@@ -44,6 +44,7 @@
 #include <set>
 #include <utility>
 #include <vector>
+#include "Satlike/basis_pms.h"
 
 using NSPACE::vec;
 using NSPACE::Lit;
@@ -58,7 +59,7 @@ namespace openwbo {
 class MaxSAT {
 
 public:
-  MaxSAT(MaxSATFormula *mx) {
+  MaxSAT(MaxSATFormula *mx, Satlike &satlike_solver, int *solver_stage) {
     maxsat_formula = mx;
 
     // 'ubCost' will be set to the sum of the weights of soft clauses
@@ -75,6 +76,9 @@ public:
     sumSizeCores = 0;
 
     print_model = false;
+
+    s = satlike_solver;
+    solver_stage = solver_stage;
   }
 
   MaxSAT() {
@@ -184,6 +188,9 @@ protected:
 
   MaxSATFormula *maxsat_formula;
 
+  Satlike s;
+  int *solver_stage;
+
   // Others
   // int currentWeight;  // Initialized to the maximum weight of soft clauses.
   double initialTime; // Initial time.
@@ -209,6 +216,7 @@ protected:
   bool static greaterThan(uint64_t i, uint64_t j) { return (i > j); }
 
   void convertModelToSatlikeFormat(std::vector<int> &Satlike_model);
+  void continueWithSatlike();
   
 };
 } // namespace openwbo

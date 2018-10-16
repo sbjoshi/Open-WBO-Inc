@@ -65,6 +65,9 @@
 #include "algorithms/Alg_OBV.h"
 #include "algorithms/Alg_BLS.h"
 
+#include "Satlike/basis_pms.h"
+#include "Satlike/pms.h"
+
 #define VER1_(x) #x
 #define VER_(x) VER1_(x)
 #define SATVER VER_(SOLVERNAME)
@@ -82,10 +85,19 @@ using namespace openwbo;
 //=================================================================================================
 
 static MaxSAT *mxsolver;
+static Satlike s;
+int solver_stage = 0;
 
 static void SIGINT_exit(int signum) {
-  mxsolver->printAnswer(_UNKNOWN_);
-  exit(_UNKNOWN_);
+  if(!solver_stage) {
+    mxsolver->printAnswer(_UNKNOWN_);
+    exit(_UNKNOWN_);
+  }
+  else {
+    s.print_best_solution();
+    s.free_memory();
+    exit(10);
+  }
 }
 
 //=================================================================================================
