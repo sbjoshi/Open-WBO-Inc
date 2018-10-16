@@ -134,7 +134,7 @@ public:
 
     ubCost = maxsat_formula->getSumWeights();
 
-    // copy_mx = maxsat_formula->copyMaxSATFormula();
+    copy_mx = maxsat_formula->copyMaxSATFormula();
   }
 
   void blockModel(Solver *solver);

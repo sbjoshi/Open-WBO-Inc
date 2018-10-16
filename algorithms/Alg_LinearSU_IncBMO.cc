@@ -403,14 +403,14 @@ void LinearSUIncBMO::bmoSearch(){
           printf("c Found optimum, switching to Satlike.\n");
           continueWithSatlike();
           // printAnswer(_OPTIMUM_);
-          // exit(_OPTIMUM_);
+          exit(_OPTIMUM_);
         }
         // ignore the complete part for now!
         if(repair){
           printf("c Found optimum, switching to Satlike.\n");
           continueWithSatlike();
           // printAnswer(_OPTIMUM_);
-          // exit(_OPTIMUM_);
+          exit(_OPTIMUM_);
         }
 
         repair = true;
@@ -429,7 +429,7 @@ void LinearSUIncBMO::bmoSearch(){
           printf("c Found optimum, switching to Satlike.\n");
           continueWithSatlike();
           // printAnswer(_OPTIMUM_);
-          // exit(_OPTIMUM_);
+          exit(_OPTIMUM_);
         }
 
         if (all_weights){

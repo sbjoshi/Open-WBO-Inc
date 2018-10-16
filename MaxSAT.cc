@@ -562,6 +562,7 @@ void MaxSAT::convertModelToSatlikeFormat(std::vector<int> &Satlike_model) {
     Satlike_model.clear();
     return;
   }
+  Satlike_model.push_back(-1); // dummy value, SATLike uses 1-indexing
   for(unsigned i = 0; i < model.size(); i++) {
     if(model[i] == l_True) {
       Satlike_model.push_back(1);
@@ -576,5 +577,7 @@ void MaxSAT::convertModelToSatlikeFormat(std::vector<int> &Satlike_model) {
 void MaxSAT::continueWithSatlike() {
   std::vector<int> Satlike_model;
   convertModelToSatlikeFormat(Satlike_model);
+  // for(int i = 0; i < Satlike_model.size(); i++) printf("%d ",Satlike_model[i]);
   s.continue_from_init_solution(Satlike_model, copy_mx, &solver_stage);
+  s.print_best_solution();
 }

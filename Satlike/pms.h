@@ -524,7 +524,7 @@ void Satlike::build_instance_from_openwbo(openwbo::MaxSATFormula *formula)
 			// store clause id
 			clause_lit[c][i].clause_num = c;
 			// store var number for each lit in clause
-			clause_lit[c][i].var_num = var(lits[i]);
+			clause_lit[c][i].var_num = var(lits[i])+1;
 			
 			// store sign of each lit in clause
 			// 1 for positive polarity
@@ -562,7 +562,7 @@ void Satlike::build_instance_from_openwbo(openwbo::MaxSATFormula *formula)
 			// store clause id
 			clause_lit[c][i].clause_num = c;
 			// store var number for each lit in clause
-			clause_lit[c][i].var_num = var(lits[i]);
+			clause_lit[c][i].var_num = var(lits[i])+1;
 			
 			// store sign of each lit in clause
 			// 1 for positive polarity
@@ -699,7 +699,7 @@ void Satlike::build_instance_from_openwbo(openwbo::MaxSATFormula *formula)
 		for(i=0; i<clause_lit_count[c]; ++i)
 		{
 			v = clause_lit[c][i].var_num;
-			cout << "v: " << v << " vlcv: " << var_lit_count[v] << endl;
+			// cout << "v: " << v << " vlcv: " << var_lit_count[v] << endl;
 			var_lit[v][var_lit_count[v]] = clause_lit[c][i];
 			++var_lit_count[v];
 		}
@@ -1223,15 +1223,17 @@ void Satlike::local_search_for_bmo(vector<int>& init_solution, int *solver_stage
 	// 	}
 
 	init(init_solution);
+	// for(int i = 0; i < init_solution.size(); i++) cout << init_solution[i] << " ";
 	for (step = 1; step<max_flips; ++step)
 	{
+		// cout << "c 0" << endl;
 		if (hard_unsat_nb==0 && (soft_unsat_weight<opt_unsat_weight || best_soln_feasible==0) )
     	{
     		if(best_soln_feasible==0)
 			{
 				best_soln_feasible=1;
 				opt_unsat_weight = soft_unsat_weight;
-				cout<<"o "<<opt_unsat_weight<<endl;
+				cout<<"o "<<opt_unsat_weight<<endl<<"c 1"<<endl;
 				*solver_stage = 1; // TODO - is this safe? 
 				//opt_time = get_runtime(); 
 	        	for(int v=1; v<=num_vars; ++v) best_soln[v] = cur_soln[v];
@@ -1241,19 +1243,20 @@ void Satlike::local_search_for_bmo(vector<int>& init_solution, int *solver_stage
 	    	{
 	        	
 	        	opt_unsat_weight = soft_unsat_weight;
-	        	cout<<"o "<<opt_unsat_weight<<endl;
+	        	cout<<"o "<<opt_unsat_weight<<endl<<"c 2"<<endl;
 	        	*solver_stage = 1; // TODO - is this safe? 
 				//opt_time = get_runtime(); 
 	        	for(int v=1; v<=num_vars; ++v) best_soln[v] = cur_soln[v];
-	        	
+	        	// for(int v=1; v<=num_vars; ++v) cout << best_soln[v] << " ";
 	        	// if(print1==1 || print2==1)
 	        	// {
 	        	// 	print_best_solution();
 	        	// }
-	        	
+	        	cout << "c 3" << endl;
 	        	if(opt_unsat_weight==0)
 	        	{
-	        		print_best_solution();
+	        		cout << "c 4" << endl;
+	        		// print_best_solution();
 	        		return;
 	        	}
 	    	}
