@@ -27,6 +27,11 @@
 
 #include "MaxSAT.h"
 
+#include "Satlike/basis_pms.h"
+
+extern int solver_stage;
+extern Satlike s;
+
 using namespace openwbo;
 
 /************************************************************************************************
@@ -571,5 +576,5 @@ void MaxSAT::convertModelToSatlikeFormat(std::vector<int> &Satlike_model) {
 void MaxSAT::continueWithSatlike() {
   std::vector<int> Satlike_model;
   convertModelToSatlikeFormat(Satlike_model);
-  s.continue_from_init_solution(Satlike_model, maxsat_formula, solver_stage);
+  s.continue_from_init_solution(Satlike_model, copy_mx, &solver_stage);
 }

@@ -85,7 +85,7 @@ using namespace openwbo;
 //=================================================================================================
 
 static MaxSAT *mxsolver;
-static Satlike s;
+Satlike s;
 int solver_stage = 0;
 
 static void SIGINT_exit(int signum) {

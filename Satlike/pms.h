@@ -479,6 +479,7 @@ void Satlike::build_instance_from_openwbo(openwbo::MaxSATFormula *formula)
 	num_vars = formula->nVars();
 	num_clauses = formula->nSoft() + formula->nHard();
 	top_clause_weight = formula->getHardWeight();
+	cout << "NV: " << num_vars << " NC: " << num_clauses << " TCW: " << top_clause_weight << endl;
 
 	// perform mallocs
 	allocate_memory();
@@ -698,6 +699,7 @@ void Satlike::build_instance_from_openwbo(openwbo::MaxSATFormula *formula)
 		for(i=0; i<clause_lit_count[c]; ++i)
 		{
 			v = clause_lit[c][i].var_num;
+			cout << "v: " << v << " vlcv: " << var_lit_count[v] << endl;
 			var_lit[v][var_lit_count[v]] = clause_lit[c][i];
 			++var_lit_count[v];
 		}

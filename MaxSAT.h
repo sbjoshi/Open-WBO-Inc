@@ -59,7 +59,7 @@ namespace openwbo {
 class MaxSAT {
 
 public:
-  MaxSAT(MaxSATFormula *mx, Satlike &satlike_solver, int *solver_stage) {
+  MaxSAT(MaxSATFormula *mx) {
     maxsat_formula = mx;
 
     // 'ubCost' will be set to the sum of the weights of soft clauses
@@ -77,8 +77,6 @@ public:
 
     print_model = false;
 
-    s = satlike_solver;
-    solver_stage = solver_stage;
   }
 
   MaxSAT() {
@@ -135,6 +133,8 @@ public:
     }
 
     ubCost = maxsat_formula->getSumWeights();
+
+    // copy_mx = maxsat_formula->copyMaxSATFormula();
   }
 
   void blockModel(Solver *solver);
@@ -188,8 +188,9 @@ protected:
 
   MaxSATFormula *maxsat_formula;
 
-  Satlike s;
-  int *solver_stage;
+  MaxSATFormula *copy_mx;
+  // Satlike s;
+  // int *solver_stage;
 
   // Others
   // int currentWeight;  // Initialized to the maximum weight of soft clauses.

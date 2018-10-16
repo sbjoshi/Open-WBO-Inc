@@ -400,13 +400,17 @@ void LinearSUIncBMO::bmoSearch(){
   // last function
 
         if (!complete){
-          printAnswer(_OPTIMUM_);
-          exit(_OPTIMUM_);
+          printf("c Found optimum, switching to Satlike.\n");
+          continueWithSatlike();
+          // printAnswer(_OPTIMUM_);
+          // exit(_OPTIMUM_);
         }
         // ignore the complete part for now!
         if(repair){
-          printAnswer(_OPTIMUM_);
-          exit(_OPTIMUM_);
+          printf("c Found optimum, switching to Satlike.\n");
+          continueWithSatlike();
+          // printAnswer(_OPTIMUM_);
+          // exit(_OPTIMUM_);
         }
 
         repair = true;
@@ -422,8 +426,10 @@ void LinearSUIncBMO::bmoSearch(){
         }
 
         if (repair_cost == 0){
-          printAnswer(_OPTIMUM_);
-          exit(_OPTIMUM_);
+          printf("c Found optimum, switching to Satlike.\n");
+          continueWithSatlike();
+          // printAnswer(_OPTIMUM_);
+          // exit(_OPTIMUM_);
         }
 
         if (all_weights){
@@ -560,6 +566,7 @@ void LinearSUIncBMO::bmoSearch(){
 // Public search method
 void LinearSUIncBMO::search() {
 
+  if(maxsat_formula == NULL) printf("NULL!!!\n");
   cluster->clusterWeights(maxsat_formula, num_clusters);
 
   for (int i = 0; i < maxsat_formula->getSoftClauses().size(); i++) {
