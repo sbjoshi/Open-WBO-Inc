@@ -2,7 +2,7 @@
 #define _PMS_H_
 
 #include "basis_pms.h"
-#include "deci.h"
+// #include "deci.h"
 #include "../MaxSATFormula.h"
 #include "../MaxSAT.h"
 #include<sstream>
@@ -490,7 +490,7 @@ void Satlike::build_instance_from_openwbo(openwbo::MaxSATFormula *formula)
 	for (c = 0; c < num_clauses; c++) 
 	{
 		clause_lit_count[c] = 0;
-		clause_lit[i]=NULL;
+		clause_lit[c]=NULL;
 	}
 
 	// initialize number of literals per variable to 0
@@ -1067,7 +1067,7 @@ void Satlike::local_search(vector<int>& init_solution)
 void Satlike::continue_from_init_solution(vector<int> init_solution, openwbo::MaxSATFormula *formula, int *solver_stage) {
 	build_instance_from_openwbo(formula);
 	local_search_for_bmo(init_solution, solver_stage);
-	free_memory();
+	//free_memory();
 }
 
 void Satlike::print_best_solution()
@@ -1095,7 +1095,7 @@ void Satlike::print_best_solution()
      printf("%s\n",s.str().c_str());
 }
 
-void Satlike::local_search_with_decimation(vector<int>& init_solution, char* inputfile)
+/*void Satlike::local_search_with_decimation(vector<int>& init_solution, char* inputfile)
 {
 	settings();
 	
@@ -1196,7 +1196,7 @@ void Satlike::local_search_with_decimation(vector<int>& init_solution, char* inp
 			time_stamp[flipvar] = step;
 		}
 	} 
-}
+}*/
 
 void Satlike::local_search_for_bmo(vector<int>& init_solution, int *solver_stage)
 {

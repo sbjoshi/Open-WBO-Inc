@@ -580,4 +580,5 @@ void MaxSAT::continueWithSatlike() {
   // for(int i = 0; i < Satlike_model.size(); i++) printf("%d ",Satlike_model[i]);
   s.continue_from_init_solution(Satlike_model, copy_mx, &solver_stage);
   s.print_best_solution();
+  s.free_memory();
 }

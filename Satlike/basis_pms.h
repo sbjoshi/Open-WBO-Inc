@@ -183,7 +183,7 @@ class Satlike
 	// void build_instance(char *filename);
 	void build_instance_from_openwbo(openwbo::MaxSATFormula *formula);
 	void local_search(vector<int>& init_solution);
-	void local_search_with_decimation(vector<int>& init_solution, char* inputfile);
+	// void local_search_with_decimation(vector<int>& init_solution, char* inputfile);
 	void local_search_for_bmo(vector<int>& init_solution, int *solver_stage);
 	void continue_from_init_solution(vector<int> init_solution, openwbo::MaxSATFormula *formula, int *solver_stage);
 	void simple_print();
