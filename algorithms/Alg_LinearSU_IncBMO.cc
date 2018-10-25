@@ -356,8 +356,8 @@ void LinearSUIncBMO::bmoSearch(){
             functions_to_assumptions[i].clear();
             if (encoder_created[i]){
               if (ub_rhs[i] == 0){
-                for (int i = 0; i < functions[i].size(); i++){
-                  functions_to_assumptions[i].push(~functions[i][i]);
+                for (int j = 0; j < functions[i].size(); j++){
+                  functions_to_assumptions[i].push(~functions[i][j]);
                 }
               } else if (functions[i].size() != ub_rhs[i]){
     //printf("encoding %lu\n",ub_rhs[i]);
