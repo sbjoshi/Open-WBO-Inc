@@ -99,13 +99,20 @@ This section provides instructions to run specific incomplete MaxSAT algorithms.
 * [Sukrut Rao](https://github.com/GoodDeeds/)
 
 ### Contributors
-* [Alexander Nadel](http://www.cs.tau.ac.il/research/alexander.nadel/)
 * [Vasco Manquinho](http://sat.inesc-id.pt/~vmm/)
+* [Alexander Nadel](http://www.cs.tau.ac.il/research/alexander.nadel/)
 
 To contact the authors, please send an email to:  [open-wbo@sat.inesc-id.pt](mailto:open-wbo@sat.inesc-id.pt)
 
 ## License and Copyright
 The licenses and copyright notices for this software and its dependencies can be found [here](LICENSE).
+
+## Citation
+If Open-WBO-Inc is useful for your research, we request you to cite the papers that describe the components (algorithms, encodings, etc.) that you use. The citation formats can be found in the links in the [references section](#references).
+
+* Weighted Incomplete MaxSAT - Open-WBO-Inc-Cluster, Open-WBO-Inc-BMO, clustering of weights: [2]
+* Unweighted Incomplete MaxSAT - Open-WBO-Inc-MCS, Open-WBO-Inc-OBV: [4]
+* Other components from Open-WBO: [1]
 
 ## References
 1. Ruben Martins, Vasco Manquinho, Inês Lynce. (2014) Open-WBO: A Modular MaxSAT Solver,. In: Sinz C., Egly U. (eds) Theory and Applications of Satisfiability Testing – SAT 2014. SAT 2014. Lecture Notes in Computer Science, vol 8561. Springer, Cham [[Link](https://link.springer.com/chapter/10.1007/978-3-319-09284-3_33)]
