@@ -57,7 +57,7 @@ public:
                      int enc = _CARD_MTOTALIZER_, int pb = _PB_SWC_,
                      ClusterAlg ca = ClusterAlg::_DIVISIVE_,
                      Statistics cs = Statistics::_MEAN_,
-                     uint64_t num_clusters = 1)
+                     uint64_t num_clusters = 1, bool complete_lsu = true)
       : solver(NULL), is_bmo(false) {
     pb_encoding = pb;
     verbosity = verb;
@@ -69,7 +69,7 @@ public:
     cluster_stat = cs;
     this->num_clusters = num_clusters;
     best_cost = UINT64_MAX;
-    complete = true;
+    complete = complete_lsu;
     all_weights = false;
   }
 
