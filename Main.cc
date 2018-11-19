@@ -149,6 +149,8 @@ int main(int argc, char **argv) {
 
     BoolOption bmo("Open-WBO", "bmo", "BMO search.\n", true);
 
+    BoolOption complete("Open-WBO-Inc-BMO","complete","Switch to complete algorithm when Inc-BMO terminates.\n",true);
+
     IntOption cardinality("Encodings", "cardinality",
                           "Cardinality encoding (0=cardinality networks, "
                           "1=totalizer, 2=modulo totalizer).\n",
@@ -232,7 +234,7 @@ int main(int argc, char **argv) {
     case _ALGORITHM_LSU_INCBMO_:
       S = new LinearSUIncBMO(verbosity, bmo, cardinality, pb,
                                  ClusterAlg::_DIVISIVE_, rounding_statistic,
-                                 (int)(num_clusters));
+                                 (int)(num_clusters), complete);
       break;
 
     case _ALGORITHM_LSU_MRSBEAVER_:
