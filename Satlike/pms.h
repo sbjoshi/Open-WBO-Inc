@@ -50,7 +50,7 @@ void Satlike::settings()
 	hd_count_threshold=15;
 	rwprob=0.1; 
 	smooth_probability=0.01;
-	
+//	cout << "TCW: " << top_clause_weight << " NSC: " << num_sclauses << endl;
 	if((top_clause_weight/num_sclauses)>10000)
 	{
 		h_inc=300;
@@ -479,7 +479,7 @@ void Satlike::build_instance_from_openwbo(openwbo::MaxSATFormula *formula)
 	num_vars = formula->nVars();
 	num_clauses = formula->nSoft() + formula->nHard();
 	top_clause_weight = formula->getHardWeight();
-	cout << "NV: " << num_vars << " NC: " << num_clauses << " TCW: " << top_clause_weight << endl;
+//	cout << "NV: " << num_vars << " NC: " << num_clauses << " TCW: " << top_clause_weight << endl;
 
 	// perform mallocs
 	allocate_memory();
@@ -546,8 +546,8 @@ void Satlike::build_instance_from_openwbo(openwbo::MaxSATFormula *formula)
 		if(clause_lit_count[c]<min_clause_length) min_clause_length=clause_lit_count[c];
             
 	}
-	for(; c < formula->nSoft(); c++) {
-		openwbo::Soft &soft_clause = formula->getSoftClause(c);
+	for(; c < num_clauses; c++) {
+		openwbo::Soft &soft_clause = formula->getSoftClause(c-formula->nHard());
 		clause_redundent=0;
         clause_lit_count[c] = 0;
         org_clause_weight[c] = soft_clause.weight;
@@ -1233,7 +1233,7 @@ void Satlike::local_search_for_bmo(vector<int>& init_solution, int *solver_stage
 			{
 				best_soln_feasible=1;
 				opt_unsat_weight = soft_unsat_weight;
-				cout<<"o "<<opt_unsat_weight<<endl<<"c 1"<<endl;
+				cout<<"o "<<opt_unsat_weight<<endl;
 				*solver_stage = 1; // TODO - is this safe? 
 				//opt_time = get_runtime(); 
 	        	for(int v=1; v<=num_vars; ++v) best_soln[v] = cur_soln[v];
@@ -1243,7 +1243,7 @@ void Satlike::local_search_for_bmo(vector<int>& init_solution, int *solver_stage
 	    	{
 	        	
 	        	opt_unsat_weight = soft_unsat_weight;
-	        	cout<<"o "<<opt_unsat_weight<<endl<<"c 2"<<endl;
+	        	cout<<"o "<<opt_unsat_weight<<endl;
 	        	*solver_stage = 1; // TODO - is this safe? 
 				//opt_time = get_runtime(); 
 	        	for(int v=1; v<=num_vars; ++v) best_soln[v] = cur_soln[v];
@@ -1252,10 +1252,10 @@ void Satlike::local_search_for_bmo(vector<int>& init_solution, int *solver_stage
 	        	// {
 	        	// 	print_best_solution();
 	        	// }
-	        	cout << "c 3" << endl;
+//	        	cout << "c 3" << endl;
 	        	if(opt_unsat_weight==0)
 	        	{
-	        		cout << "c 4" << endl;
+//	        		cout << "c 4" << endl;
 	        		// print_best_solution();
 	        		return;
 	        	}
