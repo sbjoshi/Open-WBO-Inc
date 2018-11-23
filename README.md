@@ -96,7 +96,7 @@ This section provides instructions to run specific incomplete MaxSAT algorithms.
 * [Saurabh Joshi](https://sbjoshi.github.io/)
 * [Prateek Kumar](https://prateekkumar.in/)
 * [Ruben Martins](https://sat-group.github.io/ruben/)
-* [Sukrut Rao](https://github.com/GoodDeeds/)
+* [Sukrut Rao](https://sukrutrao.github.io/)
 
 ### Contributors
 * [Vasco Manquinho](http://sat.inesc-id.pt/~vmm/)
