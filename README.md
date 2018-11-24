@@ -76,6 +76,13 @@ This section provides instructions to run specific incomplete MaxSAT algorithms.
   $ ./open-wbo-inc -ca=1 -c=2 -cardinality=2 -pb=1 -algorithm=1 <input-file>
   ```
 
+* inc-bmo-complete
+  
+  This runs Open-WBO-Inc-BMO first, and if an optimal solution is found under the BMO assumption, it switches to the LSU algorithm in order to search for a better bound. To run, use
+    ```
+  $ ./open-wbo-inc -ca=1 -c=100000 -algorithm=6 <input-file>
+  ```
+
 #### Unweighted
 
 * Open-WBO-Inc-MCS [3]
