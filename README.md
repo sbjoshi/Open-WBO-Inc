@@ -67,7 +67,7 @@ This section provides instructions to run specific incomplete MaxSAT algorithms.
 
   This uses linear search with clustering under the BMO assumption. Weights are divided into 100000 clusters. To run, use
   ```
-  $ ./open-wbo-inc -ca=1 -c=100000 -algorithm=6 <input-file>
+  $ ./open-wbo-inc -no-complete -ca=1 -c=100000 -algorithm=6 <input-file>
   ```
 * Open-WBO-Inc-Cluster [3] \(apx-weight [2]\)
 
