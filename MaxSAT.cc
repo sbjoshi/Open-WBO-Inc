@@ -27,8 +27,6 @@
 
 #include "MaxSAT.h"
 
-#include "Satlike/basis_pms.h"
-
 extern int solver_stage;
 extern Satlike s;
 
@@ -47,7 +45,7 @@ void MaxSAT::search() {
 
 void MaxSAT::setInitialTime(double initial) {
   initialTime = initial;
-} // Sets the initial time.
+}  // Sets the initial time.
 
 /************************************************************************************************
  //
@@ -57,7 +55,6 @@ void MaxSAT::setInitialTime(double initial) {
 
 // Creates an empty SAT Solver.
 Solver *MaxSAT::newSATSolver() {
-
 #ifdef SIMP
   NSPACE::SimpSolver *S = new NSPACE::SimpSolver();
 #else
@@ -69,7 +66,6 @@ Solver *MaxSAT::newSATSolver() {
 
 // Creates a new variable in the SAT solver.
 void MaxSAT::newSATVariable(Solver *S) {
-
 #ifdef SIMP
   ((NSPACE::SimpSolver *)S)->newVar();
 #else
@@ -80,11 +76,10 @@ void MaxSAT::newSATVariable(Solver *S) {
 // Solve the formula that is currently loaded in the SAT solver with a set of
 // assumptions and with the option to use preprocessing for 'simp'.
 lbool MaxSAT::searchSATSolver(Solver *S, vec<Lit> &assumptions, bool pre) {
-
-// Currently preprocessing is disabled by default.
-// Variable elimination cannot be done on relaxation variables nor on variables
-// that belong to soft clauses. To preprocessing to be used those variables
-// should be frozen.
+  // Currently preprocessing is disabled by default.
+  // Variable elimination cannot be done on relaxation variables nor on
+  // variables that belong to soft clauses. To preprocessing to be used those
+  // variables should be frozen.
 
 #ifdef SIMP
   lbool res = ((NSPACE::SimpSolver *)S)->solveLimited(assumptions, pre);
@@ -97,7 +92,7 @@ lbool MaxSAT::searchSATSolver(Solver *S, vec<Lit> &assumptions, bool pre) {
 
 // Solve the formula without assumptions.
 lbool MaxSAT::searchSATSolver(Solver *S, bool pre) {
-  vec<Lit> dummy; // Empty set of assumptions.
+  vec<Lit> dummy;  // Empty set of assumptions.
   return searchSATSolver(S, dummy, pre);
 }
 
@@ -151,14 +146,12 @@ void MaxSAT::saveModel(vec<lbool> &currentModel) {
   |
   |________________________________________________________________________________________________@*/
 uint64_t MaxSAT::computeCostModel(vec<lbool> &currentModel, uint64_t weight) {
-
   assert(currentModel.size() != 0);
   uint64_t currentCost = 0;
 
   for (int i = 0; i < maxsat_formula->nSoft(); i++) {
     bool unsatisfied = true;
     for (int j = 0; j < maxsat_formula->getSoftClause(i).clause.size(); j++) {
-
       if (weight != UINT64_MAX &&
           maxsat_formula->getSoftClause(i).weight != weight) {
         unsatisfied = false;
@@ -234,8 +227,7 @@ bool MaxSAT::isBMO(bool cache) {
     }
   }
 
-  if (!cache)
-    orderWeights.clear();
+  if (!cache) orderWeights.clear();
 
   return bmo;
 }
@@ -249,72 +241,79 @@ bool MaxSAT::isBMO(bool cache) {
 // Prints information regarding the AMO encoding.
 void MaxSAT::print_AMO_configuration(int encoding) {
   switch (encoding) {
-  case _AMO_LADDER_:
-    printf("c |  AMO Encoding:         %12s                      "
-           "                                             |\n",
-           "Ladder");
-    break;
+    case _AMO_LADDER_:
+      printf(
+          "c |  AMO Encoding:         %12s                      "
+          "                                             |\n",
+          "Ladder");
+      break;
 
-  default:
-    printf("c Error: Invalid AMO encoding.\n");
-    printf("s UNKNOWN\n");
-    break;
+    default:
+      printf("c Error: Invalid AMO encoding.\n");
+      printf("s UNKNOWN\n");
+      break;
   }
 }
 
 // Prints information regarding the PB encoding.
 void MaxSAT::print_PB_configuration(int encoding) {
   switch (encoding) {
-  case _PB_SWC_:
-    printf("c |  PB Encoding:         %13s                        "
-           "                                           |\n",
-           "SWC");
-    break;
+    case _PB_SWC_:
+      printf(
+          "c |  PB Encoding:         %13s                        "
+          "                                           |\n",
+          "SWC");
+      break;
 
-  case _PB_GTE_:
-    printf("c |  PB Encoding:         %13s                        "
-           "                                           |\n",
-           "GTE");
-    break;
+    case _PB_GTE_:
+      printf(
+          "c |  PB Encoding:         %13s                        "
+          "                                           |\n",
+          "GTE");
+      break;
 
-  case _PB_GTECLUSTER_:
-    printf("c |  PB Encoding:         %13s                        "
-           "                                           |\n",
-           "GTECLUSTER");
-    break;
+    case _PB_GTECLUSTER_:
+      printf(
+          "c |  PB Encoding:         %13s                        "
+          "                                           |\n",
+          "GTECLUSTER");
+      break;
 
-  default:
-    printf("c Error: Invalid PB encoding.\n");
-    printf("s UNKNOWN\n");
-    break;
+    default:
+      printf("c Error: Invalid PB encoding.\n");
+      printf("s UNKNOWN\n");
+      break;
   }
 }
 
 // Prints information regarding the cardinality encoding.
 void MaxSAT::print_Card_configuration(int encoding) {
   switch (encoding) {
-  case _CARD_CNETWORKS_:
-    printf("c |  Cardinality Encoding: %12s                                "
-           "                                   |\n",
-           "CNetworks");
-    break;
+    case _CARD_CNETWORKS_:
+      printf(
+          "c |  Cardinality Encoding: %12s                                "
+          "                                   |\n",
+          "CNetworks");
+      break;
 
-  case _CARD_TOTALIZER_:
-    printf("c |  Cardinality Encoding: %12s                                "
-           "                                   |\n",
-           "Totalizer");
-    break;
+    case _CARD_TOTALIZER_:
+      printf(
+          "c |  Cardinality Encoding: %12s                                "
+          "                                   |\n",
+          "Totalizer");
+      break;
 
-  case _CARD_MTOTALIZER_:
-    printf("c |  Cardinality Encoding:    %19s                             "
-           "                            |\n",
-           "Modulo Totalizer");
-    break;
+    case _CARD_MTOTALIZER_:
+      printf(
+          "c |  Cardinality Encoding:    %19s                             "
+          "                            |\n",
+          "Modulo Totalizer");
+      break;
 
-  default:
-    printf("c Error: Invalid cardinality encoding.\n");
-    printf("s UNKNOWN\n");
-    break;
+    default:
+      printf("c Error: Invalid cardinality encoding.\n");
+      printf("s UNKNOWN\n");
+      break;
   }
 }
 
@@ -327,8 +326,7 @@ void MaxSAT::blockModel(Solver *solver) {
   for (int i = 0; i < model.size(); i++) {
     indexMap::const_iterator iter = maxsat_formula->getIndexToName().find(i);
     if (iter != maxsat_formula->getIndexToName().end()) {
-      if (model[i] == l_False)
-        printf("-");
+      if (model[i] == l_False) printf("-");
       printf("%s ", iter->second.c_str());
     }
   }
@@ -343,17 +341,14 @@ void MaxSAT::blockModel(Solver *solver) {
 
 // Prints the best satisfying model. Assumes that 'model' is not empty.
 void MaxSAT::printModel() {
-
   assert(model.size() != 0);
 
   if (maxsat_formula->getFormat() == _FORMAT_PB_) {
-
     printf("v ");
     for (int i = 0; i < model.size(); i++) {
       indexMap::const_iterator iter = maxsat_formula->getIndexToName().find(i);
       if (iter != maxsat_formula->getIndexToName().end()) {
-        if (model[i] == l_False)
-          printf("-");
+        if (model[i] == l_False) printf("-");
         printf("%s ", iter->second.c_str());
       }
     }
@@ -371,7 +366,6 @@ void MaxSAT::printModel() {
     // }
 
   } else {
-
     printf("v ");
     for (int i = 0; i < model.size(); i++) {
       if (model[i] == l_True)
@@ -387,8 +381,7 @@ void MaxSAT::printModel() {
 void MaxSAT::printStats() {
   double totalTime = cpuTime();
   float avgCoreSize = 0;
-  if (nbCores != 0)
-    avgCoreSize = (float)sumSizeCores / nbCores;
+  if (nbCores != 0) avgCoreSize = (float)sumSizeCores / nbCores;
 
   printf("c\n");
   if (model.size() == 0)
@@ -405,31 +398,27 @@ void MaxSAT::printStats() {
 
 // Prints the corresponding answer.
 void MaxSAT::printAnswer(int type) {
-  if (verbosity > 0)
-    printStats();
+  if (verbosity > 0) printStats();
 
-  if (type == _UNKNOWN_ && model.size() > 0)
-    type = _SATISFIABLE_;
+  if (type == _UNKNOWN_ && model.size() > 0) type = _SATISFIABLE_;
 
   switch (type) {
-  case _SATISFIABLE_:
-    printf("s SATISFIABLE\n");
-    if (print_model)
-      printModel();
-    break;
-  case _OPTIMUM_:
-    printf("s OPTIMUM FOUND\n");
-    if (print_model)
-      printModel();
-    break;
-  case _UNSATISFIABLE_:
-    printf("s UNSATISFIABLE\n");
-    break;
-  case _UNKNOWN_:
-    printf("s UNKNOWN\n");
-    break;
-  default:
-    printf("c Error: Invalid answer type.\n");
+    case _SATISFIABLE_:
+      printf("s SATISFIABLE\n");
+      if (print_model) printModel();
+      break;
+    case _OPTIMUM_:
+      printf("s OPTIMUM FOUND\n");
+      if (print_model) printModel();
+      break;
+    case _UNSATISFIABLE_:
+      printf("s UNSATISFIABLE\n");
+      break;
+    case _UNKNOWN_:
+      printf("s UNKNOWN\n");
+      break;
+    default:
+      printf("c Error: Invalid answer type.\n");
   }
 }
 
@@ -505,8 +494,8 @@ std::pair<uint64_t, int> MaxSAT::getLB() {
     solver->addClause(clause);
   }
 
-  std::map<Lit, int> core; // Mapping between the assumption literal and
-                           // the respective soft clause.
+  std::map<Lit, int> core;  // Mapping between the assumption literal and
+                            // the respective soft clause.
 
   for (int i = 0; i < maxsat_formula->nSoft(); i++)
     core[relaxation_vars[i]] = i;
@@ -528,7 +517,6 @@ std::pair<uint64_t, int> MaxSAT::getLB() {
     solver->setConfBudget(limit);
     res = searchSATSolver(solver, assumptions);
     if (res == l_False) {
-
       for (int i = 0; i < solver->conflict.size(); i++) {
         Lit p = solver->conflict[i];
         if (core.find(p) != core.end()) {
@@ -549,8 +537,7 @@ std::pair<uint64_t, int> MaxSAT::getLB() {
 
   int nb_relaxed = 0;
   for (int i = 0; i < relaxation_vars.size(); i++) {
-    if (active[i])
-      nb_relaxed++;
+    if (active[i]) nb_relaxed++;
   }
 
   return std::make_pair(lb, nb_relaxed);
@@ -558,13 +545,13 @@ std::pair<uint64_t, int> MaxSAT::getLB() {
 
 void MaxSAT::convertModelToSatlikeFormat(std::vector<int> &Satlike_model) {
   // TODO - this happens if clauses hard
-  if(model.size() == 0) {
+  if (model.size() == 0) {
     Satlike_model.clear();
     return;
   }
-  Satlike_model.push_back(-1); // dummy value, SATLike uses 1-indexing
-  for(unsigned i = 0; i < model.size(); i++) {
-    if(model[i] == l_True) {
+  Satlike_model.push_back(-1);  // dummy value, SATLike uses 1-indexing
+  for (unsigned i = 0; i < model.size(); i++) {
+    if (model[i] == l_True) {
       Satlike_model.push_back(1);
     } else if (model[i] == l_False) {
       Satlike_model.push_back(0);
@@ -577,7 +564,8 @@ void MaxSAT::convertModelToSatlikeFormat(std::vector<int> &Satlike_model) {
 void MaxSAT::continueWithSatlike() {
   std::vector<int> Satlike_model;
   convertModelToSatlikeFormat(Satlike_model);
-  // for(int i = 0; i < Satlike_model.size(); i++) printf("%d ",Satlike_model[i]);
+  // for(int i = 0; i < Satlike_model.size(); i++) printf("%d
+  // ",Satlike_model[i]);
   s.continue_from_init_solution(Satlike_model, copy_mx, &solver_stage);
   s.print_best_solution();
   s.free_memory();

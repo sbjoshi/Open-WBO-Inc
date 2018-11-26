@@ -36,29 +36,28 @@
 #include "core/Solver.h"
 #endif
 
-#include "MaxSATFormula.h"
-#include "MaxTypes.h"
-#include "utils/System.h"
 #include <algorithm>
 #include <map>
 #include <set>
 #include <utility>
 #include <vector>
-#include "Satlike/basis_pms.h"
+#include "MaxSATFormula.h"
+#include "MaxTypes.h"
+#include "satlike/basis_pms.h"
+#include "utils/System.h"
 
-using NSPACE::vec;
 using NSPACE::Lit;
-using NSPACE::lit_Undef;
-using NSPACE::mkLit;
-using NSPACE::lbool;
 using NSPACE::Solver;
 using NSPACE::cpuTime;
+using NSPACE::lbool;
+using NSPACE::lit_Undef;
+using NSPACE::mkLit;
+using NSPACE::vec;
 
 namespace openwbo {
 
 class MaxSAT {
-
-public:
+ public:
   MaxSAT(MaxSATFormula *mx) {
     maxsat_formula = mx;
 
@@ -76,7 +75,6 @@ public:
     sumSizeCores = 0;
 
     print_model = false;
-
   }
 
   MaxSAT() {
@@ -99,11 +97,10 @@ public:
   }
 
   virtual ~MaxSAT() {
-    if (maxsat_formula != NULL)
-      delete maxsat_formula;
+    if (maxsat_formula != NULL) delete maxsat_formula;
   }
 
-  void setInitialTime(double initial); // Set initial time.
+  void setInitialTime(double initial);  // Set initial time.
 
   // Print configuration of the MaxSAT solver.
   // virtual void printConfiguration();
@@ -117,8 +114,8 @@ public:
   // Incremental information.
   void print_Incremental_configuration(int incremental);
 
-  virtual void search();      // MaxSAT search.
-  void printAnswer(int type); // Print the answer.
+  virtual void search();       // MaxSAT search.
+  void printAnswer(int type);  // Print the answer.
 
   // Tests if a MaxSAT formula has a lexicographical optimization criterion.
   bool isBMO(bool cache = true);
@@ -159,32 +156,32 @@ public:
   void setPrintModel(bool model) { print_model = model; }
   bool getPrintModel() { return print_model; }
 
-protected:
+ protected:
   // Interface with the SAT solver
   //
-  Solver *newSATSolver(); // Creates a SAT solver.
+  Solver *newSATSolver();  // Creates a SAT solver.
   // Solves the formula that is currently loaded in the SAT solver.
   lbool searchSATSolver(Solver *S, vec<Lit> &assumptions, bool pre = false);
   lbool searchSATSolver(Solver *S, bool pre = false);
 
-  void newSATVariable(Solver *S); // Creates a new variable in the SAT solver.
+  void newSATVariable(Solver *S);  // Creates a new variable in the SAT solver.
 
   // Properties of the MaxSAT formula
   //
-  vec<lbool> model; // Stores the best satisfying model.
+  vec<lbool> model;  // Stores the best satisfying model.
 
   // Statistics
   //
-  int nbCores;           // Number of cores.
-  int nbSymmetryClauses; // Number of symmetry clauses.
-  uint64_t sumSizeCores; // Sum of the sizes of cores.
-  int nbSatisfiable;     // Number of satisfiable calls.
+  int nbCores;            // Number of cores.
+  int nbSymmetryClauses;  // Number of symmetry clauses.
+  uint64_t sumSizeCores;  // Sum of the sizes of cores.
+  int nbSatisfiable;      // Number of satisfiable calls.
 
   // Bound values
   //
-  uint64_t ubCost; // Upper bound value.
-  uint64_t lbCost; // Lower bound value.
-  int64_t off_set; // Offset of the objective function for PB solving.
+  uint64_t ubCost;  // Upper bound value.
+  uint64_t lbCost;  // Lower bound value.
+  int64_t off_set;  // Offset of the objective function for PB solving.
 
   MaxSATFormula *maxsat_formula;
 
@@ -194,32 +191,31 @@ protected:
 
   // Others
   // int currentWeight;  // Initialized to the maximum weight of soft clauses.
-  double initialTime; // Initial time.
-  int verbosity;      // Controls the verbosity of the solver.
-  bool print_model;   // Controls if the model is printed at the end.
+  double initialTime;  // Initial time.
+  int verbosity;       // Controls the verbosity of the solver.
+  bool print_model;    // Controls if the model is printed at the end.
 
   // Different weights that corresponds to each function in the BMO algorithm.
   std::vector<uint64_t> orderWeights;
 
   // Utils for model management
   //
-  void saveModel(vec<lbool> &currentModel); // Saves a Model.
+  void saveModel(vec<lbool> &currentModel);  // Saves a Model.
   // Compute the cost of a model.
   uint64_t computeCostModel(vec<lbool> &currentModel,
                             uint64_t weight = UINT64_MAX);
 
   // Utils for printing
   //
-  void printModel(); // Print the best satisfying model.
-  void printStats(); // Print search statistics.
+  void printModel();  // Print the best satisfying model.
+  void printStats();  // Print search statistics.
 
   // Greater than comparator.
   bool static greaterThan(uint64_t i, uint64_t j) { return (i > j); }
 
   void convertModelToSatlikeFormat(std::vector<int> &Satlike_model);
   void continueWithSatlike();
-  
 };
-} // namespace openwbo
+}  // namespace openwbo
 
 #endif
