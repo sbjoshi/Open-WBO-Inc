@@ -1,5 +1,5 @@
 # Open-WBO-Inc Incomplete MaxSAT Solver
-[![Build Status](https://travis-ci.com/GoodDeeds/open-wbo-incomplete.svg?token=mYsgPy4zsL5qQDoHBaME&branch=master)](https://travis-ci.com/GoodDeeds/open-wbo-incomplete)
+[![Build Status](https://travis-ci.com/sukrutrao/open-wbo-incomplete.svg?token=mYsgPy4zsL5qQDoHBaME&branch=master)](https://travis-ci.com/sukrutrao/open-wbo-incomplete)
 
 Open-WBO-Inc is a partial incomplete MaxSAT solver built on top of [Open-WBO](https://github.com/sat-group/open-wbo) [1]. Open-WBO is an extensible and modular open-source MaxSAT solver that has been one of the best solvers in the partial MaxSAT categories at the [MaxSAT Evaluations](https://maxsat-evaluations.github.io/) [2014](http://www.maxsat.udl.cat/14/), [2015](http://www.maxsat.udl.cat/15/index.html), [2016](http://www.maxsat.udl.cat/16/index.html), and [2017](https://maxsat-evaluations.github.io/2017/), and in the decision and optimization for SMALLINT categories at the [PB Evaluation 2016](http://www.cril.univ-artois.fr/PB16/).
 
